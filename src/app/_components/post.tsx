@@ -5,7 +5,7 @@ import { useState } from "react";
 import { api } from "~/trpc/react";
 
 export function LatestPost() {
-  const [latestPost] = api.post.getLatest.useSuspenseQuery();
+  const { data: latestPost } = api.post.getPosts.useQuery();
 
   const utils = api.useUtils();
   const [name, setName] = useState("");
@@ -19,7 +19,11 @@ export function LatestPost() {
   return (
     <div className="w-full max-w-xs">
       {latestPost ? (
-        <p className="truncate">Your most recent post: {latestPost.name}</p>
+        latestPost.map((post) => (
+          <p key={post.id} className="truncate">
+            Your most recent post: {post.name}
+          </p>
+        ))
       ) : (
         <p>You have no posts yet.</p>
       )}

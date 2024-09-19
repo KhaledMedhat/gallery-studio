@@ -8,7 +8,13 @@ import AuthButton from "./_components/AuthButton";
 export default async function Home() {
   const hello = await api.post.hello({ text: "from tRPC" });
   const session = await getServerAuthSession();
-
+  let user = null;
+  try {
+    user = await api.user.getUser();
+  } catch (error) {
+    console.error("Error fetching user:", error);
+  }
+  console.log(user)
   void api.post.getLatest.prefetch();
 
   return (
@@ -49,7 +55,7 @@ export default async function Home() {
 
             <div className="flex flex-col items-center justify-center gap-4">
               <p className="text-center text-2xl text-white">
-                {session && <span>Logged in as {session.user?.name}</span>}
+                {user ? <span>Logged in as {user?.name}</span> : <span>Not logged in</span>}
               </p>
               <AuthButton session={session} />
             </div>
