@@ -6,8 +6,6 @@ import { randomBytes } from "crypto";
 import { db } from "~/server/db";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
-import { setSessionCookie } from "~/utils/setSessionCookie";
-import { setCookie } from "cookies-next";
 import { cookies } from "next/headers";
 
 export const userRouter = createTRPCRouter({

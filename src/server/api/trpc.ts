@@ -15,8 +15,6 @@ import { ZodError } from "zod";
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
 import { sessions } from "../db/schema";
-import { NextApiRequest, NextApiResponse } from "next";
-import { getCookie } from "cookies-next";
 import { cookies } from "next/headers";
 
 /**
@@ -31,27 +29,28 @@ import { cookies } from "next/headers";
  *
  * @see https://trpc.io/docs/server/context
  */
-export const createTRPCContext = async (opts: {headers: Headers}) => {
+export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await getServerAuthSession();
   const cookieStore = cookies();
 
-  let customSession = null
-  const sessionToken = cookieStore.get('sessionToken')
-  if (sessionToken) {
-    // Fetch the session from the database using the session token
-    customSession = await db.query.sessions.findFirst({
-      where: eq(sessions.sessionToken, sessionToken.value),
-      with: {
-        user: true,
-      },
-    });
+  let customSession = null;
+  const sessionToken = cookieStore.get("sessionToken");
+  if (!session) {
+    if (sessionToken) {
+      // Fetch the session from the database using the session token
+      customSession = await db.query.sessions.findFirst({
+        where: eq(sessions.sessionToken, sessionToken.value),
+        with: {
+          user: true,
+        },
+      });
 
-    // Check if the session is valid and not expired
-    if (!customSession || customSession.expires < new Date()) {
-      customSession = null;
+      // Check if the session is valid and not expired
+      if (!customSession || customSession.expires < new Date()) {
+        customSession = null;
+      }
     }
   }
-  
 
   return {
     db,
@@ -154,6 +153,3 @@ export const protectedProcedure = t.procedure
       },
     });
   });
-
-
-  
