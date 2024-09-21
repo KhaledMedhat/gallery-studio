@@ -1,37 +1,80 @@
 import { z } from "zod";
-import { sessions, users } from "~/server/db/schema";
+import { galleries, otp, sessions, users } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-import { hashPassword } from "~/utils/hashPassword";
 import { randomBytes } from "crypto";
 import { db } from "~/server/db";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
+import { Send } from "~/app/api/send/route";
+import { hashPassword, generateOTP } from "~/utils/utils";
 
 export const userRouter = createTRPCRouter({
+  sendingOTP: publicProcedure
+    .input(
+      z.object({
+        name: z.string().min(1),
+        email: z.string().min(1),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const generatedOTP = generateOTP();
+      const OTP = await Send(input.name, generatedOTP, input.email);
+      if (OTP) {
+        await ctx.db.insert(otp).values({
+          otp: generatedOTP,
+          email: input.email,
+        });
+      }
+    }),
   create: publicProcedure
     .input(
       z.object({
         name: z.string().min(1),
         email: z.string().min(1),
         password: z.string().min(1),
-        image: z.string().min(1),
+        otp: z.string().length(6),
+        // image: z.string().min(1),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const hashedPassword = hashPassword(input.password);
-
       try {
-        const [user] = await ctx.db
-          .insert(users)
-          .values({
-            email: input.email,
-            password: hashedPassword,
-            image: input.image,
-            name: input.name,
-          })
-          .returning();
-        return user;
+        const storedOTP = await ctx.db.query.otp.findFirst({
+          where: eq(otp.email, input.email),
+        });
+        if (!storedOTP) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "No OTP found to this email.",
+          });
+        }
+        if (storedOTP.otp !== input.otp) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "OTP is not valid",
+          });
+        } else {
+          await ctx.db.delete(otp).where(eq(otp.email, input.email));
+          const [user] = await ctx.db
+            .insert(users)
+            .values({
+              email: input.email,
+              password: hashedPassword,
+              // image: input.image,
+              name: input.name,
+            })
+            .returning();
+          if (user) {
+            await ctx.db
+              .insert(galleries)
+              .values({
+                createdById: user?.id,
+              })
+              .returning();
+          }
+          return user;
+        }
       } catch (error: unknown) {
         if (
           error instanceof Error &&
@@ -87,7 +130,6 @@ export const userRouter = createTRPCRouter({
         user: { id: user.id, name: user.name, email: user.email },
         expires: expires.toISOString(),
       };
-
 
       cookieStore.set("sessionToken", sessionToken, {
         httpOnly: true,

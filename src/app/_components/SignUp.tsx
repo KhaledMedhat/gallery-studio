@@ -1,26 +1,37 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { setUserRegistry } from "~/redux/state/appSlice";
+import { useAppDispatch } from "~/redux/store/hooks";
 import { api } from "~/trpc/react";
 
 const SignUp = () => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const createUser = api.user.create.useMutation({
+  const sendingOTP = api.user.sendingOTP.useMutation({
     onSuccess: async () => {
-      router.push("/sign-in");
+      router.push("/otp");
+    },
+    onError: (error) => {
+      console.log(error);
     },
   });
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    createUser.mutate({
+    sendingOTP.mutate({
       name,
       email,
-      password,
-      image: "asd",
     });
+    dispatch(
+      setUserRegistry({
+        name,
+        email,
+        password,
+      }),
+    );
   };
   return (
     <div>

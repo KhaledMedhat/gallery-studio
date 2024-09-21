@@ -1,3 +1,4 @@
+import { createId } from "@paralleldrive/cuid2";
 import { relations, sql } from "drizzle-orm";
 import {
   index,
@@ -31,14 +32,65 @@ export const posts = createTable(
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
-      () => new Date()
+      () => new Date(),
     ),
   },
   (example) => ({
     createdByIdIdx: index("created_by_idx").on(example.createdById),
     nameIndex: index("name_idx").on(example.name),
-  })
+  }),
 );
+
+export const otp = createTable("otp", {
+  otp: varchar("otp", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull().primaryKey(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+export const images = createTable("image", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  url: varchar("url", { length: 255 }).notNull(),
+  createdById: varchar("created_by", { length: 255 })
+    .notNull()
+    .references(() => users.id),
+  title: varchar("title", { length: 255 }),
+  imageKey: varchar("image_key", { length: 255 }),
+  galleryId: integer("gallery_id")
+    .notNull()
+    .references(() => galleries.id),
+  albumId: integer("album_id").references(() => albums.id),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+
+export const galleries = createTable("gallery", {
+  id: serial("id").primaryKey(),
+  slug: varchar("slug", { length: 255 })
+    .notNull()
+    .$defaultFn(() => createId()),
+    createdById: varchar("created_by", { length: 255 })
+    .notNull()
+    .references(() => users.id),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+
+export const albums = createTable("album", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  galleryId: integer("gallery_id")
+    .notNull()
+    .references(() => galleries.id),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
 
 export const users = createTable("user", {
   id: varchar("id", { length: 255 })
@@ -46,18 +98,15 @@ export const users = createTable("user", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   name: varchar("name", { length: 255 }),
-  password : varchar("password", { length: 255 }),
-  email: varchar("email", { length: 255 }).notNull(),
+  bio: varchar("bio", { length: 255 }).default(""),
+  password: varchar("password", { length: 255 }),
+  email: varchar("email", { length: 255 }).notNull().unique(),
   emailVerified: timestamp("email_verified", {
     mode: "date",
     withTimezone: true,
   }).default(sql`CURRENT_TIMESTAMP`),
-  image: varchar("image", { length: 255 }),
+  image: varchar("image", { length: 255 }).default(""),
 });
-
-export const usersRelations = relations(users, ({ many }) => ({
-  accounts: many(accounts),
-}));
 
 export const accounts = createTable(
   "account",
@@ -85,7 +134,7 @@ export const accounts = createTable(
       columns: [account.provider, account.providerAccountId],
     }),
     userIdIdx: index("account_user_id_idx").on(account.userId),
-  })
+  }),
 );
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -108,7 +157,7 @@ export const sessions = createTable(
   },
   (session) => ({
     userIdIdx: index("session_user_id_idx").on(session.userId),
-  })
+  }),
 );
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -127,5 +176,35 @@ export const verificationTokens = createTable(
   },
   (vt) => ({
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
-  })
+  }),
 );
+
+export const usersRelations = relations(users, ({ many, one }) => ({
+  accounts: many(accounts),
+  gallery: one(galleries, {
+    fields: [users.id],
+    references: [galleries.createdById],
+  }),
+}));
+
+export const galleriesRelations = relations(galleries, ({ one, many }) => ({
+  user: one(users, { fields: [galleries.createdById], references: [users.id] }),
+  albums: many(albums),
+  images: many(images),
+}));
+
+export const albumsRelations = relations(albums, ({ one, many }) => ({
+  gallery: one(galleries, {
+    fields: [albums.galleryId],
+    references: [galleries.id],
+  }),
+  images: many(images),
+}));
+
+export const imagesRelations = relations(images, ({ one }) => ({
+  gallery: one(galleries, {
+    fields: [images.galleryId],
+    references: [galleries.id],
+  }),
+  album: one(albums, { fields: [images.albumId], references: [albums.id] }),
+}));

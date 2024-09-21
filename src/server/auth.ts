@@ -10,6 +10,7 @@ import { env } from "~/env";
 import { db } from "~/server/db";
 import {
   accounts,
+  galleries,
   sessions,
   users,
   verificationTokens,
@@ -50,7 +51,23 @@ export const authOptions: NextAuthOptions = {
         id: user.id,
       },
     }),
+
   },
+  events: {
+    createUser: async ({ user }) => {
+      console.log("New user created:", user);
+      try {
+        // Create a gallery for the new user
+        await db.insert(galleries).values({
+          createdById: user.id ?? '',
+        });
+        console.log("Gallery created for new user");
+      } catch (e) {
+        console.error("Error creating gallery for new user:", e);
+      }
+    },
+  },
+
   adapter: DrizzleAdapter(db, {
     usersTable: users,
     accountsTable: accounts,
