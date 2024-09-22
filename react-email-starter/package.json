@@ -3,7 +3,7 @@
   "version": "0.0.34",
   "private": true,
   "scripts": {
-    "build": "email build",
+    "build": "next build",
     "dev": "email dev",
     "export": "email export"
   },
