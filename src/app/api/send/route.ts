@@ -13,7 +13,7 @@ export async function Send(userName: string, OTPCode: string, email: string) {
       subject: "Gallery-Studio OTP",
       react: GalleryStudioVerifyOTPEmail({ userName, OTPCode }),
     });
-
+    console.log(data);
     if (error) {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
