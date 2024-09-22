@@ -1,7 +1,6 @@
 import { TRPCError } from "@trpc/server";
-import GalleryStudioVerifyOTPEmail from "react-email-starter/emails/gallery-studio-verify-otp";
+import GalleryStudioVerifyOTPEmail from "emails/EmailTemplate";
 import { Resend } from "resend";
-import { EmailTemplate } from "~/app/_components/EmailTemplate";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
