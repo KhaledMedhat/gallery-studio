@@ -4,16 +4,8 @@ import Link from "next/link";
 import { deleteCookie } from "../actions";
 import { Button } from "~/components/ui/button";
 import Image from "next/image";
-interface User {
-  id: string;
-  image: string | null;
-  email: string;
-  name: string | null;
-  bio: string | null;
-  password: string | null;
-  emailVerified: Date | null;
-}
-const AuthButton = () => {
+
+ const AuthButtons = () => {
   return (
     <SessionProvider>
       <div className="flex flex-col items-center justify-center gap-4">
@@ -46,4 +38,4 @@ const AuthButton = () => {
   );
 };
 
-export default AuthButton;
+export default AuthButtons;

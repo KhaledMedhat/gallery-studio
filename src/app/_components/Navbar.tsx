@@ -9,20 +9,60 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { Sun, Moon, Menu } from "lucide-react";
+import { Sun, Moon, Menu, Search } from "lucide-react";
 import { useTheme } from "next-themes";
+import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { Input } from "~/components/ui/input";
+import { api } from "~/trpc/react";
+import UserProfile from "./UserProfile";
+import { useSession } from "next-auth/react";
 
 const Navbar = () => {
+  const [searchFocused, setSearchFocused] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target as Node)
+      ) {
+        setSearchFocused(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleSearchClick = () => {
+    setSearchFocused(true);
+    inputRef.current?.focus();
+  };
   const { setTheme } = useTheme();
   const theme = useTheme();
-
+  const pathname = usePathname();
+  const isURLActive = (url: string) => {
+    return pathname === url;
+  };
+  const { data: providerSession } = useSession();
+  const { data: session } = api.user.getUser.useQuery();
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex m-auto h-14 items-center">
+      <div className="container m-auto flex h-14 items-center">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Image
-              src={theme.resolvedTheme === "dark" ? "/logo-white.svg" : "/logo-black.svg"}
+              src={
+                theme.resolvedTheme === "dark"
+                  ? "/logo-white.svg"
+                  : "/logo-black.svg"
+              }
               alt="Logo"
               width={120}
               height={100}
@@ -31,44 +71,64 @@ const Navbar = () => {
           <nav className="flex items-center space-x-6 text-sm font-medium">
             <Link
               href="#"
-              className="text-foreground/60 transition-colors hover:text-foreground/80"
+              className={` ${isURLActive("/") ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
             >
               Home
             </Link>
             <Link
               href="#"
-              className="text-foreground/60 transition-colors hover:text-foreground/80"
+              className={` ${isURLActive("/gallery") ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
             >
               Gallery
             </Link>
             <Link
               href="#"
-              className="text-foreground/60 transition-colors hover:text-foreground/80"
+              className={` ${isURLActive("/artists") ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
             >
               Artists
             </Link>
             <Link
               href="#"
-              className="text-foreground/60 transition-colors hover:text-foreground/80"
+              className={` ${isURLActive("/about") ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
             >
               About
             </Link>
             <Link
               href="#"
-              className="text-foreground/60 transition-colors hover:text-foreground/80"
+              className={` ${isURLActive("/contact") ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
             >
               Contact
             </Link>
           </nav>
         </div>
-        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <div className="w-full flex-1 md:w-auto md:flex-none">
-            <input
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+        <div className="flex flex-1 items-center justify-between gap-2 space-x-2 md:justify-end">
+          <motion.div
+            ref={searchContainerRef}
+            initial={false}
+            animate={searchFocused ? { width: "40%" } : { width: "2rem" }}
+            className="relative cursor-pointer"
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            onClick={handleSearchClick}
+          >
+            <Input
+              ref={inputRef}
               placeholder="Search artworks..."
-              type="search"
+              className={`w-full p-0 ${!searchFocused ? "opacity-0" : "py-2 pl-8 pr-4 opacity-100"}`}
             />
-          </div>
+            <Search
+              className={`absolute top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground transition-all ${
+                searchFocused ? "left-2" : "left-1/2 -translate-x-1/2"
+              }`}
+            />
+          </motion.div>
+
+          {session ? (
+            <UserProfile session={session} providerSession={providerSession} />
+          ) : (
+            <Button variant="default" className="m-0 px-2 py-0">
+              <Link href="/sign-in">Login</Link>
+            </Button>
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">

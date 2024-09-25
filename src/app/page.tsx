@@ -1,17 +1,17 @@
 import Link from "next/link";
-import { LatestPost } from "~/app/_components/post";
 import { getServerAuthSession } from "~/server/auth";
 import { api, HydrateClient } from "~/trpc/server";
-import AuthButton from "./_components/AuthButton";
+import AuthButton from "./_components/AuthButtons";
 import { Button } from "~/components/ui/button";
 import Image from "next/image";
 import { featuredArtworks } from "~/constants/Images";
 import Transition from "./_components/Transition";
 import Navbar from "./_components/Navbar";
 import Footer from "./_components/Footer";
+import { SessionProvider } from "next-auth/react";
 export default async function Home() {
   // const hello = await api.post.hello({ text: "from tRPC" });
-  // const session = await getServerAuthSession();
+  const session = await getServerAuthSession();
   // let user = null;
   // try {
   //   user = await api.user.getUser();
@@ -24,6 +24,7 @@ export default async function Home() {
   return (
     <HydrateClient>
       <Navbar />
+
       <Transition>
         <main>
           <section className="py-12 md:py-24">
@@ -50,7 +51,7 @@ export default async function Home() {
           <section className="py-12">
             <div className="container mx-auto px-4">
               <h2 className="mb-8 text-center text-3xl font-bold">
-                Featured Artworks
+                Publish Your Artworks
               </h2>
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
                 {featuredArtworks.map((artwork) => (

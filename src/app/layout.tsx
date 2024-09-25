@@ -6,6 +6,7 @@ import { type Metadata } from "next";
 import { TRPCReactProvider } from "~/trpc/react";
 import { ThemeProvider } from "./_components/theme-provider";
 import { Toaster } from "~/components/ui/toaster";
+import AuthProvider from "~/AuthProvider";
 
 export const metadata: Metadata = {
   title: "Gallery Studio",
@@ -19,6 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
       <body>
+        <AuthProvider>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -28,6 +30,8 @@ export default function RootLayout({
           <TRPCReactProvider>{children}</TRPCReactProvider>
           <Toaster />
         </ThemeProvider>
+        </AuthProvider>
+
       </body>
     </html>
   );
