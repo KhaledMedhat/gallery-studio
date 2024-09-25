@@ -1,8 +1,9 @@
-"use client";
 import type { Session } from "next-auth";
 import { signIn, signOut, SessionProvider } from "next-auth/react";
 import Link from "next/link";
 import { deleteCookie } from "../actions";
+import { Button } from "~/components/ui/button";
+import Image from "next/image";
 interface User {
   id: string;
   image: string | null;
@@ -12,46 +13,36 @@ interface User {
   password: string | null;
   emailVerified: Date | null;
 }
-const AuthButton: React.FC<{ session: User | null }> = ({ session }) => {
-  console.log(session);
+const AuthButton = () => {
   return (
-    <>
-      {!session ? (
-        <Link href={"/sign-in"}>Sign In</Link>
-      ) : (
-        <form action={deleteCookie}>
-          <button type="submit">Sign out</button>
-        </form>
-      )}
-
-      <SessionProvider>
-        <div className="flex flex-col items-center justify-center gap-4">
-          <p className="text-center text-2xl text-white">
-            {session ? (
-              <span>Logged in as {session.name}</span>
-            ) : (
-              <span>Not logged in</span>
-            )}
-          </p>
-          {!session && (
-            <Link
-              className="rounded-xl bg-white p-6 text-black"
-              href="/sign-up"
-            >
-              Register
-            </Link>
-          )}
-          <button
-            onClick={async () =>
-              session ? void signOut() : void (await signIn("google"))
-            }
-            className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
-          >
-            {session ? "Sign out" : "Sign in"}
-          </button>
-        </div>
-      </SessionProvider>
-    </>
+    <SessionProvider>
+      <div className="flex flex-col items-center justify-center gap-4">
+        <Button
+          className="flex w-full transform items-center gap-2 rounded-md bg-gradient-to-r from-gray-700 to-gray-900 px-4 py-2 font-bold text-white transition duration-300 ease-in-out hover:scale-105 hover:from-gray-800 hover:to-black focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
+          onClick={async () => void (await signIn("google"))}
+        >
+          <Image
+            src={"./google.svg"}
+            alt="google_icon"
+            width={25}
+            height={25}
+          />
+          Google
+        </Button>
+        <Button
+          className="flex w-full transform items-center gap-2 rounded-md bg-gradient-to-r from-gray-700 to-gray-900 px-4 py-2 font-bold text-white transition duration-300 ease-in-out hover:scale-105 hover:from-gray-800 hover:to-black focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
+          onClick={async () => void (await signIn("twitter"))}
+        >
+          <Image
+            src={"./twitter.svg"}
+            alt="twitter_icon"
+            width={25}
+            height={25}
+          />
+          X
+        </Button>
+      </div>
+    </SessionProvider>
   );
 };
 

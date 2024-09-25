@@ -4,6 +4,9 @@
 /node_modules
 /.pnp
 .pnp.js
+/react-email/node_modules
+/react-email/.next
+/.react-email
 # testing
 /coverage
 
@@ -19,7 +22,6 @@ next-env.d.ts
 
 # production
 /build
-
 # misc
 .DS_Store
 *.pem

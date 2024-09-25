@@ -1,5 +1,7 @@
 import { createHash } from "crypto";
 
+
+
 export function hashPassword(password: string): string {
   return createHash("sha256").update(password).digest("hex");
 }
@@ -11,3 +13,8 @@ export function generateOTP(): string {
   // Pad the number with leading zeros if necessary to ensure it's 6 digits
   return otp.toString().padStart(6, "0");
 }
+
+
+
+
+

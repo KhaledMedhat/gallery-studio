@@ -1,19 +1,25 @@
 import { create } from "zustand";
 interface UserRegistry {
-  name: string;
+  fullName: string;
   email: string;
   password: string;
+  image: string;
 }
-interface Store  {
+interface Store {
   userRegistrationInfo: UserRegistry;
   setUserRegistry: (user: UserRegistry) => void;
-};
+  setUserImage: (image:string) => void
+}
 
 export const useUserStore = create<Store>()((set) => ({
-    userRegistrationInfo : {
-        name: "",
-        email: "",
-        password: "",
-    },
-    setUserRegistry: (user: UserRegistry) => set((state) => ({userRegistrationInfo: user})),
+  userRegistrationInfo: {
+    fullName: "",
+    email: "",
+    password: "",
+    image: "",
+  },
+  setUserRegistry: (user: UserRegistry) =>
+    set(() => ({ userRegistrationInfo: user })),
+  setUserImage: (image: string) =>
+    set((state) => ({ userRegistrationInfo : { ...state.userRegistrationInfo, image: image } })),
 }));

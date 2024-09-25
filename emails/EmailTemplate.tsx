@@ -44,13 +44,6 @@ export const GalleryStudioVerifyOTPEmail = ({
         <br />
         <br />
         <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
         <Text style={help}>
           If you need any assistance, please visit our
           <Link style={link}> Help Center</Link>.
