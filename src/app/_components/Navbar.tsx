@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { Sun, Moon, Menu, Search } from "lucide-react";
+import { Sun, Moon, Menu, Search, X } from "lucide-react";
 import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -21,6 +21,7 @@ import { useSession } from "next-auth/react";
 
 const Navbar = () => {
   const [searchFocused, setSearchFocused] = useState(false);
+  const [searchValue, setSearchValue] = useState<string>("");
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -39,7 +40,11 @@ const Navbar = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
+  const handleClearSearch = (e: React.MouseEvent<SVGSVGElement>) => {
+    e.stopPropagation();
+    setSearchValue("");
+    inputRef.current?.focus();
+  };
   const handleSearchClick = () => {
     setSearchFocused(true);
     inputRef.current?.focus();
@@ -112,6 +117,8 @@ const Navbar = () => {
           >
             <Input
               ref={inputRef}
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
               placeholder="Search artworks..."
               className={`w-full p-0 ${!searchFocused ? "opacity-0" : "py-2 pl-8 pr-4 opacity-100"}`}
             />
@@ -120,12 +127,18 @@ const Navbar = () => {
                 searchFocused ? "left-2" : "left-1/2 -translate-x-1/2"
               }`}
             />
+            {searchFocused && searchValue && (
+              <X
+                className="absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 transform cursor-pointer text-muted-foreground"
+                onClick={handleClearSearch}
+              />
+            )}
           </motion.div>
 
           {session ? (
             <UserProfile session={session} providerSession={providerSession} />
           ) : (
-            <Button variant="default" className="m-0 px-2 py-0">
+            <Button variant="default" className="m-0 px-4 py-0">
               <Link href="/sign-in">Login</Link>
             </Button>
           )}
