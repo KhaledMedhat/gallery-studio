@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { galleries, otp, sessions, users } from "~/server/db/schema";
+import { accounts, galleries, otp, sessions, users } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { randomBytes } from "crypto";
 import { db } from "~/server/db";
@@ -19,6 +19,15 @@ export const userRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const generatedOTP = generateOTP();
+      const existedEmail = await ctx.db.query.users.findFirst({
+        where: eq(users.email, input.email),
+      });
+      if (existedEmail) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "Email already exists",
+        });
+      }
       const OTP = await Send(input.name, generatedOTP, input.email);
       if (OTP) {
         await ctx.db.insert(otp).values({
@@ -75,18 +84,11 @@ export const userRouter = createTRPCRouter({
           }
           return user;
         }
-      } catch (error: unknown) {
-        if (
-          error instanceof Error &&
-          "code" in error &&
-          error.code === "23505"
-        ) {
-          throw new TRPCError({
-            code: "CONFLICT",
-            message: "Email already exists",
-          });
-        }
-        throw error;
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Something went wrong ${error instanceof Error ? error.message : 'Unknown error'}`,
+        });
       }
     }),
 
@@ -105,7 +107,7 @@ export const userRouter = createTRPCRouter({
           message: "Invalid email or password",
         });
       }
-      const existingSession = await db.query.sessions.findFirst({
+      const existingSession = await ctx.db.query.sessions.findFirst({
         where: eq(sessions.userId, user.id),
         orderBy: (sessions, { desc }) => [desc(sessions.expires)],
       });
@@ -141,22 +143,19 @@ export const userRouter = createTRPCRouter({
     }),
 
   getUser: protectedProcedure.query(async ({ ctx }) => {
-    if (!ctx.session || !ctx.session.user) {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "No session found.",
-      });
+    if(!ctx.user) {
+      return null
     }
-    const user = await ctx.db.query.users.findFirst({
-      where: eq(users.id, ctx.session.user.id),
-    });
-    if (!user) {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "Invalid or expired session",
-      });
-    }
+    return ctx.user;
+  }),
 
-    return user;
+  getProvidedUserRoute: protectedProcedure.query(async ({ ctx }) => {
+      const existedUserAccount = await ctx.db.query.accounts.findFirst({
+        where: eq(accounts.userId, ctx.user?.id ?? ""),
+      })
+      if(existedUserAccount) {
+        return existedUserAccount
+      }
+      return null
   }),
 });

@@ -6,6 +6,8 @@ import {
 } from "next-auth";
 import { type Adapter } from "next-auth/adapters";
 import GoogleProvider from "next-auth/providers/google";
+import TwitterProvider from "next-auth/providers/twitter";
+
 import { env } from "~/env";
 import { db } from "~/server/db";
 import {
@@ -30,11 +32,6 @@ declare module "next-auth" {
       // role: UserRole;
     } & DefaultSession["user"];
   }
-
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
 }
 
 /**
@@ -51,17 +48,14 @@ export const authOptions: NextAuthOptions = {
         id: user.id,
       },
     }),
-
   },
   events: {
     createUser: async ({ user }) => {
-      console.log("New user created:", user);
       try {
         // Create a gallery for the new user
         await db.insert(galleries).values({
-          createdById: user.id ?? '',
+          createdById: user.id ?? "",
         });
-        console.log("Gallery created for new user");
       } catch (e) {
         console.error("Error creating gallery for new user:", e);
       }
@@ -78,6 +72,11 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
+    }),
+    TwitterProvider({
+      clientId: env.TWITTER_CLIENT_ID,
+      clientSecret: env.TWITTER_CLIENT_SECRET,
+      version: "2.0",
     }),
     /**
      * ...add more providers here.

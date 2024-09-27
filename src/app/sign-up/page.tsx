@@ -1,6 +1,7 @@
 import SignUp from "../_components/SignUp";
+import { getProvidedUserAccountGallery } from "../actions";
 
-export default function SignUpPage() {
-    return <SignUp />;
-  }
-  
+export default async function SignUpPage() {
+  await getProvidedUserAccountGallery();
+  return <SignUp />;
+}

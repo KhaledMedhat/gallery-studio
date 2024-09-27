@@ -73,7 +73,7 @@ export const galleries = createTable("gallery", {
   slug: varchar("slug", { length: 255 })
     .notNull()
     .$defaultFn(() => createId()),
-    createdById: varchar("created_by", { length: 255 })
+  createdById: varchar("created_by", { length: 255 })
     .notNull()
     .references(() => users.id),
   createdAt: timestamp("created_at", { withTimezone: true })

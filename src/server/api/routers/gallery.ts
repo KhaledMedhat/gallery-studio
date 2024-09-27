@@ -1,8 +1,7 @@
 import { galleries } from "~/server/db/schema";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
-import { TRPCError } from "@trpc/server";
 
 export const galleryRouter = createTRPCRouter({
   getUserGallery: protectedProcedure
@@ -15,13 +14,17 @@ export const galleryRouter = createTRPCRouter({
       if (existingGallery) {
         return existingGallery;
       }
-      const [newGallery] = await ctx.db
-        .insert(galleries)
-        .values({
-          createdById: input.id,
-        })
-        .returning();
+    }),
 
-      return newGallery;
+    getProvidedUserAccountGallery: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const existingGallery = await ctx.db.query.galleries.findFirst({
+        where: eq(galleries.createdById, input.id),
+      });
+
+      if (existingGallery) {
+        return existingGallery;
+      }
     }),
 });

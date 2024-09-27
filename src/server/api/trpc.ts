@@ -7,7 +7,7 @@
  * need to use are documented accordingly near the end.
  */
 
-import { initTRPC, TRPCError } from "@trpc/server";
+import { initTRPC } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import superjson from "superjson";
 import { ZodError } from "zod";
@@ -33,28 +33,28 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await getServerAuthSession();
   const cookieStore = cookies();
 
-  let customSession = null;
+  let user = null;
   const sessionToken = cookieStore.get("sessionToken");
-  if (!session) {
-    if (sessionToken) {
-      // Fetch the session from the database using the session token
-      customSession = await db.query.sessions.findFirst({
-        where: eq(sessions.sessionToken, sessionToken.value),
-        with: {
-          user: true,
-        },
-      });
 
-      // Check if the session is valid and not expired
-      if (!customSession || customSession.expires < new Date()) {
-        customSession = null;
-      }
+  if (session) {
+    user = session.user;
+  } else if (sessionToken) {
+    // Fetch the session from the database using the session token
+    const customSession = await db.query.sessions.findFirst({
+      where: eq(sessions.sessionToken, sessionToken.value),
+      with: {
+        user: true,
+      },
+    });
+
+    if (customSession?.user) {
+      user = customSession.user;
     }
   }
 
   return {
     db,
-    session: session ?? customSession,
+    user,
   };
 };
 
@@ -143,13 +143,13 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)
   .use(({ ctx, next }) => {
-    if (!ctx.session || !ctx.session.user) {
-      throw new TRPCError({ code: "UNAUTHORIZED" });
+    if (!ctx.user) {
+      return next()
     }
     return next({
       ctx: {
         // infers the `session` as non-nullable
-        session: { ...ctx.session, user: ctx.session.user },
+        user: ctx.user,
       },
     });
   });

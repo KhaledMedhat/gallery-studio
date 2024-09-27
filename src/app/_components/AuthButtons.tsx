@@ -1,11 +1,8 @@
-import type { Session } from "next-auth";
-import { signIn, signOut, SessionProvider } from "next-auth/react";
-import Link from "next/link";
-import { deleteCookie } from "../actions";
+import { signIn, SessionProvider } from "next-auth/react";
 import { Button } from "~/components/ui/button";
 import Image from "next/image";
 
- const AuthButtons = () => {
+const AuthButtons = () => {
   return (
     <SessionProvider>
       <div className="flex flex-col items-center justify-center gap-4">

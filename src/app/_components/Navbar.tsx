@@ -1,5 +1,4 @@
 "use client";
-
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "~/components/ui/button";
@@ -16,15 +15,13 @@ import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Input } from "~/components/ui/input";
 import { api } from "~/trpc/react";
-import UserProfile from "./UserProfile";
-import { useSession } from "next-auth/react";
+import UserProfile, { type UserSession } from "./UserProfile";
 
 const Navbar = () => {
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -34,7 +31,6 @@ const Navbar = () => {
         setSearchFocused(false);
       }
     }
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -55,7 +51,6 @@ const Navbar = () => {
   const isURLActive = (url: string) => {
     return pathname === url;
   };
-  const { data: providerSession } = useSession();
   const { data: session } = api.user.getUser.useQuery();
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -136,7 +131,7 @@ const Navbar = () => {
           </motion.div>
 
           {session ? (
-            <UserProfile session={session} providerSession={providerSession} />
+            <UserProfile session={session as UserSession} />
           ) : (
             <Button variant="default" className="m-0 px-4 py-0">
               <Link href="/sign-in">Login</Link>

@@ -23,27 +23,23 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { deleteCookie } from "../actions";
-import { type Session } from "next-auth";
 import { signOut } from "next-auth/react";
 
-interface UserSession {
+export interface UserSession {
   id: string;
-  image: string | null;
+  image?: string;
   email: string;
-  name: string | null;
-  bio: string | null;
-  password: string | null;
-  emailVerified: Date | null;
+  name: string;
+  bio?: string;
+  password?: string;
+  emailVerified?: Date;
 }
 const UserProfile: React.FC<{
   session: UserSession;
-  providerSession: Session | null;
-}> = ({ session, providerSession }) => {
+}> = ({ session }) => {
   const avatarFallback = session?.name?.slice(0, 2).toUpperCase();
   const handleLogout = async () => {
-    if (providerSession) {
-      await signOut();
-    }
+    await signOut();
     deleteCookie();
   };
   return (

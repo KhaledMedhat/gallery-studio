@@ -33,6 +33,7 @@ import { deleteFileOnServer } from "../actions";
 import { useToast } from "~/hooks/use-toast";
 import { ToastAction } from "~/components/ui/toast";
 import { Progress } from "~/components/ui/progress";
+import AuthButtons from "./AuthButtons";
 
 const SignUp = () => {
   const [progress, setProgress] = useState<number>(0);
@@ -85,11 +86,11 @@ const SignUp = () => {
         setIsLoading(isSendingOTP);
         router.push("/sign-up/otp_verification");
       },
-      onError: () => {
+      onError: (e) => {
         toast({
           variant: "destructive",
           title: "Uh oh! Something went wrong.",
-          description: "There was a problem with your OTP request.",
+          description: e.message,
           action: <ToastAction altText="Try again">Try again</ToastAction>,
         });
       },
@@ -158,7 +159,11 @@ const SignUp = () => {
                       Full Name
                     </FormLabel>
                     <FormControl className="bg-transparent">
-                      <Input placeholder="John Doe" {...field} />
+                      <Input
+                        placeholder="John Doe"
+                        {...field}
+                        className="text-gray-100"
+                      />
                     </FormControl>
                     <FormDescription>Enter your full name.</FormDescription>
                     <FormMessage />
@@ -180,7 +185,11 @@ const SignUp = () => {
                       Email
                     </FormLabel>
                     <FormControl className="bg-transparent">
-                      <Input placeholder="you@example.com" {...field} />
+                      <Input
+                        placeholder="you@example.com"
+                        {...field}
+                        className="text-gray-100"
+                      />
                     </FormControl>
                     <FormDescription>Enter your email address.</FormDescription>
                     <FormMessage />
@@ -202,7 +211,11 @@ const SignUp = () => {
                       Password
                     </FormLabel>
                     <FormControl className="bg-transparent">
-                      <Input type="password" {...field} />
+                      <Input
+                        type="password"
+                        {...field}
+                        className="text-gray-100"
+                      />
                     </FormControl>
                     <FormDescription>Enter your password.</FormDescription>
                     <FormMessage />
@@ -371,6 +384,15 @@ const SignUp = () => {
                   )}
                 </Button>
               </div>
+              <div className="my-6 flex items-center">
+                <hr className="inline-block grow-[4] border-white" />
+                <span className="text-md flex flex-grow justify-center text-center uppercase text-white">
+                  Or log in with
+                </span>
+                <hr className="inline-block grow-[4] border-white" />
+              </div>
+
+              <AuthButtons />
             </motion.div>
           </AnimatePresence>
         </motion.div>

@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import AuthButton from "./AuthButtons";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,9 +18,12 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
+import AuthButtons from "./AuthButtons";
+import { useUserStore } from "~/store";
 
 const SignIn = () => {
   const router = useRouter();
+  const setIsLoggedIn = useUserStore((state) => state.setIsLoggedIn);
   const formSchema = z.object({
     email: z.string().email(),
     password: z.string().min(1, "Password is required"),
@@ -47,6 +49,7 @@ const SignIn = () => {
     api.user.login.useMutation({
       onSuccess: async (data) => {
         const userId = data.user?.id;
+        setIsLoggedIn();
         if (userId) {
           userGallery({ id: userId });
         }
@@ -121,7 +124,7 @@ const SignIn = () => {
                         Email
                       </FormLabel>
                       <FormControl className="bg-transparent">
-                        <Input placeholder="you@example.com" {...field} />
+                        <Input className="text-gray-100" placeholder="you@example.com" {...field} />
                       </FormControl>
                       <FormDescription>
                         Enter your email address.
@@ -155,7 +158,7 @@ const SignIn = () => {
                         </div>
                       </div>
                       <FormControl className="bg-transparent">
-                        <Input {...field} type="password" />
+                        <Input className="text-gray-100" {...field} type="password" />
                       </FormControl>
                       <FormDescription>Enter your password.</FormDescription>
                       <FormMessage />
@@ -188,7 +191,7 @@ const SignIn = () => {
             <hr className="inline-block grow-[4] border-white" />
           </div>
 
-          <AuthButton />
+          <AuthButtons />
         </motion.div>
       </div>
     </div>

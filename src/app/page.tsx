@@ -1,30 +1,20 @@
 import Link from "next/link";
-import { getServerAuthSession } from "~/server/auth";
 import { api, HydrateClient } from "~/trpc/server";
-import AuthButton from "./_components/AuthButtons";
 import { Button } from "~/components/ui/button";
 import Image from "next/image";
 import { featuredArtworks } from "~/constants/Images";
 import Transition from "./_components/Transition";
 import Navbar from "./_components/Navbar";
 import Footer from "./_components/Footer";
-import { SessionProvider } from "next-auth/react";
 export default async function Home() {
-  // const hello = await api.post.hello({ text: "from tRPC" });
-  const session = await getServerAuthSession();
-  // let user = null;
-  // try {
-  //   user = await api.user.getUser();
-  // } catch (error) {
-  //   console.error("Error fetching user:", error);
-  // }
-  // console.log(user);
-  // void api.post.getLatest.prefetch();
+  const session = await api.user.getUser();
+  const userGallery = await api.gallery.getProvidedUserAccountGallery({
+    id: session?.id ?? "",
+  });
 
   return (
     <HydrateClient>
       <Navbar />
-
       <Transition>
         <main>
           <section className="py-12 md:py-24">
@@ -71,7 +61,9 @@ export default async function Home() {
               </div>
               <div className="mt-8 text-center">
                 <Button variant="outline">
-                  <Link href="/sign-in">Join GalleryStudio</Link>
+                  <Link href={userGallery ? `/galleries/${userGallery.slug}` : "/sign-in"}>
+                    {session ? "Go to your gallery" : "Join GalleryStudio"}
+                  </Link>
                 </Button>
               </div>
             </div>
