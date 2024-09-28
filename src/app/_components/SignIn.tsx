@@ -19,9 +19,12 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import AuthButtons from "./AuthButtons";
+import { useToast } from "~/hooks/use-toast";
+import { ToastAction } from "~/components/ui/toast";
 
 const SignIn = () => {
   const router = useRouter();
+  const { toast } = useToast();
   const formSchema = z.object({
     email: z.string().email(),
     password: z.string().min(1, "Password is required"),
@@ -51,6 +54,14 @@ const SignIn = () => {
           userGallery({ id: userId });
         }
       },
+      onError: (error) => {
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: error.message,
+          action: <ToastAction altText="Try again">Try again</ToastAction>,
+        });
+      },
     });
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
@@ -76,7 +87,10 @@ const SignIn = () => {
       <div className="relative flex w-full flex-col items-center justify-center bg-[#171717] p-8 lg:w-3/4">
         <div className="absolute left-10 top-10 text-center">
           <Button className="border border-solid border-gray-100 bg-transparent hover:bg-transparent">
-            <Link href="/" className="font-medium text-gray-100 flex gap-2 items-center">
+            <Link
+              href="/"
+              className="flex items-center gap-2 font-medium text-gray-100"
+            >
               <ArrowLeft className="h-4 w-4" />
               Home
             </Link>
@@ -121,7 +135,11 @@ const SignIn = () => {
                         Email
                       </FormLabel>
                       <FormControl className="bg-transparent">
-                        <Input className="text-gray-100" placeholder="you@example.com" {...field} />
+                        <Input
+                          className="text-gray-100"
+                          placeholder="you@example.com"
+                          {...field}
+                        />
                       </FormControl>
                       <FormDescription>
                         Enter your email address.
@@ -155,7 +173,11 @@ const SignIn = () => {
                         </div>
                       </div>
                       <FormControl className="bg-transparent">
-                        <Input className="text-gray-100" {...field} type="password" />
+                        <Input
+                          className="text-gray-100"
+                          {...field}
+                          type="password"
+                        />
                       </FormControl>
                       <FormDescription>Enter your password.</FormDescription>
                       <FormMessage />

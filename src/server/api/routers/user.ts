@@ -97,7 +97,7 @@ export const userRouter = createTRPCRouter({
       } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: `Something went wrong ${error instanceof Error ? error.message : 'Unknown error'}`,
+          message: `Something went wrong ${error instanceof Error ? error.message : "Unknown error"}`,
         });
       }
     }),
@@ -153,19 +153,19 @@ export const userRouter = createTRPCRouter({
     }),
 
   getUser: protectedProcedure.query(async ({ ctx }) => {
-    if(!ctx.user) {
-      return null
+    if (!ctx.user) {
+      return null;
     }
     return ctx.user;
   }),
 
   getProvidedUserRoute: protectedProcedure.query(async ({ ctx }) => {
-      const existedUserAccount = await ctx.db.query.accounts.findFirst({
-        where: eq(accounts.userId, ctx.user?.id ?? ""),
-      })
-      if(existedUserAccount) {
-        return existedUserAccount
-      }
-      return null
+    const existedUserAccount = await ctx.db.query.accounts.findFirst({
+      where: eq(accounts.userId, ctx.user?.id ?? ""),
+    });
+    if (existedUserAccount) {
+      return existedUserAccount;
+    }
+    return null;
   }),
 });
