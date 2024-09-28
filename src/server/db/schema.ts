@@ -20,27 +20,6 @@ import { type AdapterAccount } from "next-auth/adapters";
  */
 export const createTable = pgTableCreator((name) => `gallery-studio_${name}`);
 
-export const posts = createTable(
-  "post",
-  {
-    id: serial("id").primaryKey(),
-    name: varchar("name", { length: 256 }),
-    createdById: varchar("created_by", { length: 255 })
-      .notNull()
-      .references(() => users.id),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
-      () => new Date(),
-    ),
-  },
-  (example) => ({
-    createdByIdIdx: index("created_by_idx").on(example.createdById),
-    nameIndex: index("name_idx").on(example.name),
-  }),
-);
-
 export const otp = createTable("otp", {
   otp: varchar("otp", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull().primaryKey(),
@@ -100,6 +79,7 @@ export const users = createTable("user", {
   name: varchar("name", { length: 255 }),
   bio: varchar("bio", { length: 255 }).default(""),
   password: varchar("password", { length: 255 }),
+  provider: varchar("provider", { length: 255 }),
   email: varchar("email", { length: 255 }).notNull().unique(),
   emailVerified: timestamp("email_verified", {
     mode: "date",
@@ -185,6 +165,7 @@ export const usersRelations = relations(users, ({ many, one }) => ({
     fields: [users.id],
     references: [galleries.createdById],
   }),
+  
 }));
 
 export const galleriesRelations = relations(galleries, ({ one, many }) => ({

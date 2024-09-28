@@ -19,10 +19,18 @@ import UserProfile, { type UserSession } from "./UserProfile";
 
 const Navbar = () => {
   const [searchFocused, setSearchFocused] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { setTheme } = useTheme();
+  const theme = useTheme();
+  const pathname = usePathname();
+
+  const { data: session } = api.user.getUser.useQuery();
+
   useEffect(() => {
+    setMounted(true);
     function handleClickOutside(event: MouseEvent) {
       if (
         searchContainerRef.current &&
@@ -45,13 +53,13 @@ const Navbar = () => {
     setSearchFocused(true);
     inputRef.current?.focus();
   };
-  const { setTheme } = useTheme();
-  const theme = useTheme();
-  const pathname = usePathname();
+
   const isURLActive = (url: string) => {
     return pathname === url;
   };
-  const { data: session } = api.user.getUser.useQuery();
+  if (!mounted) {
+    return null; // or a loading placeholder
+  }
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container m-auto flex h-14 items-center">

@@ -24,6 +24,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { deleteCookie } from "../actions";
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export interface UserSession {
   id: string;
@@ -37,10 +38,12 @@ export interface UserSession {
 const UserProfile: React.FC<{
   session: UserSession;
 }> = ({ session }) => {
+  const router = useRouter()
   const avatarFallback = session?.name?.slice(0, 2).toUpperCase();
   const handleLogout = async () => {
     await signOut();
-    deleteCookie();
+    await deleteCookie();
+    router.refresh()
   };
   return (
     <DropdownMenu>

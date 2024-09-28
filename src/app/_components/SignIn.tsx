@@ -19,11 +19,9 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import AuthButtons from "./AuthButtons";
-import { useUserStore } from "~/store";
 
 const SignIn = () => {
   const router = useRouter();
-  const setIsLoggedIn = useUserStore((state) => state.setIsLoggedIn);
   const formSchema = z.object({
     email: z.string().email(),
     password: z.string().min(1, "Password is required"),
@@ -38,18 +36,17 @@ const SignIn = () => {
   });
   const { mutate: userGallery, isPending: isPendingGallery } =
     api.gallery.getUserGallery.useMutation({
-      onSuccess: async (data) => {
+      onSuccess: (data) => {
         if (data?.slug) {
           router.push(`/galleries/${data?.slug}`);
         }
       },
     });
 
-  const { mutate: createUser, isPending: isPendingLogin } =
+  const { mutate: userLogin, isPending: isPendingLogin } =
     api.user.login.useMutation({
-      onSuccess: async (data) => {
+      onSuccess: (data) => {
         const userId = data.user?.id;
-        setIsLoggedIn();
         if (userId) {
           userGallery({ id: userId });
         }
@@ -57,7 +54,7 @@ const SignIn = () => {
     });
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
-    createUser({
+    userLogin({
       email: data.email,
       password: data.password,
     });

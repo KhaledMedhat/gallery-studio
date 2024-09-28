@@ -1,6 +1,8 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
@@ -26,7 +28,10 @@ import { api } from "~/trpc/react";
 
 const OTP = () => {
   const router = useRouter();
+  const theme = useTheme();
   const { toast } = useToast();
+  const [mounted, setMounted] = useState(false);
+
   const userRegistryInfo = useUserStore((state) => state.userRegistrationInfo);
   const FormSchema = z.object({
     otp: z.string().min(6, {
@@ -43,7 +48,7 @@ const OTP = () => {
   const createUser = api.user.create.useMutation({
     onSuccess: async () => {
       toast({
-        description: "Your account has been created successfully &#127881;.",
+        description: <span>Your account has been created successfully 🎉</span>,
       });
       router.push("/sign-in");
     },
@@ -56,6 +61,16 @@ const OTP = () => {
       });
     },
   });
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    // Return a placeholder or skeleton component here
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-10 p-8"></div>
+    );
+  }
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     createUser.mutate({
       name: userRegistryInfo.fullName,
@@ -65,12 +80,13 @@ const OTP = () => {
       otp: data.otp,
     });
   };
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-10 bg-[#171717] p-8">
+    <div
+      className={`flex min-h-screen flex-col items-center justify-center gap-10 ${theme.resolvedTheme === "dark" ? "bg-[#171717]" : "bg-neutral-300"} p-8`}
+    >
       <div className="w-full max-w-4xl">
-        <h1 className="text-left text-3xl font-bold text-gray-100">
-          OTP Verification
-        </h1>
+        <h1 className="text-left text-3xl font-bold">OTP Verification</h1>
       </div>
       <div className="w-full max-w-4xl">
         <Form {...form}>
@@ -90,7 +106,9 @@ const OTP = () => {
                         <InputOTPSlot index={0} />
                         <InputOTPSlot index={1} />
                         <InputOTPSlot index={2} />
-                        <InputOTPSeparator />
+                      </InputOTPGroup>
+                      <InputOTPSeparator />
+                      <InputOTPGroup>
                         <InputOTPSlot index={3} />
                         <InputOTPSlot index={4} />
                         <InputOTPSlot index={5} />

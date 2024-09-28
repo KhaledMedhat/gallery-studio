@@ -112,19 +112,31 @@ const SignUp = () => {
       password: "",
     },
   });
+  const { mutate: verifyEmail } = api.user.verifyEmail.useMutation({
+    onSuccess: async () => {
+      setIsLoading(true);
+      userRegistryInfo({
+        fullName: form.getValues("fullName"),
+        email: form.getValues("email"),
+        password: form.getValues("password"),
+        image: "",
+      });
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setIsLoading(false);
+      if (stage < stages.length - 1) {
+        setStage((prev) => prev + 1);
+      }
+    },
+    onError: (e) => {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: e.message,
+      });
+    },
+  });
   const onSubmitFirstStage = async (data: z.infer<typeof formSchema>) => {
-    setIsLoading(true);
-    userRegistryInfo({
-      fullName: data.fullName,
-      email: data.email,
-      password: data.password,
-      image: "",
-    });
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    if (stage < stages.length - 1) {
-      setStage((prev) => prev + 1);
-    }
+    verifyEmail({ email: data.email });
   };
 
   const onFinishRegistry = () => {
@@ -329,9 +341,9 @@ const SignUp = () => {
                 {stages[stage]?.subtitle}
               </p>
               {renderStageContent()}
-              {imageUrl && (
+              {imageUrl && stage !== 0 && (
                 <Button
-                  className="flex w-full"
+                  className="flex w-full bg-gray-200 text-primary hover:bg-gray-300"
                   onClick={async () => {
                     if (imageKey) {
                       await deleteFileOnServer(imageKey);
@@ -339,7 +351,7 @@ const SignUp = () => {
                     }
                   }}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 fill="#171717" className="h-4 w-4" />
                   Delete
                 </Button>
               )}

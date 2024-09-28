@@ -1,13 +1,17 @@
 "use server";
+import { eq } from "drizzle-orm";
 import { isRedirectError } from "next/dist/client/components/redirect";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { UTApi } from "uploadthing/server";
+import { db } from "~/server/db";
+import { sessions } from "~/server/db/schema";
 import { api } from "~/trpc/server";
 
-export const deleteCookie = () => {
+export const deleteCookie = async() => {
   const cookie = cookies().get("sessionToken");
   if (cookie) {
+    await db.delete(sessions).where(eq(sessions.sessionToken, cookie.value))
     cookies().delete("sessionToken");
   }
 };

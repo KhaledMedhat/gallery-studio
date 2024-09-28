@@ -1,4 +1,5 @@
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
+import { eq } from "drizzle-orm";
 import {
   getServerSession,
   type DefaultSession,
@@ -41,23 +42,66 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
+    session: async ({ session, user }) => {
+      const dbSession = await db.query.sessions.findFirst({
+        where: eq(sessions.userId, user.id),
+      });
+      if (!dbSession) {
+        await db.insert(sessions).values({
+          sessionToken: crypto.randomUUID(),
+          userId: user.id,
+          expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+        });
+      }
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: user.id,
+        },
+      };
+    },
+    async signIn({ user }) {
+      // Check if the user exists in your database
+      const existingUser = await db.query.users.findFirst({
+        where: eq(users.email, user.email ?? ""),
+      });
+
+      if (existingUser?.provider === 'email') {
+        // Update the provider if it's not set
+       return '/sign-in?callbackUrl=/galleries/'
+      }
+
+      // User exists, continue with sign in
+      return true;
+    },
   },
   events: {
+    signIn: async ({ user, account }) => {
+
+      if (account) {
+        await db
+          .update(users)
+          .set({ provider: account.provider })
+          .where(eq(users.id, user.id));
+      }
+    },
     createUser: async ({ user }) => {
       try {
-        // Create a gallery for the new user
+        const account = await db.query.accounts.findFirst({
+          where: eq(accounts.userId, user.id),
+        });
+        if (account) {
+          await db
+            .update(users)
+            .set({ provider: account.provider })
+            .where(eq(users.id, user.id));
+        }
         await db.insert(galleries).values({
           createdById: user.id ?? "",
         });
       } catch (e) {
-        console.error("Error creating gallery for new user:", e);
+        throw new Error("Error creating gallery for this user", e as Error);
       }
     },
   },

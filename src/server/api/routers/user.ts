@@ -10,15 +10,13 @@ import { Send } from "~/app/api/send/route";
 import { hashPassword, generateOTP } from "~/utils/utils";
 
 export const userRouter = createTRPCRouter({
-  sendingOTP: publicProcedure
+  verifyEmail: publicProcedure
     .input(
       z.object({
-        name: z.string().min(1),
-        email: z.string().min(1),
+        email: z.string().min(1).toLowerCase(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const generatedOTP = generateOTP();
       const existedEmail = await ctx.db.query.users.findFirst({
         where: eq(users.email, input.email),
       });
@@ -28,6 +26,17 @@ export const userRouter = createTRPCRouter({
           message: "Email already exists",
         });
       }
+      return true;
+    }),
+  sendingOTP: publicProcedure
+    .input(
+      z.object({
+        name: z.string().min(1),
+        email: z.string().min(1),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const generatedOTP = generateOTP();
       const OTP = await Send(input.name, generatedOTP, input.email);
       if (OTP) {
         await ctx.db.insert(otp).values({
@@ -70,6 +79,7 @@ export const userRouter = createTRPCRouter({
             .values({
               email: input.email,
               password: hashedPassword,
+              provider: "email",
               image: input.image,
               name: input.name,
             })
