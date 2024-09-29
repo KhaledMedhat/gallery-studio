@@ -69,7 +69,7 @@ export const authOptions: NextAuthOptions = {
 
       if (existingUser?.provider === 'email') {
         // Update the provider if it's not set
-       return '/sign-in?callbackUrl=/galleries/'
+       return '/sign-in?error=true'
       }
 
       // User exists, continue with sign in

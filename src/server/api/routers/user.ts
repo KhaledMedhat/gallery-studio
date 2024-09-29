@@ -148,7 +148,12 @@ export const userRouter = createTRPCRouter({
         secure: process.env.NODE_ENV === "production", // Use secure cookie in production
         expires,
       });
-
+      const gallery = await ctx.db.query.galleries.findFirst({
+        where: eq(galleries.createdById, user.id),
+      });
+      if (gallery) {
+        return { session, sessionToken, gallery };
+      }
       return { session, sessionToken };
     }),
 

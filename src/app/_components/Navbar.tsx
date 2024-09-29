@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { Sun, Moon, Menu, Search, X } from "lucide-react";
+import { Sun, Moon, Menu, Search, X, Info } from "lucide-react";
 import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -16,12 +16,25 @@ import { useEffect, useRef, useState } from "react";
 import { Input } from "~/components/ui/input";
 import { api } from "~/trpc/react";
 import UserProfile, { type UserSession } from "./UserProfile";
-
-const Navbar = () => {
-  const [searchFocused, setSearchFocused] = useState(false);
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
+export interface UserGallery {
+  createdAt: Date;
+  id: number;
+  createdById: string;
+  slug: string;
+}
+const Navbar: React.FC<{ userGallery: UserGallery | undefined }> = ({
+  userGallery,
+}) => {
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [mounted, setMounted] = useState(false);
   const [searchValue, setSearchValue] = useState<string>("");
-  const searchContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { setTheme } = useTheme();
   const theme = useTheme();
@@ -31,26 +44,11 @@ const Navbar = () => {
 
   useEffect(() => {
     setMounted(true);
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        searchContainerRef.current &&
-        !searchContainerRef.current.contains(event.target as Node)
-      ) {
-        setSearchFocused(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
   }, []);
+
   const handleClearSearch = (e: React.MouseEvent<SVGSVGElement>) => {
     e.stopPropagation();
     setSearchValue("");
-    inputRef.current?.focus();
-  };
-  const handleSearchClick = () => {
-    setSearchFocused(true);
     inputRef.current?.focus();
   };
 
@@ -84,8 +82,8 @@ const Navbar = () => {
               Home
             </Link>
             <Link
-              href="#"
-              className={` ${isURLActive("/gallery") ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
+              href={`/galleries/${userGallery?.slug}`}
+              className={` ${isURLActive(`/galleries/${userGallery?.slug}`) ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
             >
               Gallery
             </Link>
@@ -111,31 +109,55 @@ const Navbar = () => {
         </div>
         <div className="flex flex-1 items-center justify-between gap-2 space-x-2 md:justify-end">
           <motion.div
-            ref={searchContainerRef}
+            className="relative"
             initial={false}
-            animate={searchFocused ? { width: "40%" } : { width: "2rem" }}
-            className="relative cursor-pointer"
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            onClick={handleSearchClick}
+            animate={isSearchExpanded ? "expanded" : "collapsed"}
           >
-            <Input
-              ref={inputRef}
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-              placeholder="Search artworks..."
-              className={`w-full p-0 ${!searchFocused ? "opacity-0" : "py-2 pl-8 pr-4 opacity-100"}`}
-            />
-            <Search
-              className={`absolute top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground transition-all ${
-                searchFocused ? "left-2" : "left-1/2 -translate-x-1/2"
-              }`}
-            />
-            {searchFocused && searchValue && (
-              <X
-                className="absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 transform cursor-pointer text-muted-foreground"
-                onClick={handleClearSearch}
+            <motion.div
+              variants={{
+                expanded: { width: "250px", opacity: 1 },
+                collapsed: { width: "40px", opacity: 0 },
+              }}
+              transition={{ duration: 0.3 }}
+            >
+              <Input
+                ref={searchInputRef}
+                value={searchValue}
+                className="w-full"
+                placeholder="Search..."
+                onBlur={() => setIsSearchExpanded(false)}
+                onChange={(e) => setSearchValue(e.target.value)}
               />
-            )}
+            </motion.div>
+            <div className="absolute bottom-0 right-0 top-0 flex items-center">
+              {isSearchExpanded && 
+                  <Button
+                  variant="ghost"
+                  size="icon"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    setSearchValue("");
+                    searchInputRef.current?.focus();
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                  <span className="sr-only">Cancel</span>
+                </Button>
+              }
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setIsSearchExpanded(true);
+                  setTimeout(() => {
+                    searchInputRef.current?.focus();
+                  }, 300);
+                }}
+              >
+                <Search className="h-4 w-4" />
+                <span className="sr-only">Search</span>
+              </Button>
+            </div>
           </motion.div>
 
           {session ? (
@@ -161,7 +183,21 @@ const Navbar = () => {
                 Dark
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTheme("system")}>
-                System
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center gap-4">
+                        <span>System</span>
+                        <Info className="h-4 w-4" />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-xs">
+                      System mode Adapts to your device&apos;s theme settings.
+                      Automatically switches between light and dark modes based
+                      on your operating system&apos;s appearance
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

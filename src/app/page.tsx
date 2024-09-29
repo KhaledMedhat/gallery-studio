@@ -11,10 +11,9 @@ export default async function Home() {
   const userGallery = await api.gallery.getProvidedUserAccountGallery({
     id: session?.id ?? "",
   });
-
   return (
     <HydrateClient>
-      <Navbar />
+      <Navbar userGallery={userGallery} />
       <Transition>
         <main>
           <section className="py-12 md:py-24">

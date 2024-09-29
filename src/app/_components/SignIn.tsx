@@ -21,10 +21,23 @@ import {
 import AuthButtons from "./AuthButtons";
 import { useToast } from "~/hooks/use-toast";
 import { ToastAction } from "~/components/ui/toast";
+import { useState } from "react";
 
-const SignIn = () => {
+const SignIn: React.FC<{ paramError: string | string[] | undefined }> = ({
+  paramError,
+}) => {
   const router = useRouter();
   const { toast } = useToast();
+  const [toastShown, setToastShown] = useState(false);
+
+  if (paramError && !toastShown) {
+    toast({
+      variant: "destructive",
+      title: "Uh oh! Something went wrong.",
+      description: "Account already exists",
+    });
+    setToastShown(true);
+  }
   const formSchema = z.object({
     email: z.string().email(),
     password: z.string().min(1, "Password is required"),
@@ -37,22 +50,10 @@ const SignIn = () => {
       password: "",
     },
   });
-  const { mutate: userGallery, isPending: isPendingGallery } =
-    api.gallery.getUserGallery.useMutation({
-      onSuccess: (data) => {
-        if (data?.slug) {
-          router.push(`/galleries/${data?.slug}`);
-        }
-      },
-    });
-
   const { mutate: userLogin, isPending: isPendingLogin } =
     api.user.login.useMutation({
       onSuccess: (data) => {
-        const userId = data.user?.id;
-        if (userId) {
-          userGallery({ id: userId });
-        }
+        router.push(`/galleries/${data?.gallery?.slug}`);
       },
       onError: (error) => {
         toast({
@@ -191,9 +192,9 @@ const SignIn = () => {
             form="sign-in-form"
             type="submit"
             className="mt-6 w-full transform rounded-md bg-gradient-to-r from-gray-700 to-gray-900 px-4 py-2 font-bold text-white transition duration-300 ease-in-out hover:scale-105 hover:from-gray-800 hover:to-black focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
-            disabled={isPendingLogin || isPendingGallery}
+            disabled={isPendingLogin}
           >
-            {isPendingLogin || isPendingGallery ? (
+            {isPendingLogin ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Signing In...
