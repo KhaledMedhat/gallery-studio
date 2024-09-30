@@ -1,15 +1,14 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { api } from "~/trpc/react";
-import { useUserStore } from "~/store";
-import { Label } from "~/components/ui/label";
+import { useImageStore, useUserStore } from "~/store";
 import { Input } from "~/components/ui/input";
 import Link from "next/link";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "~/components/ui/button";
-import { ArrowLeft, ArrowRight, Loader2, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Trash2 } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -23,63 +22,20 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { stages } from "~/constants/Stages";
-import { useUploadThing } from "~/utils/uploadthing";
-import { useDropzone } from "@uploadthing/react";
-import {
-  generateClientDropzoneAccept,
-  generatePermittedFileTypes,
-} from "uploadthing/client";
 import { deleteFileOnServer } from "../actions";
 import { useToast } from "~/hooks/use-toast";
 import { ToastAction } from "~/components/ui/toast";
 import { Progress } from "~/components/ui/progress";
 import AuthButtons from "./AuthButtons";
+import UploadthingButton from "./UploadthingButton";
 
 const SignUp = () => {
-  const [progress, setProgress] = useState<number>(0);
   const { toast } = useToast();
-  const [imageUrl, setImageUrl] = useState<string | undefined>("");
-  const [imageKey, setImageKey] = useState<string | undefined>("");
   const router = useRouter();
   const [stage, setStage] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-
-  const { startUpload, routeConfig } = useUploadThing("imageUploader", {
-    onClientUploadComplete: (res) => {
-      setIsUploading(false);
-      setImageUrl(res[0]?.url);
-      setImageKey(res[0]?.key);
-    },
-    onUploadProgress: (progress) => {
-      setIsUploading(true);
-      setProgress(progress);
-    },
-    onUploadError: (e) => {
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: e.message,
-        action: <ToastAction altText="Try again">Try again</ToastAction>,
-      });
-    },
-  });
-
-  const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      startUpload(acceptedFiles).catch((e) => {
-        console.log(e);
-      });
-    },
-    [startUpload],
-  );
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: generateClientDropzoneAccept(
-      generatePermittedFileTypes(routeConfig).fileTypes,
-    ),
-  });
-
+  const { imageUrl, imageKey, isUploading, progress, setImageUrl } =
+    useImageStore();
   const { mutate: sendingOTP, isPending: isSendingOTP } =
     api.user.sendingOTP.useMutation({
       onSuccess: async () => {
@@ -250,37 +206,7 @@ const SignUp = () => {
         ) : isUploading ? (
           <Progress value={progress} />
         ) : (
-          <div className="space-y-4">
-            <Label
-              htmlFor="profileImage"
-              className="text-sm font-medium text-gray-100"
-            >
-              Profile Image
-            </Label>
-            <div className="flex w-full items-center justify-center">
-              <div
-                {...getRootProps()}
-                className={`bg-transparent ${isDragActive && "border-2 border-dashed border-gray-700"} flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-white`}
-              >
-                <Upload className="mb-3 h-10 w-10 text-gray-100" />
-                <p className="mb-2 text-sm text-gray-100">
-                  <span className="font-semibold">Click to upload</span> or drag
-                  and drop
-                </p>
-                <p className="text-xs text-gray-100">
-                  PNG, JPG or GIF (MAX. 800x400px)
-                </p>
-              </div>
-              <Input
-                {...getInputProps()}
-                id="profileImage"
-                name="profileImage"
-                type="file"
-                accept="image/*"
-                className="hidden"
-              />
-            </div>
-          </div>
+          <UploadthingButton />
         );
       default:
         return null;
@@ -347,7 +273,7 @@ const SignUp = () => {
                   onClick={async () => {
                     if (imageKey) {
                       await deleteFileOnServer(imageKey);
-                      setImageUrl(undefined);
+                      setImageUrl("");
                     }
                   }}
                 >

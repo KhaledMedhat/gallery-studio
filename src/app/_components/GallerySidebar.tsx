@@ -1,8 +1,6 @@
 "use client";
 import {
-  Folders,
   Home,
-  ImagePlus,
   Images,
   LineChart,
   type LucideIcon,
@@ -11,7 +9,7 @@ import {
   PanelLeft,
   Settings,
   ShoppingCart,
-  UserRound,
+  Trash2,
   Users2,
 } from "lucide-react";
 import Link from "next/link";
@@ -37,13 +35,43 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-  BreadcrumbPage,
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
 import { isURLActive } from "~/utils/utils";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useUserStore } from "~/store";
+import { useImageStore, useUserStore } from "~/store";
+import { sidebarItems } from "~/constants/consts";
+import { api } from "~/trpc/react";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Input } from "~/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage,
+  Form,
+} from "~/components/ui/form";
+import { Textarea } from "~/components/ui/textarea";
+import UploadthingButton from "./UploadthingButton";
+import { Progress } from "~/components/ui/progress";
+import { deleteCookie, deleteFileOnServer } from "../actions";
+import { useToast } from "~/hooks/use-toast";
+import { ToastAction } from "~/components/ui/toast";
+import { signOut } from "next-auth/react";
 export interface BreadcrumbItem {
   label: string;
   href: string;
@@ -52,6 +80,12 @@ export interface BreadcrumbItem {
 
 const GallerySidebar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
   const pathname = usePathname();
+  const router = useRouter();
+  const { toast } = useToast();
+  const { data: user } = api.user.getUser.useQuery();
+  const utils = api.useContext();
+  const { imageUrl, imageKey, isUploading, progress, setImageUrl } =
+    useImageStore();
   const { breadcrumbItems, setBreadcrumbItems, deleteBreadcrumbItems } =
     useUserStore();
   useEffect(() => {
@@ -62,6 +96,54 @@ const GallerySidebar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
     });
   }, [gallerySlug, setBreadcrumbItems]);
 
+  const formSchema = z.object({
+    caption: z.string(),
+    tags: z.string().transform((str) =>
+      str
+        .split(" ")
+        .map((tag) => tag.trim())
+        .filter(Boolean),
+    ),
+  });
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      caption: "",
+      tags: [""],
+    },
+  });
+  const { mutate: addImage } = api.image.createImage.useMutation({
+    onSuccess: () => {
+      void utils.image.getImage.invalidate();
+      toast({
+        description: <span>Your Image has been added successfully</span>,
+      });
+    },
+    onError: (e) => {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: e.message,
+        action: <ToastAction altText="Try again">Try again</ToastAction>,
+      });
+    },
+  });
+  const onSubmit = (data: z.infer<typeof formSchema>) => {
+    addImage({
+      url: imageUrl ?? "",
+      imageKey: imageKey ?? "",
+      caption: data.caption,
+      tags: data.tags,
+      gallerySlug,
+    });
+  };
+
+  const handleLogout = async () => {
+    router.push("/");
+    await signOut({ callbackUrl: "/" });
+    await deleteCookie();
+  };
   return (
     <>
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
@@ -71,88 +153,128 @@ const GallerySidebar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
             <span className="sr-only">Gallery</span>
           </div>
           <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  href={`/galleries/${gallerySlug}`}
-                  className={`${isURLActive(pathname, `/galleries/${gallerySlug}`) ? "bg-accent text-accent-foreground" : "text-muted-foreground"} flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:text-foreground md:h-8 md:w-8`}
-                >
-                  <Home className="h-5 w-5" />
-                  <span className="sr-only">Gallery</span>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">Gallery</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  href="#"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-                >
-                  <ImagePlus className="h-5 w-5" />
-                  <span className="sr-only">Add Image</span>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">Add Image</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  onClick={() =>
-                    setBreadcrumbItems({
-                      label: "Albums",
-                      href: `/galleries/${gallerySlug}/albums`,
-                      icon: Folders,
-                    })
-                  }
-                >
-                  <Link
-                    href={`/galleries/${gallerySlug}/albums`}
-                    className={`${isURLActive(pathname, `/galleries/${gallerySlug}/albums`) ? "bg-accent text-accent-foreground" : "text-muted-foreground"} flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:text-foreground md:h-8 md:w-8`}
-                  >
-                    <Folders className="h-5 w-5" />
-                    <span className="sr-only">Albums</span>
-                  </Link>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">Albums</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  onClick={() =>
-                    setBreadcrumbItems({
-                      label: "Profile",
-                      href: `/galleries/${gallerySlug}/profile`,
-                      icon: UserRound,
-                    })
-                  }
-                >
-                  <Link
-                    href={`/galleries/${gallerySlug}/profile`}
-                    className={`${isURLActive(pathname, `/galleries/${gallerySlug}/profile`) ? "bg-accent text-accent-foreground" : "text-muted-foreground"} flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:text-foreground md:h-8 md:w-8`}
-                  >
-                    <UserRound className="h-5 w-5" />
-                    <span className="sr-only">Profile</span>
-                  </Link>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right">Profile</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  href="#"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-                >
-                  <LineChart className="h-5 w-5" />
-                  <span className="sr-only">Analytics</span>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">Analytics</TooltipContent>
-            </Tooltip>
+            {sidebarItems.map((item, index) => (
+              <Tooltip key={index}>
+                <TooltipTrigger asChild>
+                  {item.type === "link" ? (
+                    <Button
+                      variant="ghost"
+                      onClick={() =>
+                        setBreadcrumbItems({
+                          label: item.label,
+                          href: `${item.href ? `/galleries/${gallerySlug}/${item.href}` : `/galleries/${gallerySlug}`}`,
+                          icon: item.icon,
+                        })
+                      }
+                    >
+                      <Link
+                        href={`${item.href ? `/galleries/${gallerySlug}/${item.href}` : `/galleries/${gallerySlug}`}`}
+                        className={`${isURLActive(pathname, `${item.href ? `/galleries/${gallerySlug}/${item.href}` : `/galleries/${gallerySlug}`}`) ? "bg-accent text-accent-foreground" : "text-muted-foreground"} flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:text-foreground md:h-8 md:w-8`}
+                      >
+                        <item.icon className="h-5 w-5" />
+                        <span className="sr-only">{item.label}</span>
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="text-muted-foreground"
+                        >
+                          <item.icon className="h-5 w-5" />
+                          <span className="sr-only">{item.label}</span>
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>Add New Image</DialogTitle>
+                          <DialogDescription>
+                            Upload a new image to your gallery. Click save when
+                            you&apos;re done.
+                          </DialogDescription>
+                        </DialogHeader>
+                        {imageUrl && progress === 100 ? (
+                          <>
+                            <Image
+                              src={imageUrl}
+                              style={{ objectFit: "cover", height: "200px" }}
+                              alt="Profile Picture"
+                              width={200}
+                              height={200}
+                              className="mx-auto my-6 rounded-full"
+                            />
+                            <Button
+                              className="flex w-full"
+                              onClick={async () => {
+                                if (imageKey) {
+                                  await deleteFileOnServer(imageKey);
+                                  setImageUrl("");
+                                }
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              Delete
+                            </Button>
+                          </>
+                        ) : isUploading ? (
+                          <Progress value={progress} />
+                        ) : (
+                          <UploadthingButton isImageComponent={true} />
+                        )}
+
+                        <Form {...form}>
+                          <form
+                            onSubmit={form.handleSubmit(onSubmit)}
+                            className="w-full space-y-8"
+                          >
+                            <div className="flex flex-col gap-6">
+                              <FormField
+                                control={form.control}
+                                name="caption"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Caption</FormLabel>
+                                    <FormControl>
+                                      <Textarea
+                                        placeholder="Caption of the image"
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormDescription>
+                                      Enter image caption.
+                                    </FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name="tags"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Tags</FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="#tags" {...field} />
+                                    </FormControl>
+                                    <FormDescription>
+                                      Enter image tags if you want to add them.
+                                    </FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <Button type="submit">Save</Button>
+                          </form>
+                        </Form>
+                      </DialogContent>
+                    </Dialog>
+                  )}
+                </TooltipTrigger>
+                <TooltipContent side="right">{item.label}</TooltipContent>
+              </Tooltip>
+            ))}
           </TooltipProvider>
         </nav>
         <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-4">
@@ -182,7 +304,124 @@ const GallerySidebar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="sm:max-w-xs">
-              <nav className="grid gap-6 text-lg font-medium">
+              <nav className="grid gap-6 text-lg font-mediums">
+                {/* {sidebarItems.map((item, index) =>
+                  item.type === "link" ? (
+                    <Button
+                      className="bg-transparent hover:bg-transparent"
+                      key={index}
+                      variant="ghost"
+                      onClick={() =>
+                        setBreadcrumbItems({
+                          label: item.label,
+                          href: `${item.href ? `/galleries/${gallerySlug}/${item.href}` : `/galleries/${gallerySlug}`}`,
+                          icon: item.icon,
+                        })
+                      }
+                    >
+                      <Link
+                        href={`${item.href ? `/galleries/${gallerySlug}/${item.href}` : `/galleries/${gallerySlug}`}`}
+                        className={`${isURLActive(pathname, `${item.href ? `/galleries/${gallerySlug}/${item.href}` : `/galleries/${gallerySlug}`}`) ? "text-accent-foreground" : "text-muted-foreground"} flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:text-foreground md:h-8 md:w-8`}
+                      >
+                        <span>{item.label}</span>
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Dialog key={index}>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="text-muted-foreground hover:bg-transparent"
+                        >
+                          <span>{item.label}</span>
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>Add New Image</DialogTitle>
+                          <DialogDescription>
+                            Upload a new image to your gallery. Click save when
+                            you&apos;re done.
+                          </DialogDescription>
+                        </DialogHeader>
+                        {imageUrl && progress === 100 ? (
+                          <>
+                            <Image
+                              src={imageUrl}
+                              style={{ objectFit: "cover", height: "200px" }}
+                              alt="Profile Picture"
+                              width={200}
+                              height={200}
+                              className="mx-auto my-6 rounded-full"
+                            />
+                            <Button
+                              className="flex w-full"
+                              onClick={async () => {
+                                if (imageKey) {
+                                  await deleteFileOnServer(imageKey);
+                                  setImageUrl("");
+                                }
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              Delete
+                            </Button>
+                          </>
+                        ) : isUploading ? (
+                          <Progress value={progress} />
+                        ) : (
+                          <UploadthingButton isImageComponent={true} />
+                        )}
+
+                        <Form {...form}>
+                          <form
+                            onSubmit={form.handleSubmit(onSubmit)}
+                            className="w-full space-y-8"
+                          >
+                            <div className="flex flex-col gap-6">
+                              <FormField
+                                control={form.control}
+                                name="caption"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Caption</FormLabel>
+                                    <FormControl>
+                                      <Textarea
+                                        placeholder="Caption of the image"
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormDescription>
+                                      Enter image caption.
+                                    </FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name="tags"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Tags</FormLabel>
+                                    <FormControl>
+                                      <Input placeholder="#tags" {...field} />
+                                    </FormControl>
+                                    <FormDescription>
+                                      Enter image tags if you want to add them.
+                                    </FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <Button type="submit">Save</Button>
+                          </form>
+                        </Form>
+                      </DialogContent>
+                    </Dialog>
+                  ),
+                )} */}
                 <Link
                   href="#"
                   className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
@@ -232,7 +471,7 @@ const GallerySidebar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
             {breadcrumbItems.map((breadcrumbItem, index) => (
               <BreadcrumbList key={index}>
                 <BreadcrumbItem
-                  className={`${isURLActive(pathname, breadcrumbItem.href) && "bg-accent text-accent-foreground"} `}
+                  className={`${isURLActive(pathname, breadcrumbItem.href) && "bg-accent text-accent-foreground"} bg-transparent`}
                 >
                   <BreadcrumbLink asChild>
                     <Button
@@ -265,13 +504,18 @@ const GallerySidebar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                 size="icon"
                 className="overflow-hidden rounded-full"
               >
-                <Image
-                  src="/placeholder-user.jpg"
-                  width={36}
-                  height={36}
-                  alt="Avatar"
-                  className="overflow-hidden rounded-full"
-                />
+                <Avatar>
+                  <AvatarImage
+                    src={user?.image ?? ""}
+                    alt={user?.name ?? "Avatar"}
+                  />
+                  <AvatarFallback>
+                    {user?.name
+                      ?.split(" ")
+                      .map((part) => part[0]?.toUpperCase())
+                      .join("") ?? ""}
+                  </AvatarFallback>
+                </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -280,7 +524,14 @@ const GallerySidebar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
               <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuItem>Support</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={async () => {
+                  await handleLogout();
+                }}
+              >
+                Logout
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </header>

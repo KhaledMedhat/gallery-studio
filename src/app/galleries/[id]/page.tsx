@@ -1,11 +1,9 @@
-import Gallery from "~/app/_components/Gallery";
+import Images from "~/app/_components/Images";
 
-export default function UserGalleryPage({
+export default async function UserGalleryPage({
   params: { id: gallerySlug },
 }: {
   params: { id: string };
 }) {
-  return (
-   <Gallery gallerySlug={gallerySlug} />
-  );
+  return <Images gallerySlug={gallerySlug} />;
 }

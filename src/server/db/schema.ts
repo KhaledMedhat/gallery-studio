@@ -9,6 +9,7 @@ import {
   text,
   timestamp,
   varchar,
+  json,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
@@ -36,12 +37,14 @@ export const images = createTable("image", {
   createdById: varchar("created_by", { length: 255 })
     .notNull()
     .references(() => users.id),
-  title: varchar("title", { length: 255 }),
+  caption: varchar("caption", { length: 255 }),
+  tags: json("tags").$type<string[]>().default([]),
   imageKey: varchar("image_key", { length: 255 }),
   galleryId: integer("gallery_id")
     .notNull()
     .references(() => galleries.id),
-  albumId: integer("album_id").references(() => albums.id),
+  albumId: integer("album_id")
+    .references(() => albums.id),
   createdAt: timestamp("created_at", { withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
@@ -165,7 +168,6 @@ export const usersRelations = relations(users, ({ many, one }) => ({
     fields: [users.id],
     references: [galleries.createdById],
   }),
-  
 }));
 
 export const galleriesRelations = relations(galleries, ({ one, many }) => ({

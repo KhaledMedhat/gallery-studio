@@ -7,8 +7,4 @@ export const stages = [
       title: "Upload Profile Picture",
       subtitle: "Choose a photo to represent you",
     },
-    // {
-    //   title: "Verify Your Account",
-    //   subtitle: "Enter the OTP sent to your email",
-    // },
   ];

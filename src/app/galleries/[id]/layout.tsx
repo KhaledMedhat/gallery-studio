@@ -7,7 +7,7 @@ export default function UserGalleryPageLayout({
   return (
     <div className="flex min-h-screen w-full flex-col">
       <GallerySidebar gallerySlug={params.id} />
-      <main className="mx-20">{children}</main>
+      <main>{children}</main>
     </div>
   );
 }
