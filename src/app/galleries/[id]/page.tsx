@@ -5,5 +5,7 @@ export default function UserGalleryPage({
 }: {
   params: { id: string };
 }) {
-  return <Gallery gallerySlug={gallerySlug} />;
+  return (
+   <Gallery gallerySlug={gallerySlug} />
+  );
 }

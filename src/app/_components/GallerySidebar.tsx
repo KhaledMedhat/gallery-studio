@@ -1,49 +1,87 @@
-import { Home, LineChart, Package, Package2, PanelLeft, Search, Settings, ShoppingCart, Users2 } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
-import { Button } from "~/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "~/components/ui/dropdown-menu"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip"
-import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet"
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "~/components/ui/breadcrumb"
-import { Input } from "~/components/ui/input"
+"use client";
+import {
+  Folders,
+  Home,
+  ImagePlus,
+  Images,
+  LineChart,
+  type LucideIcon,
+  Package,
+  Package2,
+  PanelLeft,
+  Settings,
+  ShoppingCart,
+  UserRound,
+  Users2,
+} from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "~/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
+import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "~/components/ui/breadcrumb";
+import { isURLActive } from "~/utils/utils";
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
+import { useUserStore } from "~/store";
+export interface BreadcrumbItem {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+}
 
-const GallerySidebar:React.FC<{gallerySlug:string}> = ({gallerySlug}) => {
+const GallerySidebar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
+  const pathname = usePathname();
+  const { breadcrumbItems, setBreadcrumbItems, deleteBreadcrumbItems } =
+    useUserStore();
+  useEffect(() => {
+    setBreadcrumbItems({
+      label: "Gallery",
+      href: `/galleries/${gallerySlug}`,
+      icon: Home,
+    });
+  }, [gallerySlug, setBreadcrumbItems]);
+
   return (
     <>
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
         <nav className="flex flex-col items-center gap-4 px-2 sm:py-4">
-          <Link
-            href={`/galleries/${gallerySlug}`}
-            className="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
-          >
-            <Package2 className="h-4 w-4 transition-all group-hover:scale-110" />
+          <div className="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base">
+            <Images className="h-4 w-4 transition-all group-hover:scale-110" />
             <span className="sr-only">Gallery</span>
-          </Link>
+          </div>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Link
-                  href="/"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                  href={`/galleries/${gallerySlug}`}
+                  className={`${isURLActive(pathname, `/galleries/${gallerySlug}`) ? "bg-accent text-accent-foreground" : "text-muted-foreground"} flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:text-foreground md:h-8 md:w-8`}
                 >
                   <Home className="h-5 w-5" />
-                  <span className="sr-only">Home</span>
+                  <span className="sr-only">Gallery</span>
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right">Dashboard</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  href="#"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-accent-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-                >
-                  <ShoppingCart className="h-5 w-5" />
-                  <span className="sr-only">Orders</span>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">Orders</TooltipContent>
+              <TooltipContent side="right">Gallery</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -51,23 +89,57 @@ const GallerySidebar:React.FC<{gallerySlug:string}> = ({gallerySlug}) => {
                   href="#"
                   className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
                 >
-                  <Package className="h-5 w-5" />
-                  <span className="sr-only">Products</span>
+                  <ImagePlus className="h-5 w-5" />
+                  <span className="sr-only">Add Image</span>
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right">Products</TooltipContent>
+              <TooltipContent side="right">Add Image</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Link
-                  href="#"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                <Button
+                  variant="ghost"
+                  onClick={() =>
+                    setBreadcrumbItems({
+                      label: "Albums",
+                      href: `/galleries/${gallerySlug}/albums`,
+                      icon: Folders,
+                    })
+                  }
                 >
-                  <Users2 className="h-5 w-5" />
-                  <span className="sr-only">Customers</span>
-                </Link>
+                  <Link
+                    href={`/galleries/${gallerySlug}/albums`}
+                    className={`${isURLActive(pathname, `/galleries/${gallerySlug}/albums`) ? "bg-accent text-accent-foreground" : "text-muted-foreground"} flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:text-foreground md:h-8 md:w-8`}
+                  >
+                    <Folders className="h-5 w-5" />
+                    <span className="sr-only">Albums</span>
+                  </Link>
+                </Button>
               </TooltipTrigger>
-              <TooltipContent side="right">Customers</TooltipContent>
+              <TooltipContent side="right">Albums</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  onClick={() =>
+                    setBreadcrumbItems({
+                      label: "Profile",
+                      href: `/galleries/${gallerySlug}/profile`,
+                      icon: UserRound,
+                    })
+                  }
+                >
+                  <Link
+                    href={`/galleries/${gallerySlug}/profile`}
+                    className={`${isURLActive(pathname, `/galleries/${gallerySlug}/profile`) ? "bg-accent text-accent-foreground" : "text-muted-foreground"} flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:text-foreground md:h-8 md:w-8`}
+                  >
+                    <UserRound className="h-5 w-5" />
+                    <span className="sr-only">Profile</span>
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">Profile</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -100,8 +172,8 @@ const GallerySidebar:React.FC<{gallerySlug:string}> = ({gallerySlug}) => {
           </TooltipProvider>
         </nav>
       </aside>
-     <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+      <div className="flex w-full flex-col sm:gap-4 sm:py-4 sm:pl-14">
+        <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
           <Sheet>
             <SheetTrigger asChild>
               <Button size="icon" variant="outline" className="sm:hidden">
@@ -156,33 +228,36 @@ const GallerySidebar:React.FC<{gallerySlug:string}> = ({gallerySlug}) => {
               </nav>
             </SheetContent>
           </Sheet>
-          <Breadcrumb className="hidden md:flex">
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href="#">Dashboard</Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href="#">Orders</Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Recent Orders</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
+          <Breadcrumb className="gap-2 md:flex">
+            {breadcrumbItems.map((breadcrumbItem, index) => (
+              <BreadcrumbList key={index}>
+                <BreadcrumbItem
+                  className={`${isURLActive(pathname, breadcrumbItem.href) && "bg-accent text-accent-foreground"} `}
+                >
+                  <BreadcrumbLink asChild>
+                    <Button
+                      className="p-0"
+                      variant="ghost"
+                      onClick={() => deleteBreadcrumbItems(index)}
+                    >
+                      <Link href={breadcrumbItem.href}>
+                        {breadcrumbItem.label}
+                      </Link>
+                    </Button>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                {index < breadcrumbItems.length - 1 && <BreadcrumbSeparator />}
+              </BreadcrumbList>
+            ))}
           </Breadcrumb>
-          <div className="relative ml-auto flex-1 md:grow-0">
+          {/* <div className="relative ml-auto flex-1 md:grow-0">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Search..."
               className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
             />
-          </div>
+          </div> */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -214,4 +289,4 @@ const GallerySidebar:React.FC<{gallerySlug:string}> = ({gallerySlug}) => {
   );
 };
 
-export default GallerySidebar
+export default GallerySidebar;

@@ -22,6 +22,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
+import { isURLActive } from "~/utils/utils";
 export interface UserGallery {
   createdAt: Date;
   id: number;
@@ -35,7 +36,6 @@ const Navbar: React.FC<{ userGallery: UserGallery | undefined }> = ({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [mounted, setMounted] = useState(false);
   const [searchValue, setSearchValue] = useState<string>("");
-  const inputRef = useRef<HTMLInputElement>(null);
   const { setTheme } = useTheme();
   const theme = useTheme();
   const pathname = usePathname();
@@ -46,15 +46,7 @@ const Navbar: React.FC<{ userGallery: UserGallery | undefined }> = ({
     setMounted(true);
   }, []);
 
-  const handleClearSearch = (e: React.MouseEvent<SVGSVGElement>) => {
-    e.stopPropagation();
-    setSearchValue("");
-    inputRef.current?.focus();
-  };
 
-  const isURLActive = (url: string) => {
-    return pathname === url;
-  };
   if (!mounted) {
     return null; // or a loading placeholder
   }
@@ -77,31 +69,31 @@ const Navbar: React.FC<{ userGallery: UserGallery | undefined }> = ({
           <nav className="flex items-center space-x-6 text-sm font-medium">
             <Link
               href="#"
-              className={` ${isURLActive("/") ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
+              className={` ${isURLActive(pathname, "/") ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
             >
               Home
             </Link>
             <Link
               href={`/galleries/${userGallery?.slug}`}
-              className={` ${isURLActive(`/galleries/${userGallery?.slug}`) ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
+              className={` ${isURLActive(pathname, `/galleries/${userGallery?.slug}`) ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
             >
               Gallery
             </Link>
             <Link
               href="#"
-              className={` ${isURLActive("/artists") ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
+              className={` ${isURLActive(pathname, "/artists") ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
             >
               Artists
             </Link>
             <Link
               href="#"
-              className={` ${isURLActive("/about") ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
+              className={` ${isURLActive(pathname, "/about") ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
             >
               About
             </Link>
             <Link
               href="#"
-              className={` ${isURLActive("/contact") ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
+              className={` ${isURLActive(pathname, "/contact") ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
             >
               Contact
             </Link>
