@@ -1,4 +1,4 @@
-import GallerySidebar from "~/app/_components/GallerySidebar";
+import GalleryNavbar from "~/app/_components/GalleryNavbar";
 
 export default function UserGalleryPageLayout({
   children,
@@ -6,7 +6,7 @@ export default function UserGalleryPageLayout({
 }: Readonly<{ children: React.ReactNode; params: { id: string } }>) {
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <GallerySidebar gallerySlug={params.id} />
+      <GalleryNavbar gallerySlug={params.id} />
       <main>{children}</main>
     </div>
   );

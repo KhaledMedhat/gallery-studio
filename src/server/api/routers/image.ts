@@ -55,15 +55,36 @@ export const imageRouter = createTRPCRouter({
         });
       }
       
-      const newImage = await ctx.db.insert(images).values({
+      const [newImage] = await ctx.db.insert(images).values({
         url: input.url,
         imageKey: input.imageKey,
         caption: input.caption,
         tags: input.tags,
         createdById: ctx.user.id,
         galleryId: gallery.id,
-      });
+      }).returning();
 
       return newImage;
+    }),
+
+    getImageById: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      if (!ctx.user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Unauthorized",
+        });
+      }
+      const foundedImage = await ctx.db.query.images.findFirst({
+        where: eq(images.id, input.id),
+      });
+      if (!foundedImage) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Image not found",
+        });
+      }
+      return foundedImage;
     }),
 });

@@ -12,9 +12,10 @@ import { useToast } from "~/hooks/use-toast";
 import { useImageStore } from "~/store";
 import { useUploadThing } from "~/utils/uploadthing";
 
-const UploadthingButton: React.FC<{ isImageComponent?: boolean }> = ({
-  isImageComponent,
-}) => {
+const UploadthingButton: React.FC<{
+  isImageComponent?: boolean;
+  setImageFile: (args: File | undefined) => void;
+}> = ({ isImageComponent, setImageFile }) => {
   const { setIsUploading, setProgress, setImageUrl, setImageKey } =
     useImageStore();
   const { toast } = useToast();
@@ -40,11 +41,10 @@ const UploadthingButton: React.FC<{ isImageComponent?: boolean }> = ({
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
-      startUpload(acceptedFiles).catch((e) => {
-        console.log(e);
-      });
+      startUpload(acceptedFiles).catch((e) => console.log(e));
+      setImageFile(acceptedFiles[0]);
     },
-    [startUpload],
+    [setImageFile, startUpload],
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
