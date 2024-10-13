@@ -5,5 +5,6 @@ export default async function UserGalleryPage({
 }: {
   params: { id: string };
 }) {
+
   return <Images gallerySlug={gallerySlug} />;
 }

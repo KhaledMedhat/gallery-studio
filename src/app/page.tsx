@@ -48,14 +48,15 @@ export default async function Home() {
                   {featuredArtworks.map((artwork) => (
                     <div
                       key={artwork.id}
-                      className="overflow-hidden rounded-lg shadow-md"
+                      className="overflow-hidden rounded-lg shadow-sm"
                     >
                       <Image
                         src={artwork.imageUrl}
                         alt={artwork.title}
+                        objectFit="cover"
                         width={500}
                         height={350}
-                        className="h-64 w-full object-cover"
+                        className="rounded-lg"
                       />
                     </div>
                   ))}

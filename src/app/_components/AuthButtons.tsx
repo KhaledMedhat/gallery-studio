@@ -11,7 +11,7 @@ const AuthButtons = () => {
           onClick={async () => void (await signIn("google"))}
         >
           <Image
-            src={"./google.svg"}
+            src={"/google.svg"}
             alt="google_icon"
             width={25}
             height={25}
@@ -23,7 +23,7 @@ const AuthButtons = () => {
           onClick={async () => void (await signIn("twitter"))}
         >
           <Image
-            src={"./twitter.svg"}
+            src={"/twitter.svg"}
             alt="twitter_icon"
             width={25}
             height={25}

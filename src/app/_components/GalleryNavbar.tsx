@@ -170,14 +170,14 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
               </DialogDescription>
             </DialogHeader>
             {imageFile && imageUrl && progress === 100 ? (
-              <>
+              <div className="relative flex items-center justify-center flex-col gap-6">
                 <Image
                   src={imageUrl}
-                  style={{ objectFit: "cover", height: "200px" }}
                   alt="Profile Picture"
                   width={200}
                   height={200}
-                  className="mx-auto my-6 rounded-full"
+                  style={{ objectFit: "cover" }}
+                  className="mx-auto rounded-full"
                 />
                 <Button
                   className="flex w-full"
@@ -191,7 +191,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                   <Trash2 className="h-4 w-4" />
                   Delete
                 </Button>
-              </>
+              </div>
             ) : isUploading ? (
               <AnimatedCircularProgressBar
                 className="m-auto"
