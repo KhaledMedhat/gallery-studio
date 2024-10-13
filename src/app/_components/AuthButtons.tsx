@@ -1,6 +1,6 @@
 import { signIn, SessionProvider } from "next-auth/react";
 import { Button } from "~/components/ui/button";
-import Image from "next/image";
+import Image from "next/legacy/image";
 
 const AuthButtons = () => {
   return (

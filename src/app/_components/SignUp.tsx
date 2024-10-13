@@ -5,7 +5,7 @@ import { api } from "~/trpc/react";
 import { useImageStore, useUserStore } from "~/store";
 import { Input } from "~/components/ui/input";
 import Link from "next/link";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "~/components/ui/button";
 import { ArrowLeft, ArrowRight, Loader2, Trash2 } from "lucide-react";

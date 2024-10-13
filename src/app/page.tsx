@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { api, HydrateClient } from "~/trpc/server";
 import { Button } from "~/components/ui/button";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import { featuredArtworks } from "~/constants/Images";
 import Transition from "./_components/Transition";
 import Navbar from "./_components/Navbar";
