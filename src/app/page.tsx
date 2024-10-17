@@ -3,10 +3,11 @@ import { api, HydrateClient } from "~/trpc/server";
 import { Button } from "~/components/ui/button";
 import Image from "next/legacy/image";
 import { featuredArtworks } from "~/constants/Images";
-import Transition from "./_components/Transition";
 import Navbar from "./_components/Navbar";
 import Footer from "./_components/Footer";
 import ParticlesWrapper from "./_components/ParticlesWrapper";
+import BlurFade from "~/components/ui/blur-fade";
+import ImageLoader from "./loader";
 export default async function Home() {
   const session = await api.user.getUser();
   const userGallery = await api.gallery.getProvidedUserAccountGallery({
@@ -14,9 +15,10 @@ export default async function Home() {
   });
   return (
     <HydrateClient>
-      <ParticlesWrapper>
-        <Navbar userGallery={userGallery} />
-        <Transition>
+      <BlurFade delay={0.6} inView>
+        <ParticlesWrapper>
+          <Navbar userGallery={userGallery} />
+
           <main>
             <section className="py-12 md:py-24">
               <div className="container mx-auto px-4 text-center">
@@ -78,8 +80,8 @@ export default async function Home() {
             </section>
           </main>
           <Footer />
-        </Transition>
-      </ParticlesWrapper>
+        </ParticlesWrapper>
+      </BlurFade>
     </HydrateClient>
   );
 }

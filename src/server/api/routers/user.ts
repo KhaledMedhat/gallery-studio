@@ -82,6 +82,7 @@ export const userRouter = createTRPCRouter({
               provider: "email",
               image: input.image,
               name: input.name,
+              createdAt: new Date(),
             })
             .returning();
           if (user) {
@@ -161,7 +162,10 @@ export const userRouter = createTRPCRouter({
     if (!ctx.user) {
       return null;
     }
-    return ctx.user;
+    const existedUser = await ctx.db.query.users.findFirst({
+      where: eq(users.id, ctx.user?.id ?? ""),
+    });
+    return existedUser;
   }),
 
   getProvidedUserRoute: protectedProcedure.query(async ({ ctx }) => {

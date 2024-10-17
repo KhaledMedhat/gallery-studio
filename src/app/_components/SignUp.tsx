@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { api } from "~/trpc/react";
-import { useImageStore, useUserStore } from "~/store";
+import { useFileStore, useUserStore } from "~/store";
 import { Input } from "~/components/ui/input";
 import Link from "next/link";
 import Image from "next/legacy/image";
@@ -33,9 +33,10 @@ const SignUp = () => {
   const { toast } = useToast();
   const router = useRouter();
   const [stage, setStage] = useState<number>(0);
+  const [file, setFile] = useState<File | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
-  const { imageUrl, imageKey, isUploading, progress, setImageUrl } =
-    useImageStore();
+  const { fileUrl, fileKey, isUploading, progress, setFileUrl } =
+  useFileStore();
   const { mutate: sendingOTP, isPending: isSendingOTP } =
     api.user.sendingOTP.useMutation({
       onSuccess: async () => {
@@ -96,8 +97,8 @@ const SignUp = () => {
   };
 
   const onFinishRegistry = () => {
-    if (imageUrl) {
-      userImage(imageUrl);
+    if (fileUrl) {
+      userImage(fileUrl);
       sendingOTP({ name: userInfo.fullName, email: userInfo.email });
     }
     sendingOTP({ name: userInfo.fullName, email: userInfo.email });
@@ -194,9 +195,9 @@ const SignUp = () => {
           </Form>
         );
       case 1:
-        return imageUrl && progress === 100 ? (
+        return file && fileUrl && progress === 100 ? (
           <Image
-            src={imageUrl}
+            src={fileUrl}
             style={{ objectFit: "cover", height: "200px" }}
             alt="Profile Picture"
             width={200}
@@ -206,7 +207,7 @@ const SignUp = () => {
         ) : isUploading ? (
           <Progress value={progress} />
         ) : (
-          <UploadthingButton />
+          <UploadthingButton file={file} setFile={setFile} label="Profile Image" />
         );
       default:
         return null;
@@ -267,13 +268,13 @@ const SignUp = () => {
                 {stages[stage]?.subtitle}
               </p>
               {renderStageContent()}
-              {imageUrl && stage !== 0 && (
+              {fileUrl && stage !== 0 && (
                 <Button
                   className="flex w-full bg-gray-200 text-primary hover:bg-gray-300"
                   onClick={async () => {
-                    if (imageKey) {
-                      await deleteFileOnServer(imageKey);
-                      setImageUrl("");
+                    if (fileKey) {
+                      await deleteFileOnServer(fileKey);
+                      setFileUrl("");
                     }
                   }}
                 >
@@ -309,7 +310,7 @@ const SignUp = () => {
                       Processing...
                     </>
                   ) : stage === stages.length - 1 ? (
-                    imageUrl ? (
+                    fileUrl ? (
                       "Submit"
                     ) : (
                       "Continue Without Profile Picture"

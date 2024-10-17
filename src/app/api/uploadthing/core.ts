@@ -4,7 +4,10 @@ import { UploadThingError } from "uploadthing/server";
 const f = createUploadthing();
 
 export const ourFileRouter = {
-  imageUploader: f({ image: { maxFileSize: "4MB" } })
+  imageUploader: f({
+    image: { maxFileSize: "32MB" },
+    video: { maxFileSize: "256MB" },
+  })
     .middleware(async () => {
       return {};
     })

@@ -13,9 +13,9 @@ export default function GalleryPageLayout({
   return (
     <div>
       <GalleryNavbar gallerySlug={params.id} />
-      <main>
+      <section>
         {children}
-      </main>
+      </section>
     </div>
   );
 }

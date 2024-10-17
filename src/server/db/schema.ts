@@ -28,7 +28,7 @@ export const otp = createTable("otp", {
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
 });
-export const images = createTable("image", {
+export const files = createTable("image", {
   id: varchar("id", { length: 255 })
     .notNull()
     .primaryKey()
@@ -39,12 +39,12 @@ export const images = createTable("image", {
     .references(() => users.id),
   caption: varchar("caption", { length: 255 }),
   tags: json("tags").$type<string[]>().default([]),
-  imageKey: varchar("image_key", { length: 255 }),
+  fileKey: varchar("image_key", { length: 255 }),
+  fileType: varchar("file_type", { length: 255 }),
   galleryId: integer("gallery_id")
     .notNull()
     .references(() => galleries.id),
-  albumId: integer("album_id")
-    .references(() => albums.id),
+  albumId: integer("album_id").references(() => albums.id),
   createdAt: timestamp("created_at", { withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
@@ -89,6 +89,8 @@ export const users = createTable("user", {
     withTimezone: true,
   }).default(sql`CURRENT_TIMESTAMP`),
   image: varchar("image", { length: 255 }).default(""),
+  createdAt: timestamp("created_at", { withTimezone: true }),
+  updatedAt: timestamp("updated_at", { withTimezone: true }),
 });
 
 export const accounts = createTable(
@@ -173,7 +175,7 @@ export const usersRelations = relations(users, ({ many, one }) => ({
 export const galleriesRelations = relations(galleries, ({ one, many }) => ({
   user: one(users, { fields: [galleries.createdById], references: [users.id] }),
   albums: many(albums),
-  images: many(images),
+  images: many(files),
 }));
 
 export const albumsRelations = relations(albums, ({ one, many }) => ({
@@ -181,13 +183,13 @@ export const albumsRelations = relations(albums, ({ one, many }) => ({
     fields: [albums.galleryId],
     references: [galleries.id],
   }),
-  images: many(images),
+  images: many(files),
 }));
 
-export const imagesRelations = relations(images, ({ one }) => ({
+export const filesRelations = relations(files, ({ one }) => ({
   gallery: one(galleries, {
-    fields: [images.galleryId],
+    fields: [files.galleryId],
     references: [galleries.id],
   }),
-  album: one(albums, { fields: [images.albumId], references: [albums.id] }),
+  album: one(albums, { fields: [files.albumId], references: [albums.id] }),
 }));

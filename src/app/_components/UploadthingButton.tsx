@@ -7,44 +7,53 @@ import {
 } from "uploadthing/client";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { ToastAction } from "~/components/ui/toast";
 import { useToast } from "~/hooks/use-toast";
-import { useImageStore } from "~/store";
+import { useFileStore } from "~/store";
 import { useUploadThing } from "~/utils/uploadthing";
 
 const UploadthingButton: React.FC<{
   isImageComponent?: boolean;
-  setImageFile: (args: File | undefined) => void;
-}> = ({ isImageComponent, setImageFile }) => {
-  const { setIsUploading, setProgress, setImageUrl, setImageKey } =
-    useImageStore();
+  setFile: (args: File | undefined) => void;
+  file: File | undefined;
+  label: string;
+  isFileError?: boolean;
+}> = ({ isImageComponent, setFile, label, isFileError, file }) => {
+  const { setIsUploading, setProgress, setFileUrl, setFileKey, setFileType } =
+    useFileStore();
   const { toast } = useToast();
+  console.log(file?.type);
   const { startUpload, routeConfig } = useUploadThing("imageUploader", {
     onClientUploadComplete: (res) => {
-      setIsUploading(false);
-      setImageUrl(res[0]?.url ?? "");
-      setImageKey(res[0]?.key ?? "");
+      if (res[0]) {
+        setIsUploading(false);
+        setFileUrl(res[0]?.url);
+        setFileKey(res[0]?.key);
+        setFileType(res[0]?.type);
+      }
     },
     onUploadProgress: (progress) => {
       setIsUploading(true);
       setProgress(progress);
     },
     onUploadError: (e) => {
+      console.log(e.code);
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
-        description: e.message,
-        action: <ToastAction altText="Try again">Try again</ToastAction>,
+        description:
+          e.code === "BAD_REQUEST"
+            ? "You can't upload more than 1 file at a time"
+            : e.message,
       });
     },
   });
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
-      startUpload(acceptedFiles).catch((e) => console.log(e));
-      setImageFile(acceptedFiles[0]);
+      startUpload(acceptedFiles).catch((e) => {});
+      setFile(acceptedFiles[0]);
     },
-    [setImageFile, startUpload],
+    [setFile, startUpload],
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -58,7 +67,7 @@ const UploadthingButton: React.FC<{
         htmlFor="profileImage"
         className={`${!isImageComponent && "text-gray-100"} text-sm font-medium`}
       >
-        Profile Image
+        <p className={`${isFileError && "text-[#EF4444]"}`}>{label}</p>
       </Label>
       <div className="flex w-full items-center justify-center">
         <div
@@ -81,10 +90,15 @@ const UploadthingButton: React.FC<{
           id="profileImage"
           name="profileImage"
           type="file"
-          accept="image/*"
+          accept="image/*, video/*"
           className="hidden"
         />
       </div>
+      {isFileError && (
+        <p className="text-sm font-semibold text-[#EF4444]">
+          File is required.
+        </p>
+      )}
     </div>
   );
 };

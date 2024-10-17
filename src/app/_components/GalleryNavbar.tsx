@@ -40,6 +40,7 @@ import {
   GalleryHorizontalEnd,
   House,
   Library,
+  LoaderCircle,
   Plus,
   Trash2,
 } from "lucide-react";
@@ -54,43 +55,78 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Textarea } from "~/components/ui/textarea";
-import { useImageStore } from "~/store";
+import { useFileStore } from "~/store";
 import { ToastAction } from "~/components/ui/toast";
 import { Input } from "~/components/ui/input";
 import AnimatedCircularProgressBar from "~/components/ui/animated-circular-progress-bar";
 import { useState } from "react";
+import Video from "./Video";
 
 const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const [imageFile, setImageFile] = useState<File | undefined>(undefined);
+  const [file, setFile] = useState<File | undefined>(undefined);
+  const [isFileError, setIsFileError] = useState<boolean>(false);
   const router = useRouter();
   const utils = api.useUtils();
   const { data: user } = api.user.getUser.useQuery();
-  const { imageUrl, imageKey, isUploading, progress, setImageUrl } =
-    useImageStore();
+  const {
+    fileUrl,
+    fileKey,
+    fileType,
+    isUploading,
+    progress,
+    setFileUrl,
+    setFileKey,
+    selectedFiles,
+    setSelectedFilesToEmpty,
+  } = useFileStore();
   const formSchema = z.object({
-    caption: z.string(),
-    tags: z.string().transform((str) =>
-      str
-        .split(" ")
-        .map((tag) => tag.trim())
-        .filter(Boolean),
-    ),
+    caption: z.string().min(1, { message: "Caption Cannot be empty." }),
+    tags: z
+      .string()
+      .transform((str) =>
+        str
+          .split(" ")
+          .map((tag) => tag.trim())
+          .filter(Boolean),
+      )
+      .optional(),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       caption: "",
-      tags: [""],
+      tags: undefined,
     },
   });
-  const { mutate: addImage } = api.image.createImage.useMutation({
+  const { mutate: deleteFile, isPending: isDeleting } =
+    api.file.deleteFile.useMutation({
+      onSuccess: () => {
+        setSelectedFilesToEmpty();
+        toast({
+          title: "Deleted Successfully.",
+          description: `Images ${deleteFile.name} has been deleted successfully.`,
+        });
+        void utils.file.getFiles.invalidate();
+      },
+      onError: () => {
+        toast({
+          variant: "destructive",
+          title: "Deleting Image Failed.",
+          description: `Uh oh! Something went wrong. Please try again.`,
+          action: <ToastAction altText="Try again">Try again</ToastAction>,
+        });
+      },
+    });
+  const { mutate: addFile, isPending } = api.file.addFile.useMutation({
     onSuccess: () => {
-      setImageFile(undefined);
+      setFile(undefined);
+      setFileUrl("");
+      setFileKey("");
       setIsDialogOpen(false);
       form.reset();
-      void utils.image.getImage.invalidate();
+      void utils.file.getFiles.invalidate();
       toast({
         description: <span>Your Image has been added successfully</span>,
       });
@@ -105,13 +141,18 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
     },
   });
   const onSubmit = (data: z.infer<typeof formSchema>) => {
-    addImage({
-      url: imageUrl ?? "",
-      imageKey: imageKey ?? "",
-      caption: data.caption,
-      tags: data.tags,
-      gallerySlug,
-    });
+    if (!file || !fileKey || !fileUrl || !fileType) {
+      setIsFileError(true);
+    } else {
+      addFile({
+        url: fileUrl,
+        fileKey: fileKey,
+        fileType: fileType,
+        caption: data.caption,
+        tags: data.tags,
+        gallerySlug,
+      });
+    }
   };
   const handleLogout = async () => {
     router.push("/");
@@ -119,7 +160,10 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
     await deleteCookie();
   };
   return (
-    <Dock direction="middle" className="">
+    <Dock
+      direction="middle"
+      className="fixed inset-x-0 bottom-0 z-10 mx-auto mb-4 flex origin-bottom gap-4 rounded-3xl"
+    >
       <DockIcon>
         <TooltipProvider>
           <Tooltip>
@@ -145,6 +189,18 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
           </Tooltip>
         </TooltipProvider>
       </DockIcon>
+      <DockIcon>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link href={`/galleries/${gallerySlug}/albums`}>
+                <Library className="h-5 w-5" />
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent>Albums</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </DockIcon>
 
       <DockIcon>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -152,8 +208,11 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
             <Tooltip>
               <TooltipTrigger asChild>
                 <DialogTrigger asChild>
-                  <Button variant="ghost" className="text-muted-foreground">
-                    <Plus className="h-5 w-5" />
+                  <Button
+                    variant="ghost"
+                    className="text-muted-foreground hover:bg-transparent"
+                  >
+                    <Plus size={25} />
                     <span className="sr-only">Add Image</span>
                   </Button>
                 </DialogTrigger>
@@ -169,44 +228,6 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                 done.
               </DialogDescription>
             </DialogHeader>
-            {imageFile && imageUrl && progress === 100 ? (
-              <div className="relative flex items-center justify-center flex-col gap-6">
-                <Image
-                  src={imageUrl}
-                  alt="Profile Picture"
-                  width={200}
-                  height={200}
-                  style={{ objectFit: "cover" }}
-                  className="mx-auto rounded-full"
-                />
-                <Button
-                  className="flex w-full"
-                  onClick={async () => {
-                    if (imageKey) {
-                      await deleteFileOnServer(imageKey);
-                      setImageUrl("");
-                    }
-                  }}
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Delete
-                </Button>
-              </div>
-            ) : isUploading ? (
-              <AnimatedCircularProgressBar
-                className="m-auto"
-                max={100}
-                min={0}
-                value={progress}
-                gaugePrimaryColor="#171717"
-                gaugeSecondaryColor="rgba(0, 0, 0, 0.1)"
-              />
-            ) : (
-              <UploadthingButton
-                isImageComponent={true}
-                setImageFile={setImageFile}
-              />
-            )}
 
             <Form {...form}>
               <form
@@ -214,6 +235,54 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                 className="w-full space-y-8"
               >
                 <div className="flex flex-col gap-6">
+                  {file && fileUrl && progress === 100 ? (
+                    <div className="relative flex flex-col items-center justify-center gap-6">
+                      {fileType.includes("video") ? (
+                        <Video url={fileUrl} />
+                      ) : (
+                        <Image
+                          src={fileUrl}
+                          alt="Profile Picture"
+                          width={200}
+                          height={200}
+                          style={{ objectFit: "cover" }}
+                          className="mx-auto rounded-full"
+                        />
+                      )}
+                      <Button
+                        className="flex w-full"
+                        type="button"
+                        onClick={async () => {
+                          if (fileKey) {
+                            await deleteFileOnServer(fileKey);
+                            setFile(undefined);
+                            setFileUrl("");
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Delete
+                      </Button>
+                    </div>
+                  ) : isUploading && progress !== 0 ? (
+                    <AnimatedCircularProgressBar
+                      className="m-auto"
+                      max={100}
+                      min={0}
+                      value={progress}
+                      gaugePrimaryColor="#171717"
+                      gaugeSecondaryColor="rgba(0, 0, 0, 0.1)"
+                    />
+                  ) : (
+                    <UploadthingButton
+                      isImageComponent={true}
+                      file={file}
+                      setFile={setFile}
+                      label={"Image"}
+                      isFileError={isFileError}
+                    />
+                  )}
+
                   <FormField
                     control={form.control}
                     name="caption"
@@ -248,24 +317,48 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                     )}
                   />
                 </div>
-                <Button type="submit">Save</Button>
+                <Button type="submit" disabled={isPending || isUploading}>
+                  {!isPending ? (
+                    "Save"
+                  ) : (
+                    <LoaderCircle size={25} className="animate-spin" />
+                  )}
+                </Button>
               </form>
             </Form>
           </DialogContent>
         </Dialog>
       </DockIcon>
-      <DockIcon>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link href={`/galleries/${gallerySlug}/albums`}>
-                <Library className="h-5 w-5" />
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent>Albums</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </DockIcon>
+      {selectedFiles.length > 0 && (
+        <DockIcon>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                {isDeleting ? (
+                  <LoaderCircle
+                    size={25}
+                    className="animate-spin text-destructive"
+                  />
+                ) : (
+                  <Button
+                    variant="ghost"
+                    onClick={async () => {
+                      deleteFile({ id: selectedFiles.map((file) => file.id) });
+                      await deleteFileOnServer(
+                        selectedFiles.map((file) => file.fileKey),
+                      );
+                    }}
+                  >
+                    <Trash2 size={25} className="text-destructive" />
+                  </Button>
+                )}
+              </TooltipTrigger>
+              <TooltipContent>Trash</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </DockIcon>
+      )}
+
       <DockIcon>
         <TooltipProvider>
           <Tooltip>

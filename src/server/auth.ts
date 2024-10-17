@@ -67,9 +67,9 @@ export const authOptions: NextAuthOptions = {
         where: eq(users.email, user.email ?? ""),
       });
 
-      if (existingUser?.provider === 'email') {
+      if (existingUser?.provider === "email") {
         // Update the provider if it's not set
-       return '/sign-in?error=true'
+        return "/sign-in?error=true";
       }
 
       // User exists, continue with sign in
@@ -78,7 +78,6 @@ export const authOptions: NextAuthOptions = {
   },
   events: {
     signIn: async ({ user, account }) => {
-
       if (account) {
         await db
           .update(users)
@@ -87,6 +86,10 @@ export const authOptions: NextAuthOptions = {
       }
     },
     createUser: async ({ user }) => {
+      await db
+        .update(users)
+        .set({ createdAt: new Date() })
+        .where(eq(users.id, user.id));
       try {
         const account = await db.query.accounts.findFirst({
           where: eq(accounts.userId, user.id),
