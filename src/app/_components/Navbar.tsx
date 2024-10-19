@@ -15,15 +15,11 @@ import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Input } from "~/components/ui/input";
 import { api } from "~/trpc/react";
-import UserProfile, { type UserSession } from "./UserProfile";
+import UserProfile from "./UserProfile";
 import { isURLActive } from "~/utils/utils";
 import ModeToggle from "./ModeToggle";
-export interface UserGallery {
-  createdAt: Date;
-  id: number;
-  createdById: string;
-  slug: string;
-}
+import { UserGallery, UserSession } from "~/types/types";
+
 const Navbar: React.FC<{ userGallery: UserGallery | undefined }> = ({
   userGallery,
 }) => {
@@ -44,8 +40,8 @@ const Navbar: React.FC<{ userGallery: UserGallery | undefined }> = ({
     return null; // or a loading placeholder
   }
   return (
-    <header className="mt-1 pt-1 sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container m-auto flex h-14 items-center">
+    <header className="container sticky top-0 z-40 m-auto mt-1 w-full border-b bg-background/95 pt-1 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex h-14 items-center">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Image
@@ -65,12 +61,6 @@ const Navbar: React.FC<{ userGallery: UserGallery | undefined }> = ({
               className={` ${isURLActive(pathname, "/") ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
             >
               Home
-            </Link>
-            <Link
-              href={`/galleries/${userGallery?.slug}`}
-              className={` ${isURLActive(pathname, `/galleries/${userGallery?.slug}`) ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
-            >
-              Gallery
             </Link>
             <Link
               href="#"
@@ -93,7 +83,7 @@ const Navbar: React.FC<{ userGallery: UserGallery | undefined }> = ({
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-between gap-2 space-x-2 md:justify-end">
-          <motion.div
+          {/* <motion.div
             className="relative"
             initial={false}
             animate={isSearchExpanded ? "expanded" : "collapsed"}
@@ -143,10 +133,13 @@ const Navbar: React.FC<{ userGallery: UserGallery | undefined }> = ({
                 <span className="sr-only">Search</span>
               </Button>
             </div>
-          </motion.div>
+          </motion.div> */}
 
           {session ? (
-            <UserProfile session={session as UserSession} />
+            <UserProfile
+              session={session as UserSession}
+              gallerySlug={userGallery?.slug}
+            />
           ) : (
             <Button variant="default" className="m-0 px-4 py-0">
               <Link href="/sign-in">Login</Link>
@@ -163,9 +156,6 @@ const Navbar: React.FC<{ userGallery: UserGallery | undefined }> = ({
             <DropdownMenuContent align="end">
               <DropdownMenuItem>
                 <Link href="#">Home</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href="#">Gallery</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Link href="#">Artists</Link>

@@ -149,8 +149,7 @@ const CustomVideoPlayer: React.FC<CustomVideoPlayerProps> = ({
         ref={videoRef}
         src={url}
         className="h-full w-full"
-        onClick={(e) => {
-          e.preventDefault();
+        onClick={() => {
           togglePlay();
         }}
       />

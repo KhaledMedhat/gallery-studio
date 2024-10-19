@@ -1,39 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-interface UserRegistry {
-  fullName: string;
-  email: string;
-  password: string;
-  image: string;
-}
+import { Store, UserRegistry, FileStore, selectedFiles } from "./types/types";
 
-interface Store {
-  userRegistrationInfo: UserRegistry;
-  setUserRegistry: (user: UserRegistry) => void;
-  setUserImage: (image: string) => void;
-}
-
-interface selectedFiles {
-  id: string;
-  fileKey: string;
-}
-
-interface FileStore {
-  fileUrl: string;
-  fileKey: string;
-  fileType: string;
-  isUploading: boolean;
-  progress: number;
-  selectedFiles: selectedFiles[];
-  setSelectedFilesToEmpty: () => void;
-  setSelectedFiles: (selectedFiles: selectedFiles) => void;
-  removeSelectedFiles: (selectedFiles: selectedFiles) => void;
-  setFileUrl: (url: string) => void;
-  setFileKey: (key: string) => void;
-  setFileType: (type: string) => void;
-  setIsUploading: (isUploading: boolean) => void;
-  setProgress: (progress: number) => void;
-}
 export const useUserStore = create<Store>()(
   persist(
     (set, get) => ({
@@ -62,6 +30,8 @@ export const useFileStore = create<FileStore>()((set, get) => ({
   fileKey: "",
   fileType: "",
   isUploading: false,
+  isUpdating: false,
+  isUpdatingPending: false,
   progress: 0,
   selectedFiles: [],
   setSelectedFilesToEmpty: () => set(() => ({ selectedFiles: [] })),
@@ -80,5 +50,15 @@ export const useFileStore = create<FileStore>()((set, get) => ({
   setFileType: (type: string) => set(() => ({ fileType: type })),
   setIsUploading: (isUploading: boolean) =>
     set(() => ({ isUploading: isUploading })),
+  setIsUpdating: (isUpdating: boolean) =>
+    set(() => ({ isUpdating: isUpdating })),
+
   setProgress: (progress: number) => set(() => ({ progress: progress })),
+  setIsUpdatingPending: (isUpdatingPending: boolean) =>
+    set(() => ({ isUpdatingPending: isUpdatingPending })),
+}));
+
+export const useAlbumStore = create<{ title: string }>()((set, get) => ({
+  title: "",
+  setTitle: (title: string) => set(() => ({ title: title })),
 }));

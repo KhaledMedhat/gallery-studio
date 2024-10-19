@@ -6,6 +6,7 @@ import {
   Mail,
   MessageSquare,
   UserPlus,
+  GalleryHorizontalEnd,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -25,25 +26,19 @@ import {
 import { deleteCookie } from "../actions";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { UserSession } from "~/types/types";
 
-export interface UserSession {
-  id: string;
-  image?: string;
-  email: string;
-  name: string;
-  bio?: string;
-  password?: string;
-  emailVerified?: Date;
-}
 const UserProfile: React.FC<{
   session: UserSession;
-}> = ({ session }) => {
-  const router = useRouter()
+  gallerySlug: string | undefined;
+}> = ({ session, gallerySlug }) => {
+  const router = useRouter();
   const avatarFallback = session?.name?.slice(0, 2).toUpperCase();
   const handleLogout = async () => {
     await signOut();
     await deleteCookie();
-    router.refresh()
+    router.refresh();
   };
   return (
     <DropdownMenu>
@@ -70,11 +65,15 @@ const UserProfile: React.FC<{
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem className="cursor-pointer">
-            <User className="mr-2 h-4 w-4" />
+            <User size={16} className="mr-2" />
             <span>Profile</span>
           </DropdownMenuItem>
+          <DropdownMenuItem>
+            <GalleryHorizontalEnd size={16} className="mr-2" />
+            <Link href={`/galleries/${gallerySlug}`}>Gallery</Link>
+          </DropdownMenuItem>
           <DropdownMenuItem className="cursor-pointer">
-            <Settings className="mr-2 h-4 w-4" />
+            <Settings size={16} className="mr-2" />
             <span>Settings</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
@@ -82,17 +81,17 @@ const UserProfile: React.FC<{
         <DropdownMenuGroup>
           <DropdownMenuSub>
             <DropdownMenuSubTrigger className="cursor-pointer">
-              <UserPlus className="mr-2 h-4 w-4" />
+              <UserPlus size={16} className="mr-2" />
               <span>Invite friend</span>
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
               <DropdownMenuSubContent className="cursor-pointer">
                 <DropdownMenuItem className="cursor-pointer">
-                  <Mail className="mr-2 h-4 w-4" />
+                  <Mail size={16} className="mr-2" />
                   <span>Email</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="cursor-pointer">
-                  <MessageSquare className="mr-2 h-4 w-4" />
+                  <MessageSquare size={16} className="mr-2" />
                   <span>Share</span>
                 </DropdownMenuItem>
               </DropdownMenuSubContent>
@@ -101,12 +100,12 @@ const UserProfile: React.FC<{
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="cursor-pointer">
-          <LifeBuoy className="mr-2 h-4 w-4" />
+          <LifeBuoy size={16} className="mr-2" />
           <span>Support</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="cursor-pointer" onClick={handleLogout}>
-          <LogOut className="mr-2 h-4 w-4" />
+          <LogOut size={16} className="mr-2" />
           <span>Log out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>

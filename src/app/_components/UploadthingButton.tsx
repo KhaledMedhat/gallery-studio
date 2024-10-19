@@ -21,7 +21,6 @@ const UploadthingButton: React.FC<{
   const { setIsUploading, setProgress, setFileUrl, setFileKey, setFileType } =
     useFileStore();
   const { toast } = useToast();
-  console.log(file?.type);
   const { startUpload, routeConfig } = useUploadThing("imageUploader", {
     onClientUploadComplete: (res) => {
       if (res[0]) {

@@ -1,4 +1,4 @@
-import { galleries, files } from "~/server/db/schema";
+import { galleries, files, albums, albumFiles } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { z } from "zod";
 import { eq, inArray } from "drizzle-orm";
@@ -73,7 +73,7 @@ export const fileRouter = createTRPCRouter({
 
   getFileById: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ ctx, input }) => {
+    .query(async ({ ctx, input }) => {
       if (!ctx.user) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
@@ -102,5 +102,86 @@ export const fileRouter = createTRPCRouter({
         });
       }
       await ctx.db.delete(files).where(inArray(files.id, input.id));
+    }),
+
+  updateFile: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        caption: z.string().optional(),
+        tags: z.array(z.string()).optional(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Unauthorized",
+        });
+      }
+
+      const updatedFile = await ctx.db
+        .update(files)
+        .set({
+          caption: input.caption,
+          tags: input.tags,
+        })
+        .where(eq(files.id, input.id))
+        .returning();
+
+      return updatedFile;
+    }),
+
+  getAlbumFiles: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ ctx, input }) => {
+      if (!ctx.user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Unauthorized",
+        });
+      }
+      const existingFiles = await ctx.db.query.albumFiles.findMany({
+        where: eq(albumFiles.albumId, input.id),
+      });
+
+      if (existingFiles) {
+        const oldFiles = existingFiles.map((fileId) => fileId.fileId);
+       const albumFiles = await ctx.db.query.files.findMany({
+         where: inArray(files.id, oldFiles),
+       })
+       return albumFiles
+      }
+    }),
+
+  addToExistedAlbum: protectedProcedure
+    .input(
+      z.object({
+        id: z.array(z.string()),
+        albumTitle: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (!ctx.user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Unauthorized",
+        });
+      }
+      const existingAlbum = await ctx.db.query.albums.findFirst({
+        where: eq(albums.name, input.albumTitle),
+      });
+      if (!existingAlbum) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `Album with title "${input.albumTitle}" not found.`,
+        });
+      }
+      const albumFileValues = input.id.map((fileId) => ({
+        albumId: existingAlbum.id,
+        fileId,
+      }));
+      return await ctx.db.insert(albumFiles).values(albumFileValues);
+
     }),
 });

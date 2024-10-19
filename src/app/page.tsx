@@ -7,7 +7,7 @@ import Navbar from "./_components/Navbar";
 import Footer from "./_components/Footer";
 import ParticlesWrapper from "./_components/ParticlesWrapper";
 import BlurFade from "~/components/ui/blur-fade";
-import ImageLoader from "./loader";
+import { AspectRatio } from "~/components/ui/aspect-ratio";
 export default async function Home() {
   const session = await api.user.getUser();
   const userGallery = await api.gallery.getProvidedUserAccountGallery({
@@ -52,14 +52,14 @@ export default async function Home() {
                       key={artwork.id}
                       className="overflow-hidden rounded-lg shadow-sm"
                     >
-                      <Image
-                        src={artwork.imageUrl}
-                        alt={artwork.title}
-                        objectFit="cover"
-                        width={500}
-                        height={350}
-                        className="rounded-lg"
-                      />
+                      <AspectRatio ratio={4 / 3}>
+                        <Image
+                          src={artwork.imageUrl}
+                          alt={artwork.title}
+                          layout="fill"
+                          className="h-full w-full cursor-pointer rounded-lg object-cover"
+                        />
+                      </AspectRatio>
                     </div>
                   ))}
                 </div>

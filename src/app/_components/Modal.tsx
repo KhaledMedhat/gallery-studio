@@ -20,6 +20,8 @@ import { getInitials } from "~/utils/utils";
 import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
 import ImageOptions from "./ImageOptions";
+import { api } from "~/trpc/react";
+import { isAlbumOrFile } from "~/types/types";
 
 dayjs.extend(relativeTime);
 export function Modal({
@@ -29,7 +31,6 @@ export function Modal({
   profileImage,
   createdAt,
   fileId,
-  fileKey,
 }: {
   children: React.ReactNode;
   name?: string | null;
@@ -37,16 +38,15 @@ export function Modal({
   profileImage?: string | null;
   createdAt?: Date | null;
   fileId: string;
-  fileKey: string | null;
 }) {
   const router = useRouter();
-
-  const handleOpenChange = () => {
+  const { data: file } = api.file.getFileById.useQuery({ id: fileId });
+  const handleOpenModalChange = () => {
     router.back();
   };
   const initials = getInitials(name ?? "");
   return (
-    <Dialog defaultOpen={true} open={true} onOpenChange={handleOpenChange}>
+    <Dialog defaultOpen={true} open={true} onOpenChange={handleOpenModalChange}>
       <DialogOverlay>
         <DialogContent isClosed={true}>
           <DialogTitle className="flex items-center justify-between">
@@ -82,11 +82,18 @@ export function Modal({
                 </HoverCardContent>
               </HoverCard>
             </div>
-
-            <ImageOptions fileId={fileId} fileKey={fileKey} />
+            {file && (
+              <ImageOptions
+                isAlbumOrFile={isAlbumOrFile.file}
+                albumId={null}
+                fileId={fileId}
+                fileKey={file.fileKey}
+                fileCaption={file.caption}
+              />
+            )}
           </DialogTitle>
           {children}
-          <DialogDescription>Modal description</DialogDescription>
+          <DialogDescription></DialogDescription>
         </DialogContent>
       </DialogOverlay>
     </Dialog>

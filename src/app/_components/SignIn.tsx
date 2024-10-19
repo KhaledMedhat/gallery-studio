@@ -23,21 +23,10 @@ import { useToast } from "~/hooks/use-toast";
 import { ToastAction } from "~/components/ui/toast";
 import { useState } from "react";
 
-const SignIn: React.FC<{ paramError: string | string[] | undefined }> = ({
-  paramError,
-}) => {
+const SignIn = () => {
   const router = useRouter();
   const { toast } = useToast();
-  const [toastShown, setToastShown] = useState(false);
 
-  if (paramError && !toastShown) {
-    toast({
-      variant: "destructive",
-      title: "Uh oh! Something went wrong.",
-      description: "Account already exists",
-    });
-    setToastShown(true);
-  }
   const formSchema = z.object({
     email: z.string().email(),
     password: z.string().min(1, "Password is required"),
