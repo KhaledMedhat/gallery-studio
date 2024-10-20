@@ -12,6 +12,7 @@ import Video from "./Video";
 import { Badge } from "~/components/ui/badge";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { Separator } from "~/components/ui/separator";
+import { isAlbumOrFileEnum } from "~/types/types";
 
 const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
   const { data: files, isLoading } = api.file.getFiles.useQuery();
@@ -26,7 +27,13 @@ const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
   const handleImageLoad = (id: number) => {
     setLoadedFiles((prev) => new Set(prev).add(id));
   };
-  if (files?.length === 0) return <EmptyAlbumPage gallerySlug={gallerySlug} />;
+  if (files?.length === 0)
+    return (
+      <EmptyAlbumPage
+        gallerySlug={gallerySlug}
+        isAlbumOrFilePage={isAlbumOrFileEnum.file}
+      />
+    );
   return (
     <div className="container mx-auto px-4 py-10">
       {/* <div className="flex flex-wrap items-center justify-center gap-4 md:justify-start"> */}
@@ -36,7 +43,7 @@ const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
             ))
           :  */}
       <div className="flex flex-col gap-4">
-        <div className="flex justify-center gap-4 flex-wrap">
+        <div className="flex flex-wrap justify-center gap-4">
           {files?.map(
             (file) =>
               file.fileType?.includes("image") && (
@@ -100,7 +107,7 @@ const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
           <Separator />
           <Badge className="w-fit">Videos</Badge>
         </div>
-        <div className="flex justify-center gap-4 flex-wrap">
+        <div className="flex flex-wrap justify-center gap-4">
           {files?.map(
             (file) =>
               file.fileType?.includes("video") && (

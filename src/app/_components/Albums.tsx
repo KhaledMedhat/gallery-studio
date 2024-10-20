@@ -92,7 +92,7 @@ const Albums: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
       });
     }
   };
-  if (albums?.length === 0) return <EmptyAlbumPage gallerySlug={gallerySlug} />;
+  if (albums?.length === 0) return <EmptyAlbumPage isAlbumOrFilePage={isAlbumOrFileEnum.album} gallerySlug={gallerySlug} />;
   return (
     <div className="container mx-auto px-4 py-10">
       <div className="flex flex-wrap items-center justify-center gap-4 md:justify-start">
