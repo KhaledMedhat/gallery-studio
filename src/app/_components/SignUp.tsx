@@ -36,7 +36,7 @@ const SignUp = () => {
   const [file, setFile] = useState<File | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const { fileUrl, fileKey, isUploading, progress, setFileUrl } =
-  useFileStore();
+    useFileStore();
   const { mutate: sendingOTP, isPending: isSendingOTP } =
     api.user.sendingOTP.useMutation({
       onSuccess: async () => {
@@ -207,7 +207,11 @@ const SignUp = () => {
         ) : isUploading ? (
           <Progress value={progress} />
         ) : (
-          <UploadthingButton file={file} setFile={setFile} label="Profile Image" />
+          <UploadthingButton
+            file={file}
+            setFile={setFile}
+            label="Profile Image"
+          />
         );
       default:
         return null;
@@ -227,25 +231,27 @@ const SignUp = () => {
           </p>
         </div>
       </div>
-      <div className="relative flex w-full flex-col items-center justify-center bg-[#171717] p-8 lg:w-3/4">
-        <div className="absolute left-10 top-10 text-center">
-          <Button className="border border-solid border-gray-100 bg-transparent hover:bg-transparent">
+      <div className="relative flex w-full flex-col items-center justify-center gap-4 bg-[#171717] p-8 lg:w-3/4">
+        <div className="flex w-full items-center justify-between sm:size-0">
+          <div className="left-10 top-10 block text-center sm:absolute">
+            <Button className="border border-solid border-gray-100 bg-transparent hover:bg-transparent">
+              <Link
+                href="/"
+                className="flex items-center gap-2 font-medium text-gray-100"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Home
+              </Link>
+            </Button>
+          </div>
+          <div className="right-10 top-10 block text-center sm:absolute">
             <Link
-              href="/"
-              className="flex items-center gap-2 font-medium text-gray-100"
+              href="/sign-in"
+              className="font-medium text-gray-100 hover:underline"
             >
-              <ArrowLeft className="h-4 w-4" />
-              Home
+              Log in
             </Link>
-          </Button>
-        </div>
-        <div className="absolute right-10 top-10 text-center">
-          <Link
-            href="/sign-in"
-            className="font-medium text-gray-100 hover:underline"
-          >
-            Log in
-          </Link>
+          </div>
         </div>
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}

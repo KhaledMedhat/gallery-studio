@@ -1,6 +1,6 @@
 "use client";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
-import { fileType } from "~/types/types";
+import type { fileType } from "~/types/types";
 import Video from "./Video";
 import Image from "next/image";
 import { Input } from "~/components/ui/input";
@@ -29,33 +29,47 @@ const UpdateFileModalView: React.FC<{
   const utils = api.useUtils();
 
   const formSchema = z.object({
-    caption: z.string().optional(),
+    caption: z.string().min(1, { message: "Caption cannot be empty" }),
     tags: z
       .string()
-      .transform((str) =>
-        str
-          .split(" ")
-          .map((tag) => tag.trim())
-          .filter(Boolean),
-      )
-      .refine((tags) => tags.every((tag) => tag.startsWith("#")), {
-        message: "Each tag must start with #",
-      })
+      .optional()
       .refine(
-        (tags) =>
-          tags.every((tag) => tag.indexOf("#") === tag.lastIndexOf("#")),
+        (tagString) => {
+          // Split the string into individual tags based on spaces
+          const tags = tagString?.split(" ").filter(Boolean); // Filter out any empty spaces
+          // Check each tag starts with #, contains only one #, and is not only #
+          return tags?.every(
+            (tag) => tag.startsWith("#"), // Starts with #
+          );
+        },
         {
-          message: "Tags cannot contain more than one #",
+          message: "Each tag must start with #",
         },
       )
-      .optional(),
+      .refine(
+        (tagString) => {
+          const tags = tagString?.split(" ").filter(Boolean); // Filter out any empty spaces
+          return tags?.every(
+            (tag) => tag.indexOf("#") === tag.lastIndexOf("#"), // Contains only one #
+          );
+        },
+        { message: "Tags cannot contain more than one #" },
+      )
+      .refine(
+        (tagString) => {
+          const tags = tagString?.split(" ").filter(Boolean); // Filter out any empty spaces
+          return tags?.every(
+            (tag) => tag.trim().length > 1, // Not just "#"
+          );
+        },
+        { message: "Invalid tag" },
+      ),
   });
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      caption: file.caption ?? "",
-      tags: [file.tags?.toString().split(",").join(" ")] ?? [],
+      caption: file.caption!,
+      tags: file.tags?.toString().split(",").join(" ") ?? "",
     },
   });
 
@@ -65,13 +79,13 @@ const UpdateFileModalView: React.FC<{
         setIsUpdatingPending(isFileUpdating);
       },
       onSuccess: (data) => {
+        setIsUpdating(false);
         toast({
           title: "Updated Successfully.",
           description: `Images has been Updated successfully.`,
         });
         if (data[0]?.id)
           void utils.file.getFileById.invalidate({ id: data[0]?.id });
-        setIsUpdating(false);
       },
       onError: () => {
         toast({
@@ -82,16 +96,30 @@ const UpdateFileModalView: React.FC<{
         });
       },
       onSettled: () => {
-        setIsUpdating(false);
+        setIsUpdatingPending(false);
       },
     });
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
-    updateFile({
-      id: file.id,
-      caption: data.caption,
-      tags: data.tags,
-    });
+    const initialTags = file.tags?.toString().split(",").join(" ");
+    const isChanged =
+      data.caption !== (file.caption ?? "") || data.tags !== initialTags;
+    if (!isChanged) {
+      setIsUpdating(false);
+      toast({
+        description: `No changes made.`,
+      });
+    } else {
+      const tags = data.tags
+        ?.split(" ") // convert string to array as api expects
+        .filter((tag) => tag.startsWith("#") && tag.trim() !== "");
+
+      updateFile({
+        id: file.id,
+        caption: data.caption,
+        tags,
+      });
+    }
   };
   return (
     <section className="flex flex-col gap-4">

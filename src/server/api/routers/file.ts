@@ -108,7 +108,7 @@ export const fileRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string(),
-        caption: z.string().optional(),
+        caption: z.string(),
         tags: z.array(z.string()).optional(),
       }),
     )
