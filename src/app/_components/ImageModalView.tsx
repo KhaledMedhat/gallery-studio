@@ -1,6 +1,5 @@
 "use client";
 import Image from "next/image";
-import type { fileType } from "~/types/types";
 import Video from "./Video";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 import dayjs from "dayjs";

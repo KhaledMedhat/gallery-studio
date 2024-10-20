@@ -42,7 +42,6 @@ import {
   GalleryHorizontalEnd,
   House,
   Library,
-  Loader2,
   LoaderCircle,
   Plus,
   Trash2,
@@ -66,7 +65,6 @@ import AnimatedCircularProgressBar from "~/components/ui/animated-circular-progr
 import { useState } from "react";
 import Video from "./Video";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
-import { Label } from "~/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import {
   Card,
@@ -142,17 +140,18 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
     }),
   });
 
-  const createAlbumFormSchema = z.object({
-    album: z.string().min(1, { message: "Album name Cannot be empty." }),
-  });
-  const createAlbumForm = useForm<z.infer<typeof albumsFormSchema>>({
+  const albumForm = useForm<z.infer<typeof albumsFormSchema>>({
     resolver: zodResolver(albumsFormSchema),
     defaultValues: {
       album: "",
     },
   });
-  const albumForm = useForm<z.infer<typeof albumsFormSchema>>({
-    resolver: zodResolver(albumsFormSchema),
+
+  const createAlbumFormSchema = z.object({
+    album: z.string().min(1, { message: "Album name Cannot be empty." }),
+  });
+  const createAlbumForm = useForm<z.infer<typeof createAlbumFormSchema>>({
+    resolver: zodResolver(createAlbumFormSchema),
     defaultValues: {
       album: "",
     },
@@ -275,7 +274,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
   return (
     <Dock
       direction="middle"
-      className="fixed bg-background inset-x-0 bottom-0 z-10 mx-auto mb-4 flex origin-bottom gap-4 rounded-3xl"
+      className="fixed inset-x-0 bottom-0 z-10 mx-auto mb-4 flex origin-bottom gap-4 rounded-3xl bg-background"
     >
       <DockIcon>
         <TooltipProvider>
@@ -338,7 +337,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
               <TooltipContent>Add Image</TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="h-full max-h-[800px] overflow-y-auto sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Add Image</DialogTitle>
               <DialogDescription>
