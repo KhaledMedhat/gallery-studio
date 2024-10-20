@@ -21,7 +21,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
 import ImageOptions from "./ImageOptions";
 import { api } from "~/trpc/react";
-import { isAlbumOrFile } from "~/types/types";
+import { isAlbumOrFileEnum } from "~/types/types";
 
 dayjs.extend(relativeTime);
 export function Modal({
@@ -84,7 +84,7 @@ export function Modal({
             </div>
             {file && (
               <ImageOptions
-                isAlbumOrFile={isAlbumOrFile.file}
+                isAlbumOrFile={isAlbumOrFileEnum.file}
                 albumId={null}
                 fileId={fileId}
                 fileKey={file.fileKey}

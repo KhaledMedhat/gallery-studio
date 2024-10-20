@@ -12,8 +12,7 @@ import { toast } from "~/hooks/use-toast";
 import { api } from "~/trpc/react";
 import { deleteFileOnServer } from "../actions";
 import { useFileStore } from "~/store";
-import { useRouter } from "next/navigation";
-import { isAlbumOrFile } from "~/types/types";
+import { isAlbumOrFileEnum } from "~/types/types";
 
 const ImageOptions: React.FC<{
   isAlbumUpdating?: boolean;
@@ -21,11 +20,10 @@ const ImageOptions: React.FC<{
   fileId: string | null;
   fileKey: string | null;
   fileCaption: string | null;
-  isAlbumOrFile: isAlbumOrFile;
+  isAlbumOrFile: isAlbumOrFileEnum;
 }> = ({ fileId, fileKey, isAlbumOrFile, albumId, isAlbumUpdating }) => {
   const { setIsUpdating, isUpdating, isUpdatingPending } = useFileStore();
   const utils = api.useUtils();
-  const router = useRouter();
   const { mutate: deleteAlbum, isPending: isAlbumDeleting } =
     api.album.deleteAlbum.useMutation({
       onSuccess: () => {
@@ -66,8 +64,10 @@ const ImageOptions: React.FC<{
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="hover:bg-transparent">
-          {isAlbumOrFile === "file" && <Ellipsis size={30} />}
-          {isAlbumOrFile === "album" && <EllipsisVertical size={20} />}
+          {isAlbumOrFile === isAlbumOrFileEnum.file && <Ellipsis size={30} />}
+          {isAlbumOrFile === isAlbumOrFileEnum.album && (
+            <EllipsisVertical size={20} />
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
@@ -88,11 +88,11 @@ const ImageOptions: React.FC<{
             <Button
               disabled={isFileDeleting}
               onClick={async () => {
-                if (isAlbumOrFile === "file" && fileId) {
+                if (isAlbumOrFile === isAlbumOrFileEnum.file && fileId) {
                   deleteFile({ id: [fileId] });
                   if (fileKey) await deleteFileOnServer(fileKey);
                 }
-                if (isAlbumOrFile === "album" && albumId) {
+                if (isAlbumOrFile === isAlbumOrFileEnum.album && albumId) {
                   deleteAlbum({ id: albumId });
                 }
               }}
@@ -113,7 +113,11 @@ const ImageOptions: React.FC<{
     <div className="flex items-center gap-2">
       <Button
         type="submit"
-        form={isAlbumOrFile === "file" ? "update-form" : "update-album-form"}
+        form={
+          isAlbumOrFile === isAlbumOrFileEnum.file
+            ? "update-form"
+            : "update-album-form"
+        }
         disabled={isUpdatingPending || isAlbumUpdating}
       >
         {isUpdatingPending || isAlbumUpdating ? (

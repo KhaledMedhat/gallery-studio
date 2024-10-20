@@ -2,17 +2,15 @@
 import { api } from "~/trpc/react";
 import EmptyAlbumPage from "./EmptyAlbumPage";
 import BlurFade from "~/components/ui/blur-fade";
-import { AspectRatio } from "@radix-ui/react-aspect-ratio";
 import Image from "next/image";
 import ImageOptions from "./ImageOptions";
-import { isAlbumOrFile } from "~/types/types";
+import { isAlbumOrFileEnum } from "~/types/types";
 import Link from "next/link";
 import { Skeleton } from "~/components/ui/skeleton";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useEffect } from "react";
-import { useAlbumStore, useFileStore } from "~/store";
+import { useFileStore } from "~/store";
 import {
   Form,
   FormControl,
@@ -21,26 +19,26 @@ import {
   FormItem,
   FormMessage,
 } from "~/components/ui/form";
-import { Textarea } from "~/components/ui/textarea";
-import { ToastAction } from "~/components/ui/toast";
 import { toast } from "~/hooks/use-toast";
 import { Input } from "~/components/ui/input";
+import { ToastAction } from "~/components/ui/toast";
 
 const AlbumCoverImage: React.FC<{ albumId: number; albumTitle: string }> = ({
   albumId,
   albumTitle,
 }) => {
   const { data: albumFiles } = api.file.getAlbumFiles.useQuery({ id: albumId });
-  const displayFiles = [...(albumFiles || []), null, null, null, null].slice(
+  const displayFiles = [...(albumFiles ?? []), null, null, null, null].slice(
     0,
     4,
   );
   return (
     <div className="grid h-full w-full grid-cols-2 gap-2">
-      {displayFiles.map((file) => (
-        <div key={file?.id}>
+      {displayFiles.map((file, idx) => (
+        <div key={file?.id ?? `placeholder-${idx}`}>
           {file ? (
             <Image
+              priority
               src={file.url}
               alt={`One of ${albumTitle} album cover images`}
               width={300}
@@ -105,7 +103,7 @@ const Albums: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                 <div className="absolute right-0 top-0">
                   <ImageOptions
                     isAlbumUpdating={isAlbumUpdating}
-                    isAlbumOrFile={isAlbumOrFile.album}
+                    isAlbumOrFile={isAlbumOrFileEnum.album}
                     albumId={album.id}
                     fileId={null}
                     fileKey={null}

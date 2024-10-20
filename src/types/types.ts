@@ -1,4 +1,4 @@
-export enum isAlbumOrFile {
+export enum isAlbumOrFileEnum {
   file = "file",
   album = "album",
 }

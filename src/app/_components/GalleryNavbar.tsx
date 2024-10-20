@@ -275,7 +275,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
   return (
     <Dock
       direction="middle"
-      className="fixed inset-x-0 bottom-0 z-10 mx-auto mb-4 flex origin-bottom gap-4 rounded-3xl"
+      className="fixed bg-background inset-x-0 bottom-0 z-10 mx-auto mb-4 flex origin-bottom gap-4 rounded-3xl"
     >
       <DockIcon>
         <TooltipProvider>
