@@ -21,14 +21,13 @@ import {
 import AuthButtons from "./AuthButtons";
 import { useToast } from "~/hooks/use-toast";
 import { ToastAction } from "~/components/ui/toast";
-import { useState } from "react";
 
 const SignIn = () => {
   const router = useRouter();
   const { toast } = useToast();
 
   const formSchema = z.object({
-    email: z.string().email(),
+    email: z.string().email().toLowerCase(),
     password: z.string().min(1, "Password is required"),
   });
 

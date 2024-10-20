@@ -1,8 +1,6 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
@@ -28,9 +26,7 @@ import { api } from "~/trpc/react";
 
 const OTP = () => {
   const router = useRouter();
-  const theme = useTheme();
   const { toast } = useToast();
-  const [mounted, setMounted] = useState(false);
 
   const userRegistryInfo = useUserStore((state) => state.userRegistrationInfo);
   const FormSchema = z.object({
@@ -61,16 +57,6 @@ const OTP = () => {
       });
     },
   });
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    // Return a placeholder or skeleton component here
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-10 p-8"></div>
-    );
-  }
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     createUser.mutate({
       name: userRegistryInfo.fullName,
@@ -83,7 +69,7 @@ const OTP = () => {
 
   return (
     <div
-      className={`flex min-h-screen flex-col items-center justify-center gap-10 ${theme.resolvedTheme === "dark" ? "bg-[#171717]" : "bg-neutral-300"} p-8`}
+      className={`flex min-h-screen flex-col items-center justify-center gap-10 bg-background p-8`}
     >
       <div className="w-full max-w-4xl">
         <h1 className="text-left text-3xl font-bold">OTP Verification</h1>

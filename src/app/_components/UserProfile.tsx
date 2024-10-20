@@ -27,14 +27,16 @@ import { deleteCookie } from "../actions";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { UserSession } from "~/types/types";
+import type { UserSession } from "~/types/types";
+import { getInitials } from "~/utils/utils";
 
 const UserProfile: React.FC<{
   session: UserSession;
   gallerySlug: string | undefined;
 }> = ({ session, gallerySlug }) => {
   const router = useRouter();
-  const avatarFallback = session?.name?.slice(0, 2).toUpperCase();
+  const initials = getInitials(session?.name);
+
   const handleLogout = async () => {
     await signOut();
     await deleteCookie();
@@ -49,7 +51,7 @@ const UserProfile: React.FC<{
               src={session.image ?? undefined}
               alt={session.name ?? undefined}
             />
-            <AvatarFallback>{avatarFallback}</AvatarFallback>
+            <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>

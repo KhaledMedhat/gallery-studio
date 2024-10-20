@@ -8,7 +8,7 @@ import Link from "next/link";
 import Image from "next/legacy/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "~/components/ui/button";
-import { ArrowLeft, ArrowRight, Loader2, Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, X } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -25,9 +25,10 @@ import { stages } from "~/constants/Stages";
 import { deleteFileOnServer } from "../actions";
 import { useToast } from "~/hooks/use-toast";
 import { ToastAction } from "~/components/ui/toast";
-import { Progress } from "~/components/ui/progress";
 import AuthButtons from "./AuthButtons";
 import UploadthingButton from "./UploadthingButton";
+import { AspectRatio } from "~/components/ui/aspect-ratio";
+import AnimatedCircularProgressBar from "~/components/ui/animated-circular-progress-bar";
 
 const SignUp = () => {
   const { toast } = useToast();
@@ -58,7 +59,7 @@ const SignUp = () => {
   const formSchema = z.object({
     fullName: z.string().min(1, "Full name is required"),
     email: z.string().email().min(1, "Email is required"),
-    password: z.string().min(8, "Password is required"),
+    password: z.string().min(8, "Password is required").toLowerCase(),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -196,16 +197,39 @@ const SignUp = () => {
         );
       case 1:
         return file && fileUrl && progress === 100 ? (
-          <Image
-            src={fileUrl}
-            style={{ objectFit: "cover", height: "200px" }}
-            alt="Profile Picture"
-            width={200}
-            height={200}
-            className="mx-auto my-6 rounded-full"
-          />
+          <div className="relative">
+            <AspectRatio ratio={1 / 1}>
+              <Image
+                src={fileUrl}
+                alt="Profile Picture"
+                layout="fill"
+                className="h-full w-full cursor-pointer rounded-full object-cover"
+              />
+            </AspectRatio>
+            {fileUrl && (
+              <Button
+                variant="ghost"
+                className="absolute right-0 top-0 text-primary"
+                onClick={async () => {
+                  if (fileKey) {
+                    await deleteFileOnServer(fileKey);
+                    setFileUrl("");
+                  }
+                }}
+              >
+                <X size={25} />
+              </Button>
+            )}
+          </div>
         ) : isUploading ? (
-          <Progress value={progress} />
+          <AnimatedCircularProgressBar
+          className="m-auto"
+          max={100}
+          min={0}
+          value={progress}
+          gaugePrimaryColor="#d4d4d4"
+          gaugeSecondaryColor="#171717"
+        />
         ) : (
           <UploadthingButton
             file={file}
@@ -274,20 +298,6 @@ const SignUp = () => {
                 {stages[stage]?.subtitle}
               </p>
               {renderStageContent()}
-              {fileUrl && stage !== 0 && (
-                <Button
-                  className="flex w-full bg-gray-200 text-primary hover:bg-gray-300"
-                  onClick={async () => {
-                    if (fileKey) {
-                      await deleteFileOnServer(fileKey);
-                      setFileUrl("");
-                    }
-                  }}
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Delete
-                </Button>
-              )}
               <div className="mt-6 flex justify-between">
                 {stage > 0 && (
                   <Button
@@ -304,7 +314,7 @@ const SignUp = () => {
                   type={stage === 0 ? "submit" : "button"}
                   className={`${
                     stage === 0 ? "w-full" : "ml-auto"
-                  } transform rounded-md bg-gradient-to-r from-gray-700 to-gray-900 px-4 py-2 font-bold text-white transition duration-300 ease-in-out hover:scale-105 hover:from-gray-800 hover:to-black focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50`}
+                  } transform rounded-md border border-solid border-white bg-gradient-to-r from-gray-700 to-gray-900 px-4 py-2 font-bold text-white transition duration-300 ease-in-out hover:scale-105 hover:from-gray-800 hover:to-black focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50`}
                   disabled={isLoading}
                   onClick={
                     stage === stages.length - 1 ? onFinishRegistry : undefined
@@ -332,7 +342,7 @@ const SignUp = () => {
               <div className="my-6 flex items-center">
                 <hr className="inline-block grow-[4] border-white" />
                 <span className="text-md flex flex-grow justify-center text-center uppercase text-white">
-                  Or log in with
+                  Or login with
                 </span>
                 <hr className="inline-block grow-[4] border-white" />
               </div>

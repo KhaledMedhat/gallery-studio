@@ -13,7 +13,7 @@ export const userRouter = createTRPCRouter({
   verifyEmail: publicProcedure
     .input(
       z.object({
-        email: z.string().min(1).toLowerCase(),
+        email: z.string().min(1),
       }),
     )
     .mutation(async ({ ctx, input }) => {
