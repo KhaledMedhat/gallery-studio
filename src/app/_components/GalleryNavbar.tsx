@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-import Image from "next/legacy/image";
 import { Button } from "~/components/ui/button";
 import { Dock, DockIcon } from "~/components/ui/dock";
 import { Separator } from "~/components/ui/separator";
@@ -43,11 +42,9 @@ import {
   House,
   Library,
   LoaderCircle,
-  Plus,
   Trash2,
   X,
 } from "lucide-react";
-import UploadthingButton from "./UploadthingButton";
 import {
   Form,
   FormControl,
@@ -57,14 +54,9 @@ import {
   FormLabel,
   FormMessage,
 } from "~/components/ui/form";
-import { Textarea } from "~/components/ui/textarea";
 import { useFileStore } from "~/store";
 import { ToastAction } from "~/components/ui/toast";
 import { Input } from "~/components/ui/input";
-import AnimatedCircularProgressBar from "~/components/ui/animated-circular-progress-bar";
-import { useState } from "react";
-import Video from "./Video";
-import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import {
   Card,
@@ -82,57 +74,15 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import BlurFade from "~/components/ui/blur-fade";
+import AddFileButton from "./AddFileButton";
 
 const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const [file, setFile] = useState<File | undefined>(undefined);
-  const [isFileError, setIsFileError] = useState<boolean>(false);
   const router = useRouter();
   const utils = api.useUtils();
   const { data: user } = api.user.getUser.useQuery();
   const { data: files } = api.file.getFiles.useQuery();
   const { data: albums } = api.album.getAlbums.useQuery({ id: gallerySlug });
-  const {
-    fileUrl,
-    fileKey,
-    fileType,
-    isUploading,
-    progress,
-    setFileUrl,
-    setFileKey,
-    selectedFiles,
-    setSelectedFilesToEmpty,
-  } = useFileStore();
-  const formSchema = z.object({
-    caption: z.string().min(1, { message: "Caption Cannot be empty." }),
-    tags: z
-      .string()
-      .transform((str) =>
-        str
-          .split(" ")
-          .map((tag) => tag.trim())
-          .filter(Boolean),
-      )
-      .refine((tags) => tags.every((tag) => tag.startsWith("#")), {
-        message: "Each tag must start with #",
-      })
-      .refine(
-        (tags) =>
-          tags.every((tag) => tag.indexOf("#") === tag.lastIndexOf("#")),
-        {
-          message: "Tags cannot contain more than one #",
-        },
-      )
-      .optional(),
-  });
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      caption: "",
-      tags: undefined,
-    },
-  });
+  const { selectedFiles, setSelectedFilesToEmpty } = useFileStore();
 
   const albumsFormSchema = z.object({
     album: z.string({
@@ -212,41 +162,6 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
         });
       },
     });
-  const { mutate: addFile, isPending } = api.file.addFile.useMutation({
-    onSuccess: () => {
-      setFile(undefined);
-      setFileUrl("");
-      setFileKey("");
-      setIsDialogOpen(false);
-      form.reset();
-      void utils.file.getFiles.invalidate();
-      toast({
-        description: <span>Your Image has been added successfully</span>,
-      });
-    },
-    onError: (e) => {
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: e.message,
-        action: <ToastAction altText="Try again">Try again</ToastAction>,
-      });
-    },
-  });
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    if (!file || !fileKey || !fileUrl || !fileType) {
-      setIsFileError(true);
-    } else {
-      addFile({
-        url: fileUrl,
-        fileKey: fileKey,
-        fileType: fileType,
-        caption: data.caption,
-        tags: data.tags,
-        gallerySlug,
-      });
-    }
-  };
   const onChooseAlbumSubmit = (albumData: z.infer<typeof albumsFormSchema>) => {
     const filesIds = selectedFiles.map((file) => file.id);
 
@@ -319,132 +234,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
       </DockIcon>
 
       <DockIcon>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <DialogTrigger asChild>
-                  <Button variant="ghost">
-                    <Plus
-                      size={25}
-                      className={`${files && files?.length === 0 && "animate-bounce"}`}
-                    />
-
-                    <span className="sr-only">Add Image</span>
-                  </Button>
-                </DialogTrigger>
-              </TooltipTrigger>
-              <TooltipContent>Add Image</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <DialogContent className="h-full max-h-[800px] overflow-y-auto sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Add Image</DialogTitle>
-              <DialogDescription>
-                Upload a new image to your gallery. Click save when you&apos;re
-                done.
-              </DialogDescription>
-            </DialogHeader>
-
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="w-full space-y-8"
-              >
-                <div className="flex flex-col gap-6">
-                  {file && fileUrl && progress === 100 ? (
-                    <div className="relative flex flex-col items-center justify-center gap-6">
-                      {fileType.includes("video") ? (
-                        <Video url={fileUrl} />
-                      ) : (
-                        <AspectRatio ratio={1 / 1}>
-                          <Image
-                            src={fileUrl}
-                            alt="Profile Picture"
-                            layout="fill"
-                            className="h-full w-full cursor-pointer rounded-full object-cover"
-                          />
-                        </AspectRatio>
-                      )}
-                      <Button
-                        className="flex w-full"
-                        type="button"
-                        onClick={async () => {
-                          if (fileKey) {
-                            await deleteFileOnServer(fileKey);
-                            setFile(undefined);
-                            setFileUrl("");
-                          }
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        Delete
-                      </Button>
-                    </div>
-                  ) : isUploading && progress !== 0 ? (
-                    <AnimatedCircularProgressBar
-                      className="m-auto"
-                      max={100}
-                      min={0}
-                      value={progress}
-                      gaugePrimaryColor="#171717"
-                      gaugeSecondaryColor="rgba(0, 0, 0, 0.1)"
-                    />
-                  ) : (
-                    <UploadthingButton
-                      isImageComponent={true}
-                      file={file}
-                      setFile={setFile}
-                      label={"Image"}
-                      isFileError={isFileError}
-                    />
-                  )}
-
-                  <FormField
-                    control={form.control}
-                    name="caption"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Caption</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Caption of the image"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>Enter image caption.</FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="tags"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tags</FormLabel>
-                        <FormControl>
-                          <Input placeholder="#tags" {...field} />
-                        </FormControl>
-                        <FormDescription>
-                          Enter image tags if you want to add them.
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <Button type="submit" disabled={isPending || isUploading}>
-                  {!isPending ? (
-                    "Save"
-                  ) : (
-                    <LoaderCircle size={25} className="animate-spin" />
-                  )}
-                </Button>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
+        <AddFileButton gallerySlug={gallerySlug} files={files} />
       </DockIcon>
       {selectedFiles.length > 0 && (
         <DockIcon>

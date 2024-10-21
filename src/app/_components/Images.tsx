@@ -7,7 +7,7 @@ import { Checkbox } from "~/components/ui/checkbox";
 import { Skeleton } from "~/components/ui/skeleton";
 import { useFileStore } from "~/store";
 import { api } from "~/trpc/react";
-import EmptyAlbumPage from "./EmptyAlbumPage";
+import EmptyAlbumPage from "./EmptyPage";
 import Video from "./Video";
 import { Badge } from "~/components/ui/badge";
 

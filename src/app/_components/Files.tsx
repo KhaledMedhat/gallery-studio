@@ -7,7 +7,7 @@ import { Checkbox } from "~/components/ui/checkbox";
 import { Skeleton } from "~/components/ui/skeleton";
 import { useFileStore } from "~/store";
 import { api } from "~/trpc/react";
-import EmptyAlbumPage from "./EmptyAlbumPage";
+import EmptyPage from "./EmptyPage";
 import Video from "./Video";
 import { Badge } from "~/components/ui/badge";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
@@ -29,7 +29,7 @@ const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
   };
   if (files?.length === 0)
     return (
-      <EmptyAlbumPage
+      <EmptyPage
         gallerySlug={gallerySlug}
         isAlbumOrFilePage={isAlbumOrFileEnum.file}
       />
