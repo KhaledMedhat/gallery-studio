@@ -14,11 +14,13 @@ import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { isAlbumOrFileEnum } from "~/types/types";
 import { Dot, Earth, Filter, LockKeyhole } from "lucide-react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger } from "~/components/ui/select";
+import { Button } from "~/components/ui/button";
+import DeleteButton from "./DeleteButton";
 
 const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
   const { data: files, isLoading } = api.file.getFiles.useQuery();
   const [filter, setFilter] = useState<string>('');
-  const { setSelectedFiles, removeSelectedFiles, selectedFiles } =
+  const { setSelectedFiles, removeSelectedFiles, selectedFiles, isSelecting, setIsSelecting, setSelectedFilesToEmpty } =
     useFileStore();
   function foundedFileInSelectedFiles(id: string) {
     const isFoundedFile = selectedFiles.find((file) => file.id === id);
@@ -37,31 +39,53 @@ const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
         isAlbumOrFilePage={isAlbumOrFileEnum.file}
       />
     );
+  const isFileSelected = (fileId: string) => {
+    return selectedFiles.some((file) => file.id === fileId);
+  }
   return isLoading ? (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-background/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
       <Dot size={250} className="animate-bounce" />
     </div>
   ) : (
     <div className="container mx-auto px-4 py-10 flex flex-col items-center gap-6">
-      <Select value={filter} onValueChange={(value) => setFilter(value)}>
-        <SelectTrigger className="w-fit border-0">
-          <Filter size={30} />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectLabel>Type</SelectLabel>
-            <SelectItem value="All">All</SelectItem>
-            <SelectItem value="Images">Images</SelectItem>
-            <SelectItem value="Videos">Videos</SelectItem>
-          </SelectGroup>
-        </SelectContent>
-      </Select>
+      <div className="flex items-center gap-2">
+        {selectedFiles.length > 0 ?
+          <div className="flex gap-2 items-center">
+            <DeleteButton />
+            <Button>Add</Button>
+          </div>
+          : <Select value={filter} onValueChange={(value) => setFilter(value)}>
+            <SelectTrigger className="w-fit border-0">
+              <Filter size={30} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Type</SelectLabel>
+                <SelectItem value="All">All</SelectItem>
+                <SelectItem value="Images">Images</SelectItem>
+                <SelectItem value="Videos">Videos</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>}
+        <Button onClick={() => {
+          if (isSelecting) {
+            setSelectedFilesToEmpty()
+            setIsSelecting()
+          } else {
+            setIsSelecting()
+
+          }
+        }} className="xl:hidden " variant="outline">
+          {isSelecting ? 'Cancel' : 'Select'}
+        </Button>
+      </div>
       <div className="flex items-center gap-3 flex-wrap justify-center">
         {filter === 'All' || filter === '' ?
           files?.map((file, idx) => (
             <BlurFade key={file.id} delay={0.25 + Number(idx) * 0.05} inView>
               <div className={`group flex flex-col gap-1 relative h-full w-full overflow-hidden rounded-lg`}>
                 <Checkbox
+                  checked={isFileSelected(file.id)}
                   onClick={(e) => e.stopPropagation()}
                   onCheckedChange={(checked) => {
                     if (checked) {
@@ -77,7 +101,7 @@ const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                     }
                   }}
                   className={`absolute right-2 top-2 z-10 items-center justify-center bg-muted ${foundedFileInSelectedFiles(file.id) ? "flex" : "hidden"
-                    } group-hover:flex`}
+                    } group-hover:flex  ${isSelecting && 'flex'}  `}
                 />
                 <Link href={`/galleries/${gallerySlug}/images/${file.id}`}>
                   <div className="relative h-full w-full">
@@ -137,6 +161,7 @@ const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
               <BlurFade key={file.id} delay={0.25 + Number(idx) * 0.05} inView>
                 <div className={`group relative h-full w-full overflow-hidden rounded-lg`}>
                   <Checkbox
+
                     onClick={(e) => e.stopPropagation()}
                     onCheckedChange={(checked) => {
                       if (checked) {

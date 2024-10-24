@@ -77,6 +77,7 @@ import {
 } from "~/components/ui/select";
 import BlurFade from "~/components/ui/blur-fade";
 import AddFileButton from "./AddFileButton";
+import DeleteButton from "./DeleteButton";
 
 const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
   const router = useRouter();
@@ -340,30 +341,11 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
         )}
       </DockIcon>
       {selectedFiles.length > 0 && (
-        <DockIcon>
+        <DockIcon className="hidden xl:block">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                {isDeleting ? (
-                  <LoaderCircle
-                    size={25}
-                    className="animate-spin text-destructive"
-                  />
-                ) : (
-                  <Button
-                    variant="ghost"
-                    onClick={async () => {
-                      deleteFile({
-                        id: selectedFiles.map((file) => file.id),
-                      });
-                      await deleteFileOnServer(
-                        selectedFiles.map((file) => file.fileKey),
-                      );
-                    }}
-                  >
-                    <Trash2 size={25} className="text-destructive" />
-                  </Button>
-                )}
+                <DeleteButton />
               </TooltipTrigger>
               <TooltipContent>Trash</TooltipContent>
             </Tooltip>
@@ -371,7 +353,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
         </DockIcon>
       )}
       {selectedFiles.length > 0 && (
-        <DockIcon>
+        <DockIcon className="hidden xl:block">
           <Dialog>
             <TooltipProvider>
               <Tooltip>
@@ -528,7 +510,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
         </DockIcon>
       )}
       {selectedFiles.length > 0 && (
-        <DockIcon>
+        <DockIcon className="hidden xl:block">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
