@@ -19,9 +19,8 @@ import {
 import { getInitials } from "~/utils/utils";
 import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
-import ImageOptions from "./ImageOptions";
+import FileOptions from "./FileOptions";
 import { api } from "~/trpc/react";
-import { isAlbumOrFileEnum } from "~/types/types";
 
 dayjs.extend(relativeTime);
 export function Modal({
@@ -83,12 +82,10 @@ export function Modal({
               </HoverCard>
             </div>
             {file && (
-              <ImageOptions
-                isAlbumOrFile={isAlbumOrFileEnum.file}
-                albumId={null}
+              <FileOptions
                 fileId={fileId}
                 fileKey={file.fileKey}
-                fileCaption={file.caption}
+                handleOpenModalChange={handleOpenModalChange}
               />
             )}
           </DialogTitle>

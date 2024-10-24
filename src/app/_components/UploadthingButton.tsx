@@ -14,10 +14,9 @@ import { useUploadThing } from "~/utils/uploadthing";
 const UploadthingButton: React.FC<{
   isImageComponent?: boolean;
   setFile: (args: File | undefined) => void;
-  file: File | undefined;
   label: string;
   isFileError?: boolean;
-}> = ({ isImageComponent, setFile, label, isFileError, file }) => {
+}> = ({ isImageComponent, setFile, label, isFileError }) => {
   const { setIsUploading, setProgress, setFileUrl, setFileKey, setFileType } =
     useFileStore();
   const { toast } = useToast();
@@ -49,7 +48,7 @@ const UploadthingButton: React.FC<{
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
-      startUpload(acceptedFiles).catch((e) => {});
+      startUpload(acceptedFiles).catch((e) => console.log(e));
       setFile(acceptedFiles[0]);
     },
     [setFile, startUpload],

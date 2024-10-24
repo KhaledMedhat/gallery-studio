@@ -22,7 +22,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { signOut } from "next-auth/react";
 import { deleteCookie, deleteFileOnServer } from "../actions";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -32,11 +32,13 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
 import {
+  FolderInput,
   FolderPlus,
   GalleryHorizontalEnd,
   House,
@@ -78,12 +80,50 @@ import AddFileButton from "./AddFileButton";
 
 const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
   const router = useRouter();
+  const pathname = usePathname();
   const utils = api.useUtils();
   const { data: user } = api.user.getUser.useQuery();
   const { data: files } = api.file.getFiles.useQuery();
   const { data: albums } = api.album.getAlbums.useQuery({ id: gallerySlug });
   const { selectedFiles, setSelectedFilesToEmpty } = useFileStore();
+  const isAlbum = pathname.includes("albums");
 
+  const formSchema = z.object({
+    albumTitle: z.string().min(1, { message: "Album name Cannot be empty." }),
+  });
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      albumTitle: "",
+    },
+  });
+  const { mutate: addAlbum, isPending: isAddFilePending } =
+    api.album.createAlbum.useMutation({
+      onSuccess: () => {
+        form.reset();
+        toast({
+          title: "Created Successfully.",
+          description: `Album has been created successfully.`,
+        });
+        void utils.album.getAlbums.invalidate();
+      },
+      onError: () => {
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: `Uh oh! Something went wrong. Please try again.`,
+          action: <ToastAction altText="Try again">Try again</ToastAction>,
+        });
+      },
+    });
+
+  const onSubmit = (data: z.infer<typeof formSchema>) => {
+    addAlbum({
+      title: data.albumTitle,
+      id: gallerySlug,
+    });
+  };
   const albumsFormSchema = z.object({
     album: z.string({
       required_error: "Please select an album to add to.",
@@ -98,7 +138,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
   });
 
   const createAlbumFormSchema = z.object({
-    album: z.string().min(1, { message: "Album name Cannot be empty." }),
+    album: z.string().min(1, { message: "Album name cannot be empty." }),
   });
   const createAlbumForm = useForm<z.infer<typeof createAlbumFormSchema>>({
     resolver: zodResolver(createAlbumFormSchema),
@@ -152,6 +192,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
           description: `Images ${deleteFile.name} has been deleted successfully.`,
         });
         void utils.file.getFiles.invalidate();
+        void utils.file.getAlbumFiles.invalidate();
       },
       onError: () => {
         toast({
@@ -196,7 +237,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
           <Tooltip>
             <TooltipTrigger asChild>
               <Link href={"/"}>
-                <House className="h-5 w-5" />
+                <House size={20} />
               </Link>
             </TooltipTrigger>
             <TooltipContent>Home</TooltipContent>
@@ -210,7 +251,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
             <TooltipTrigger asChild>
               <Button variant="ghost">
                 <Link href={`/galleries/${gallerySlug}`}>
-                  <GalleryHorizontalEnd className="h-5 w-5" />
+                  <GalleryHorizontalEnd size={20} />
                 </Link>
               </Button>
             </TooltipTrigger>
@@ -224,7 +265,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
             <TooltipTrigger asChild>
               <Button variant="ghost">
                 <Link href={`/galleries/${gallerySlug}/albums`}>
-                  <Library className="h-5 w-5" />
+                  <Library size={20} />
                 </Link>
               </Button>
             </TooltipTrigger>
@@ -234,7 +275,69 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
       </DockIcon>
 
       <DockIcon>
-        <AddFileButton gallerySlug={gallerySlug} files={files} />
+        {isAlbum ? (
+          <Dialog>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DialogTrigger asChild>
+                    <Button variant="ghost">
+                      <FolderPlus
+                        size={20}
+                        className={`${albums && albums?.length === 0 && "animate-bounce"}`}
+                      />
+                    </Button>
+                  </DialogTrigger>
+                </TooltipTrigger>
+                <TooltipContent>Add Album</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <DialogContent isClosed={true}>
+              <DialogHeader>
+                <DialogTitle>New Album</DialogTitle>
+                <DialogDescription>
+                  You can create new album from here and add your selected
+                  images to it.
+                </DialogDescription>
+              </DialogHeader>
+              <Form {...form}>
+                <form
+                  id="album-id"
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-8"
+                >
+                  <FormField
+                    control={form.control}
+                    name="albumTitle"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Title</FormLabel>
+                        <FormControl>
+                          <Input placeholder="example" {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          Enter your album title.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </form>
+              </Form>
+              <DialogFooter>
+                <Button form="album-id" type="submit">
+                  {isAddFilePending ? (
+                    <LoaderCircle size={25} className="animate-spin" />
+                  ) : (
+                    "Submit"
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        ) : (
+          <AddFileButton gallerySlug={gallerySlug} files={files} />
+        )}
       </DockIcon>
       {selectedFiles.length > 0 && (
         <DockIcon>
@@ -276,7 +379,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                   <DialogTrigger asChild>
                     <Button variant="ghost">
                       <BlurFade delay={0} inView yOffset={0}>
-                        <FolderPlus size={25} />
+                        <FolderInput size={20} />
                       </BlurFade>
                     </Button>
                   </DialogTrigger>
@@ -284,7 +387,10 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                 <TooltipContent>Add to albums</TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <DialogContent className="flex max-w-2xl items-center">
+            <DialogContent
+              isClosed={true}
+              className="flex max-w-2xl items-center"
+            >
               <VisuallyHidden.Root>
                 <DialogHeader>
                   <DialogTitle></DialogTitle>
@@ -431,7 +537,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                     variant="ghost"
                     onClick={() => setSelectedFilesToEmpty()}
                   >
-                    <X size={25} />
+                    <X size={20} />
                   </Button>
                 </BlurFade>
               </TooltipTrigger>

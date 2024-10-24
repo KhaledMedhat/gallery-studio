@@ -61,7 +61,7 @@ const CustomVideoPlayer: React.FC<CustomVideoPlayerProps> = ({
       if (isPlaying) {
         videoRef.current.pause();
       } else {
-        videoRef.current.play();
+        void videoRef.current.play();
         setHasStartedPlaying(true);
       }
       setIsPlaying(!isPlaying);
@@ -99,11 +99,11 @@ const CustomVideoPlayer: React.FC<CustomVideoPlayerProps> = ({
 
     if (!isFullscreen) {
       if (playerRef.current.requestFullscreen) {
-        playerRef.current.requestFullscreen();
+        void playerRef.current.requestFullscreen();
       }
     } else {
       if (document.exitFullscreen) {
-        document.exitFullscreen();
+        void document.exitFullscreen();
       }
     }
     setIsFullscreen(!isFullscreen);
@@ -138,7 +138,7 @@ const CustomVideoPlayer: React.FC<CustomVideoPlayerProps> = ({
     <div
       ref={playerRef}
       className={cn(
-        "relative aspect-video w-full overflow-hidden rounded-lg bg-black",
+        "relative aspect-video w-full h-[300px] overflow-hidden rounded-lg bg-current",
         className,
       )}
       onMouseEnter={showControls}
@@ -213,7 +213,7 @@ const CustomVideoPlayer: React.FC<CustomVideoPlayerProps> = ({
               className="w-20"
             />
             <span className="text-sm text-white">
-              {formatTime(videoRef.current?.currentTime || 0)} /{" "}
+              {formatTime(videoRef.current?.currentTime ?? 0)} /
               {formatTime(duration)}
             </span>
           </div>

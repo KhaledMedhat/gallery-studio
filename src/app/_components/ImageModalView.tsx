@@ -4,7 +4,7 @@ import Video from "./Video";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { Earth } from "lucide-react";
+import { Earth, LockKeyhole } from "lucide-react";
 import { useFileStore } from "~/store";
 import UpdateFileModalView from "./UpdateFileModalView";
 import { api } from "~/trpc/react";
@@ -44,11 +44,12 @@ const ImageModalView: React.FC<{
           </div>
         )}
         <div className="flex items-center gap-2">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-accent-foreground">
             {dayjs(file.createdAt).fromNow()}
           </p>
-          <span className="block h-1 w-1 rounded-full bg-muted-foreground"></span>
-          <Earth size={16} className="text-muted-foreground" />
+          <span className="block h-1 w-1 rounded-full bg-accent-foreground"></span>
+          {file.filePrivacy === 'private' ? <LockKeyhole size={16} className="text-accent-foreground" /> : <Earth size={16} className="text-accent-foreground" />}
+
         </div>
       </div>
     </section>

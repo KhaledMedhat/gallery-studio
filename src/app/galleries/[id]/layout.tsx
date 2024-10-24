@@ -9,7 +9,6 @@ export default function GalleryPageLayout({
   modal: React.ReactNode;
   params: { id: string };
 }>) {
-  console.log(params.id)
   return (
     <div>
       <GalleryNavbar gallerySlug={params.id} />

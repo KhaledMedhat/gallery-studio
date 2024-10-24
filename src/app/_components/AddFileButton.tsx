@@ -5,6 +5,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -41,6 +42,7 @@ import { ToastAction } from "~/components/ui/toast";
 import { useTheme } from "next-themes";
 import type { fileType } from "~/types/types";
 import Video from "./Video";
+import { Switch } from "~/components/ui/switch";
 
 const AddFileButton: React.FC<{
   files?: fileType[] | undefined;
@@ -81,6 +83,7 @@ const AddFileButton: React.FC<{
         },
       )
       .optional(),
+    privacy: z.boolean().default(false)
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -88,6 +91,7 @@ const AddFileButton: React.FC<{
     defaultValues: {
       caption: "",
       tags: undefined,
+      privacy: false
     },
   });
   const { mutate: addFile, isPending } = api.file.addFile.useMutation({
@@ -119,6 +123,7 @@ const AddFileButton: React.FC<{
         url: fileUrl,
         fileKey: fileKey,
         fileType: fileType,
+        filePrivacy: data.privacy ? 'public' : 'private',
         caption: data.caption,
         tags: data.tags,
         gallerySlug,
@@ -132,16 +137,19 @@ const AddFileButton: React.FC<{
           <TooltipTrigger asChild>
             <DialogTrigger asChild>
               {files ? (
-                <Button variant="ghost">
-                  <Plus
-                    size={25}
-                    className={`${files && files?.length === 0 && "animate-bounce"}`}
-                  />
-
-                  <span className="sr-only">Add Image</span>
-                </Button>
+                files.length > 0 ? (
+                  <Button variant="ghost">
+                    <Plus
+                      size={20}
+                      className={`${files && files?.length === 0 && "animate-bounce"}`}
+                    />
+                    <span className="sr-only">Add Image</span>
+                  </Button>
+                ) : (
+                  <Button variant="outline">Add Image or Video</Button>
+                )
               ) : (
-                <Button variant="outline">Add Image or Video</Button>
+                <Plus size={20} />
               )}
             </DialogTrigger>
           </TooltipTrigger>
@@ -159,6 +167,7 @@ const AddFileButton: React.FC<{
 
         <Form {...form}>
           <form
+            id="add-image-form"
             onSubmit={form.handleSubmit(onSubmit)}
             className="w-full space-y-8"
           >
@@ -189,7 +198,7 @@ const AddFileButton: React.FC<{
                       }
                     }}
                   >
-                    <X size={25} />
+                    <X size={20} />
                   </Button>
                 </div>
               ) : isUploading && progress !== 0 ? (
@@ -208,7 +217,6 @@ const AddFileButton: React.FC<{
               ) : (
                 <UploadthingButton
                   isImageComponent={true}
-                  file={file}
                   setFile={setFile}
                   label={"Image"}
                   isFileError={isFileError}
@@ -245,16 +253,44 @@ const AddFileButton: React.FC<{
                   </FormItem>
                 )}
               />
+              {file &&
+                <FormField
+                  control={form.control}
+                  name="privacy"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center gap-1 justify-between rounded-lg border p-3 shadow-sm">
+                      <div className="space-y-0.5">
+                        <FormLabel>{fileType.includes('image') ? "Image Privacy" : "Video Privacy"}</FormLabel>
+                        <FormDescription>
+                          By default it sets to private but you can change it to public.
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              }
             </div>
-            <Button type="submit" disabled={isPending || isUploading}>
-              {!isPending ? (
-                "Save"
-              ) : (
-                <LoaderCircle size={25} className="animate-spin" />
-              )}
-            </Button>
           </form>
         </Form>
+        <DialogFooter>
+          <Button
+            form="add-image-form"
+            type="submit"
+            disabled={isPending || isUploading}
+          >
+            {!isPending ? (
+              "Save"
+            ) : (
+              <LoaderCircle size={20} className="animate-spin" />
+            )}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -10,6 +10,7 @@ import {
   timestamp,
   varchar,
   json,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
@@ -19,6 +20,9 @@ import { type AdapterAccount } from "next-auth/adapters";
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
+
+export const privacyEnum = pgEnum("privacy", ["private", "public"]);
+
 export const createTable = pgTableCreator((name) => `gallery-studio_${name}`);
 
 export const otp = createTable("otp", {
@@ -41,6 +45,9 @@ export const files = createTable("image", {
   tags: json("tags").$type<string[]>().default([]),
   fileKey: varchar("image_key", { length: 255 }),
   fileType: varchar("file_type", { length: 255 }),
+  filePrivacy: privacyEnum('privacy').default("private"),
+  views: integer('file_views').notNull().default(0),
+  likes: integer('file_likes').notNull().default(0),
   galleryId: integer("gallery_id")
     .notNull()
     .references(() => galleries.id),

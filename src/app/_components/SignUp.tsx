@@ -8,7 +8,7 @@ import Link from "next/link";
 import Image from "next/legacy/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "~/components/ui/button";
-import { ArrowLeft, ArrowRight, Loader2, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, LoaderCircle, X } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -120,11 +120,10 @@ const SignUp = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel
-                      className={`${
-                        form.formState.errors.fullName
+                      className={`${form.formState.errors.fullName
                           ? "text-red-500"
                           : "text-gray-100"
-                      }`}
+                        }`}
                     >
                       Full Name
                     </FormLabel>
@@ -146,11 +145,10 @@ const SignUp = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel
-                      className={`${
-                        form.formState.errors.email
+                      className={`${form.formState.errors.email
                           ? "text-red-500"
                           : "text-gray-100"
-                      }`}
+                        }`}
                     >
                       Email
                     </FormLabel>
@@ -172,11 +170,10 @@ const SignUp = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel
-                      className={`${
-                        form.formState.errors.password
+                      className={`${form.formState.errors.password
                           ? "text-red-500"
                           : "text-gray-100"
-                      }`}
+                        }`}
                     >
                       Password
                     </FormLabel>
@@ -223,16 +220,15 @@ const SignUp = () => {
           </div>
         ) : isUploading ? (
           <AnimatedCircularProgressBar
-          className="m-auto"
-          max={100}
-          min={0}
-          value={progress}
-          gaugePrimaryColor="#d4d4d4"
-          gaugeSecondaryColor="#171717"
-        />
+            className="m-auto"
+            max={100}
+            min={0}
+            value={progress}
+            gaugePrimaryColor="#d4d4d4"
+            gaugeSecondaryColor="#171717"
+          />
         ) : (
           <UploadthingButton
-            file={file}
             setFile={setFile}
             label="Profile Image"
           />
@@ -263,7 +259,7 @@ const SignUp = () => {
                 href="/"
                 className="flex items-center gap-2 font-medium text-gray-100"
               >
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft size={16} />
                 Home
               </Link>
             </Button>
@@ -305,16 +301,15 @@ const SignUp = () => {
                     onClick={() => setStage((prev) => prev - 1)}
                     className="bg-gray-200 text-gray-700 hover:bg-gray-300"
                   >
-                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    <ArrowLeft size={16} className="mr-2" />
                     Back
                   </Button>
                 )}
                 <Button
                   form={stage === 0 ? "sign-up-form" : undefined}
                   type={stage === 0 ? "submit" : "button"}
-                  className={`${
-                    stage === 0 ? "w-full" : "ml-auto"
-                  } transform rounded-md border border-solid border-white bg-gradient-to-r from-gray-700 to-gray-900 px-4 py-2 font-bold text-white transition duration-300 ease-in-out hover:scale-105 hover:from-gray-800 hover:to-black focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50`}
+                  className={`${stage === 0 ? "w-full" : "ml-auto"
+                    } transform rounded-md border border-solid border-white bg-gradient-to-r from-gray-700 to-gray-900 px-4 py-2 font-bold text-white transition duration-300 ease-in-out hover:scale-105 hover:from-gray-800 hover:to-black focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50`}
                   disabled={isLoading}
                   onClick={
                     stage === stages.length - 1 ? onFinishRegistry : undefined
@@ -322,7 +317,7 @@ const SignUp = () => {
                 >
                   {isLoading ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <LoaderCircle size={16} className="mr-2 animate-spin" />
                       Processing...
                     </>
                   ) : stage === stages.length - 1 ? (
@@ -334,7 +329,7 @@ const SignUp = () => {
                   ) : (
                     <>
                       Next
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                      <ArrowRight size={16} className="ml-2" />
                     </>
                   )}
                 </Button>

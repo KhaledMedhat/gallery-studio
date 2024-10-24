@@ -1,10 +1,34 @@
 import { galleries, files, albums, albumFiles } from "~/server/db/schema";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { z } from "zod";
 import { eq, inArray } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const fileRouter = createTRPCRouter({
+  fileViewCount: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const foundedFile = await ctx.db.query.files.findFirst({
+        where: eq(files.id, input.id),
+      });
+      if (foundedFile) {
+        if (foundedFile?.createdById === ctx.user?.id) {
+          await ctx.db
+            .update(files)
+            .set({
+              views: foundedFile?.views,
+            })
+            .where(eq(files.id, input.id));
+        } else {
+          await ctx.db
+            .update(files)
+            .set({
+              views: foundedFile.views + 1,
+            })
+            .where(eq(files.id, input.id));
+        }
+      }
+    }),
   getFiles: protectedProcedure.query(async ({ ctx }) => {
     if (!ctx.user) {
       throw new TRPCError({
@@ -14,14 +38,8 @@ export const fileRouter = createTRPCRouter({
     }
     const foundedFile = await ctx.db.query.files.findMany({
       where: eq(files.createdById, ctx.user?.id),
+      orderBy: (files, { desc }) => [desc(files.createdAt)],
     });
-
-    if (!foundedFile) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "You don't have any images yet",
-      });
-    }
 
     return foundedFile;
   }),
@@ -32,6 +50,7 @@ export const fileRouter = createTRPCRouter({
         url: z.string(),
         fileKey: z.string(),
         fileType: z.string(),
+        filePrivacy: z.enum(["private", "public"]),
         caption: z.string(),
         tags: z.array(z.string()).optional(),
         gallerySlug: z.string(),
@@ -61,6 +80,7 @@ export const fileRouter = createTRPCRouter({
           url: input.url,
           fileKey: input.fileKey,
           fileType: input.fileType,
+          filePrivacy: input.filePrivacy,
           caption: input.caption,
           tags: input.tags,
           createdById: ctx.user.id,
@@ -147,10 +167,10 @@ export const fileRouter = createTRPCRouter({
 
       if (existingFiles) {
         const oldFiles = existingFiles.map((fileId) => fileId.fileId);
-       const albumFiles = await ctx.db.query.files.findMany({
-         where: inArray(files.id, oldFiles),
-       })
-       return albumFiles
+        const albumFiles = await ctx.db.query.files.findMany({
+          where: inArray(files.id, oldFiles),
+        });
+        return albumFiles;
       }
     }),
 
@@ -182,6 +202,5 @@ export const fileRouter = createTRPCRouter({
         fileId,
       }));
       return await ctx.db.insert(albumFiles).values(albumFileValues);
-
     }),
 });

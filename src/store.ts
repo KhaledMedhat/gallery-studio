@@ -32,8 +32,10 @@ export const useFileStore = create<FileStore>()((set, get) => ({
   isUploading: false,
   isUpdating: false,
   isUpdatingPending: false,
+  // albumTitle: "",
   progress: 0,
   selectedFiles: [],
+  // setAlbumTitle: (title: string) => set(() => ({ albumTitle: title })),
   setSelectedFilesToEmpty: () => set(() => ({ selectedFiles: [] })),
   setSelectedFiles: (selectedFiles: selectedFiles) =>
     set((state) => ({

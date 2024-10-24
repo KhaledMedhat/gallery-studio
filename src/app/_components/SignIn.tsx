@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, LoaderCircle } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { useForm } from "react-hook-form";
@@ -80,7 +80,7 @@ const SignIn = () => {
               href="/"
               className="flex items-center gap-2 font-medium text-gray-100"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft size={16} />
               Home
             </Link>
           </Button>
@@ -184,7 +184,7 @@ const SignIn = () => {
           >
             {isPendingLogin ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <LoaderCircle size={16} className="mr-2 animate-spin" />
                 Signing In...
               </>
             ) : (

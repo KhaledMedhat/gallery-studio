@@ -51,6 +51,10 @@ const EmptyPage: React.FC<{
     api.album.createAlbum.useMutation({
       onSuccess: () => {
         form.reset();
+        toast({
+          title: "Created Successfully.",
+          description: `Album has been created successfully.`,
+        });
         void utils.album.getAlbums.invalidate();
       },
       onError: () => {

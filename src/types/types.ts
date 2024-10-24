@@ -55,8 +55,10 @@ export interface FileStore {
   isUploading: boolean;
   isUpdating: boolean;
   isUpdatingPending: boolean;
+  // albumTitle: string;
   progress: number;
   selectedFiles: selectedFiles[];
+  // setAlbumTitle: (title: string) => void;
   setSelectedFilesToEmpty: () => void;
   setSelectedFiles: (selectedFiles: selectedFiles) => void;
   removeSelectedFiles: (selectedFiles: selectedFiles) => void;
