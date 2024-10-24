@@ -11,6 +11,7 @@ export interface fileType {
   tags: string[] | null;
   fileKey: string | null;
   fileType: string | null;
+  filePrivacy: 'private' | 'public' | null;
   galleryId: number;
 }
 export interface UserSession {

@@ -156,7 +156,7 @@ const AddFileButton: React.FC<{
           <TooltipContent>Add Image</TooltipContent>
         </Tooltip>
       </TooltipProvider>
-      <DialogContent className="h-fit max-h-full overflow-y-auto sm:max-w-[425px]">
+      <DialogContent className="h-fit max-h-full overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add Image</DialogTitle>
           <DialogDescription>
