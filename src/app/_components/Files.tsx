@@ -12,8 +12,8 @@ import Video from "./Video";
 import { Badge } from "~/components/ui/badge";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { isAlbumOrFileEnum } from "~/types/types";
-import { Dot, Earth, LockKeyhole } from "lucide-react";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "~/components/ui/select";
+import { Dot, Earth, Filter, LockKeyhole } from "lucide-react";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger } from "~/components/ui/select";
 
 const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
   const { data: files, isLoading } = api.file.getFiles.useQuery();
@@ -44,8 +44,8 @@ const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
   ) : (
     <div className="container mx-auto px-4 py-10 flex flex-col items-center gap-6">
       <Select value={filter} onValueChange={(value) => setFilter(value)}>
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Filter by type" />
+        <SelectTrigger className="w-fit border-0">
+          <Filter size={30} />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
@@ -60,7 +60,7 @@ const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
         {filter === 'All' || filter === '' ?
           files?.map((file, idx) => (
             <BlurFade key={file.id} delay={0.25 + Number(idx) * 0.05} inView>
-              <div className={`group relative h-full w-full overflow-hidden rounded-lg`}>
+              <div className={`group flex flex-col gap-1 relative h-full w-full overflow-hidden rounded-lg`}>
                 <Checkbox
                   onClick={(e) => e.stopPropagation()}
                   onCheckedChange={(checked) => {
