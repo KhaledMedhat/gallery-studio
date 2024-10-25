@@ -1,4 +1,4 @@
-import ImageModalView from "~/app/_components/ImageModalView";
+import FileModalView from "~/app/_components/FileModalView";
 import { Modal } from "~/app/_components/Modal";
 import { api } from "~/trpc/server";
 
@@ -7,8 +7,7 @@ export default async function ImagePage({
 }: {
   params: { imageId: string };
 }) {
-  const user = await api.user.getUser();
-
+  const user = await api.user.getFileUser({ id: imageId });
   return (
     <Modal
       fileId={imageId}
@@ -17,7 +16,7 @@ export default async function ImagePage({
       bio={user?.bio}
       createdAt={user?.createdAt}
     >
-      <ImageModalView fileId={imageId} userName={user?.name} />
+      <FileModalView fileId={imageId} userName={user?.name} />
     </Modal>
   );
 }

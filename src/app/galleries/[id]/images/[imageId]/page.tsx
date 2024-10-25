@@ -1,11 +1,14 @@
+import FileFullView from "~/app/_components/FileFullView";
+import { api } from "~/trpc/server";
+
 export default async function ImagePage({
-  params: { imageId: imageId },
+  params: { imageId: imageId, id: gallerySlug },
 }: {
-  params: { imageId: string };
+  params: { imageId: string, id: string };
 }) {
+  const file = await api.file.getFileById({ id: imageId });
+  const user = await api.user.getFileUser({ id: imageId });
   return (
-    <div>
-      <h1>{imageId}</h1>
-    </div>
+    <FileFullView user={user} file={file} gallerySlug={gallerySlug} />
   );
 }

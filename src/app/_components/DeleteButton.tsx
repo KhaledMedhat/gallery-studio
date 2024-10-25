@@ -7,6 +7,8 @@ import { useFileStore } from "~/store";
 import { api } from "~/trpc/react";
 import { deleteFileOnServer } from "../actions";
 import { useState } from "react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip";
+import BlurFade from "~/components/ui/blur-fade";
 
 const DeleteButton = () => {
     const { selectedFiles, setSelectedFilesToEmpty } = useFileStore();
@@ -39,11 +41,20 @@ const DeleteButton = () => {
         });
     return (
         <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <AlertDialogTrigger asChild>
-                <Button variant="ghost">
-                    <Trash2 size={25} className="text-destructive" />
-                </Button>
-            </AlertDialogTrigger>
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <BlurFade delay={0} inView yOffset={0}>
+                            <AlertDialogTrigger asChild >
+                                <Button variant="ghost">
+                                    <Trash2 size={25} className="text-destructive" />
+                                </Button>
+                            </AlertDialogTrigger>
+                        </BlurFade>
+                    </TooltipTrigger>
+                    <TooltipContent>Trash</TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>

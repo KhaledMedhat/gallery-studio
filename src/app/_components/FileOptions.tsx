@@ -14,10 +14,10 @@ import { deleteFileOnServer } from "../actions";
 import { useFileStore } from "~/store";
 
 const FileOptions: React.FC<{
-  handleOpenModalChange : () => void;
+  handleOpenModalChange?: () => void;
   fileId: string | null;
   fileKey: string | null;
-}> = ({ fileId, fileKey,handleOpenModalChange }) => {
+}> = ({ fileId, fileKey, handleOpenModalChange }) => {
   const { setIsUpdating, isUpdating, isUpdatingPending } = useFileStore();
   const utils = api.useUtils();
   const { mutate: deleteFile, isPending: isFileDeleting } =
@@ -27,7 +27,7 @@ const FileOptions: React.FC<{
           title: "Deleted Successfully.",
           description: `Images has been deleted successfully.`,
         });
-        handleOpenModalChange()
+        if (handleOpenModalChange) handleOpenModalChange()
         void utils.file.getFiles.invalidate();
       },
       onError: () => {

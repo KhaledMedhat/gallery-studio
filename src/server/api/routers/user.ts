@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { accounts, galleries, otp, sessions, users } from "~/server/db/schema";
+import { accounts, files, galleries, otp, sessions, users } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { randomBytes } from "crypto";
 import { db } from "~/server/db";
@@ -176,5 +176,21 @@ export const userRouter = createTRPCRouter({
       return existedUserAccount;
     }
     return null;
+  }),
+
+  getFileUser: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
+    const file = await ctx.db.query.files.findFirst({
+      where: eq(files.id, input.id),
+    });
+    if(!file){
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "File not found",
+      });
+    }
+    const user = await ctx.db.query.users.findFirst({
+      where: eq(users.id, file.createdById),
+    });
+    return user;
   }),
 });

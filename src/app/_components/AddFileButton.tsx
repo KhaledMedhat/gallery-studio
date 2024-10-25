@@ -140,7 +140,7 @@ const AddFileButton: React.FC<{
                 files.length > 0 ? (
                   <Button variant="ghost">
                     <Plus
-                      size={20}
+                      size={25}
                       className={`${files && files?.length === 0 && "animate-bounce"}`}
                     />
                     <span className="sr-only">Add Image</span>
@@ -149,18 +149,18 @@ const AddFileButton: React.FC<{
                   <Button variant="outline">Add Image or Video</Button>
                 )
               ) : (
-                <Plus size={20} />
+                <Plus size={25} />
               )}
             </DialogTrigger>
           </TooltipTrigger>
-          <TooltipContent>Add Image</TooltipContent>
+          <TooltipContent>Add Image , Video or GIF</TooltipContent>
         </Tooltip>
       </TooltipProvider>
-      <DialogContent className="h-fit max-h-full overflow-y-auto">
+      <DialogContent className="h-fit max-h-full overflow-y-auto max-w-fit">
         <DialogHeader>
-          <DialogTitle>Add Image</DialogTitle>
+          <DialogTitle>Add Image , Video or GIF</DialogTitle>
           <DialogDescription>
-            Upload a new image to your gallery. Click save when you&apos;re
+            Upload a new image , video or even GIF to your gallery. Click save when you&apos;re
             done.
           </DialogDescription>
         </DialogHeader>
@@ -228,7 +228,7 @@ const AddFileButton: React.FC<{
                 name="caption"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Caption</FormLabel>
+                    <FormLabel>Caption *</FormLabel>
                     <FormControl>
                       <Textarea placeholder="Caption of the image" {...field} />
                     </FormControl>

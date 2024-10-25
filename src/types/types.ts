@@ -2,6 +2,19 @@ export enum isAlbumOrFileEnum {
   file = "file",
   album = "album",
 }
+
+export interface User {
+  email: string;
+  name: string | null;
+  createdAt: Date | null;
+  image: string | null;
+  id: string;
+  bio: string | null;
+  password: string | null;
+  provider: string | null;
+  emailVerified: Date | null;
+  updatedAt: Date | null;
+}
 export interface fileType {
   createdAt: Date;
   id: string;
@@ -11,7 +24,7 @@ export interface fileType {
   tags: string[] | null;
   fileKey: string | null;
   fileType: string | null;
-  filePrivacy: 'private' | 'public' | null;
+  filePrivacy: "private" | "public" | null;
   galleryId: number;
 }
 export interface UserSession {
@@ -69,5 +82,5 @@ export interface FileStore {
   setIsUploading: (isUploading: boolean) => void;
   setProgress: (progress: number) => void;
   setIsUpdating: (isUpdating: boolean) => void;
-  setIsUpdatingPending : (isUpdatingPending: boolean) => void;
+  setIsUpdatingPending: (isUpdatingPending: boolean) => void;
 }

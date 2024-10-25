@@ -10,7 +10,7 @@ import UpdateFileModalView from "./UpdateFileModalView";
 import { api } from "~/trpc/react";
 
 dayjs.extend(relativeTime);
-const ImageModalView: React.FC<{
+const FileModalView: React.FC<{
   fileId: string;
   userName: string | null | undefined;
 }> = ({ fileId, userName }) => {
@@ -58,4 +58,4 @@ const ImageModalView: React.FC<{
   );
 };
 
-export default ImageModalView;
+export default FileModalView;

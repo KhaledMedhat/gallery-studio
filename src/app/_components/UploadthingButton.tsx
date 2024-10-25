@@ -65,7 +65,7 @@ const UploadthingButton: React.FC<{
         htmlFor="profileImage"
         className={`${!isImageComponent && "text-gray-100"} text-sm font-medium`}
       >
-        <p className={`${isFileError && "text-[#EF4444]"}`}>{label}</p>
+        <p className={`${isFileError && "text-[#EF4444]"}`}>{label} {label === 'Image' && '*'}</p>
       </Label>
       <div className="flex w-full items-center justify-center">
         <div
@@ -80,7 +80,7 @@ const UploadthingButton: React.FC<{
             drop
           </p>
           <p className={`${!isImageComponent && "text-gray-100"} text-xs`}>
-            PNG, JPG or GIF (MAX. 800x400px)
+            Image, Video or GIF (MAX. 32MB|Image/GIF) (MAX. 256MB|Video)
           </p>
         </div>
         <Input

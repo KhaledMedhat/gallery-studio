@@ -16,6 +16,7 @@ import { Dot, Earth, Filter, LockKeyhole } from "lucide-react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger } from "~/components/ui/select";
 import { Button } from "~/components/ui/button";
 import DeleteButton from "./DeleteButton";
+import ToAlbumButton from "./ToAlbumButton";
 
 const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
   const { data: files, isLoading } = api.file.getFiles.useQuery();
@@ -50,9 +51,9 @@ const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
     <div className="container mx-auto px-4 py-10 flex flex-col items-center gap-6">
       <div className="flex items-center gap-2">
         {selectedFiles.length > 0 ?
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2 items-center xl:hidden">
             <DeleteButton />
-            <Button>Add</Button>
+            <ToAlbumButton gallerySlug={gallerySlug} />
           </div>
           : <Select value={filter} onValueChange={(value) => setFilter(value)}>
             <SelectTrigger className="w-fit border-0">
