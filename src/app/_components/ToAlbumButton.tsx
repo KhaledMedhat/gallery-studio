@@ -190,7 +190,7 @@ const ToAlbumButton: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                                     disabled={isAddingToExistingAlbum}
                                 >
                                     {isAddingToExistingAlbum ? (
-                                        <LoaderCircle size={25} className="animate-spin" />
+                                        <LoaderCircle size={20} className="animate-spin" />
                                     ) : (
                                         "Submit"
                                     )}
@@ -242,7 +242,7 @@ const ToAlbumButton: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                                     disabled={isAddingToNonExistingAlbum}
                                 >
                                     {isAddingToNonExistingAlbum ? (
-                                        <LoaderCircle size={25} className="animate-spin" />
+                                        <LoaderCircle size={20} className="animate-spin" />
                                     ) : (
                                         "Submit"
                                     )}

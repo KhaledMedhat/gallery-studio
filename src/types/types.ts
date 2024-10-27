@@ -15,6 +15,13 @@ export interface User {
   emailVerified: Date | null;
   updatedAt: Date | null;
 }
+
+export interface Album {
+  id: number;
+  createdAt: Date;
+  name: string;
+  galleryId: number;
+}
 export interface fileType {
   createdAt: Date;
   id: string;

@@ -115,7 +115,7 @@ const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                             src={file.url}
                             alt={`Gallery image ${file.id}`}
                             layout="fill"
-                            className={`h-full w-full cursor-pointer rounded-md object-cover transition-transform duration-300 hover:scale-105 ${loadedFiles.has(Number(file.id))
+                            className={`h-full w-full cursor-pointer shadow rounded-md object-cover transition-transform duration-300 hover:scale-105 ${loadedFiles.has(Number(file.id))
                               ? "opacity-100"
                               : "opacity-0"
                               }`}

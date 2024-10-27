@@ -156,7 +156,7 @@ const AddFileButton: React.FC<{
           <TooltipContent>Add Image , Video or GIF</TooltipContent>
         </Tooltip>
       </TooltipProvider>
-      <DialogContent className="h-fit max-h-full overflow-y-auto max-w-fit">
+      <DialogContent className="h-fit max-h-full overflow-y-auto max-w-2xl xl:max-w-fit">
         <DialogHeader>
           <DialogTitle>Add Image , Video or GIF</DialogTitle>
           <DialogDescription>

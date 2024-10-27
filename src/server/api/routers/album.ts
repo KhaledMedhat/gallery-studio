@@ -1,7 +1,7 @@
-import { albumFiles, albums, files, galleries } from "~/server/db/schema";
+import { albumFiles, albums, galleries } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { z } from "zod";
-import { eq, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const albumRouter = createTRPCRouter({
@@ -128,4 +128,5 @@ export const albumRouter = createTRPCRouter({
         })
         .where(eq(albums.id, input.id));
     }),
+
 });

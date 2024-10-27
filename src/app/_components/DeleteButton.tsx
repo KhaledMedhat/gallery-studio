@@ -47,7 +47,7 @@ const DeleteButton = () => {
                         <BlurFade delay={0} inView yOffset={0}>
                             <AlertDialogTrigger asChild >
                                 <Button variant="ghost">
-                                    <Trash2 size={25} className="text-destructive" />
+                                    <Trash2 size={20} className="text-destructive" />
                                 </Button>
                             </AlertDialogTrigger>
                         </BlurFade>
@@ -73,7 +73,7 @@ const DeleteButton = () => {
                             await deleteFileOnServer(
                                 selectedFiles.map((file) => file.fileKey),
                             );
-                        }}>{isDeleting ? <LoaderCircle size={25} className="animate-spin" /> : "Continue"}</AlertDialogAction>
+                        }}>{isDeleting ? <LoaderCircle size={20} className="animate-spin" /> : "Continue"}</AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>

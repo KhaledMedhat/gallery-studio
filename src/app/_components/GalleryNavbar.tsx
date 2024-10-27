@@ -123,7 +123,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
           <Tooltip>
             <TooltipTrigger asChild>
               <Link href={"/"}>
-                <House size={25} />
+                <House size={20} />
               </Link>
             </TooltipTrigger>
             <TooltipContent>Home</TooltipContent>
@@ -137,7 +137,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
             <TooltipTrigger asChild>
               <Button variant="ghost">
                 <Link href={`/galleries/${gallerySlug}`}>
-                  <GalleryHorizontalEnd size={25} />
+                  <GalleryHorizontalEnd size={20} />
                 </Link>
               </Button>
             </TooltipTrigger>
@@ -151,7 +151,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
             <TooltipTrigger asChild>
               <Button variant="ghost">
                 <Link href={`/galleries/${gallerySlug}/albums`}>
-                  <Library size={25} />
+                  <Library size={20} />
                 </Link>
               </Button>
             </TooltipTrigger>
@@ -169,7 +169,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                   <DialogTrigger asChild>
                     <Button variant="ghost">
                       <FolderPlus
-                        size={25}
+                        size={20}
                         className={`${albums && albums?.length === 0 && "animate-bounce"}`}
                       />
                     </Button>
@@ -213,7 +213,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
               <DialogFooter>
                 <Button form="album-id" type="submit">
                   {isAddFilePending ? (
-                    <LoaderCircle size={25} className="animate-spin" />
+                    <LoaderCircle size={20} className="animate-spin" />
                   ) : (
                     "Submit"
                   )}
@@ -245,7 +245,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                     variant="ghost"
                     onClick={() => setSelectedFilesToEmpty()}
                   >
-                    <X size={25} />
+                    <X size={20} />
                   </Button>
                 </BlurFade>
               </TooltipTrigger>

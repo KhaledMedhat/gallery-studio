@@ -30,7 +30,7 @@ const FileModalView: React.FC<{
       </div>
       <div className="relative mx-auto flex w-full max-w-full flex-col gap-4">
         {file.fileType?.includes("video") ? (
-          <Video url={file.url} className="rounded-lg" />
+          <Video url={file.url} className="rounded-lg h-auto w-full" />
         ) : (
           <div className="aspect-w-16 aspect-h-9 relative h-auto w-full">
             <AspectRatio ratio={4 / 3} className="bg-muted">
