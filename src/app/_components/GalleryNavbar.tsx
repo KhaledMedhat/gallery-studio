@@ -60,6 +60,7 @@ import BlurFade from "~/components/ui/blur-fade";
 import AddFileButton from "./AddFileButton";
 import DeleteButton from "./DeleteButton";
 import ToAlbumButton from "./ToAlbumButton";
+import ChooseFilesModal from "./ChooseFilesModal";
 
 const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
   const router = useRouter();
@@ -70,7 +71,8 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
   const { data: albums } = api.album.getAlbums.useQuery({ id: gallerySlug });
   const { selectedFiles, setSelectedFilesToEmpty } = useFileStore();
   const isAlbum = pathname.includes("albums");
-
+  const isInsideAlbum = pathname.includes("albums/");
+  const albumId = pathname.split("/").pop()
   const formSchema = z.object({
     albumTitle: z.string().min(1, { message: "Album name Cannot be empty." }),
   });
@@ -161,7 +163,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
       </DockIcon>
 
       <DockIcon>
-        {isAlbum ? (
+        {isAlbum && !isInsideAlbum && (
           <Dialog>
             <TooltipProvider>
               <Tooltip>
@@ -221,16 +223,16 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
               </DialogFooter>
             </DialogContent>
           </Dialog>
-        ) : (
-          <AddFileButton gallerySlug={gallerySlug} files={files} />
         )}
+        {isInsideAlbum && <ChooseFilesModal albumId={albumId}/>}
+        {!isAlbum && !isInsideAlbum && <AddFileButton gallerySlug={gallerySlug} files={files} />}
       </DockIcon>
       {selectedFiles.length > 0 && (
         <DockIcon className="hidden xl:flex">
-          <DeleteButton />
+          <DeleteButton albumId={albumId}  />
         </DockIcon>
       )}
-      {selectedFiles.length > 0 && (
+      {selectedFiles.length > 0 && !isInsideAlbum &&(
         <DockIcon className="hidden xl:flex">
           <ToAlbumButton gallerySlug={gallerySlug} />
         </DockIcon>

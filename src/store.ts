@@ -33,9 +33,9 @@ export const useFileStore = create<FileStore>()((set, get) => ({
   isUpdating: false,
   isUpdatingPending: false,
   isSelecting : false,
-  setIsSelecting: () => set((state) => ({ isSelecting: !state.isSelecting })),
   progress: 0,
   selectedFiles: [],
+  setIsSelecting: () => set((state) => ({ isSelecting: !state.isSelecting })),
   setSelectedFilesToEmpty: () => set(() => ({ selectedFiles: [] })),
   setSelectedFiles: (selectedFiles: selectedFiles) =>
     set((state) => ({

@@ -10,11 +10,27 @@ import { useState } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip";
 import BlurFade from "~/components/ui/blur-fade";
 
-const DeleteButton = () => {
+const DeleteButton: React.FC<{ albumId: string | undefined }> = ({ albumId }) => {
     const { selectedFiles, setSelectedFilesToEmpty } = useFileStore();
     const utils = api.useUtils();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-
+    const { mutate: deleteFileFromAlbum, isPending: isDeletingFromAlbum } = api.album.deleteFileFromAlbum.useMutation({
+        onSuccess: () => {
+            toast({
+                title: "Deleted Successfully.",
+                description: `Images has been deleted from the album successfully.`,
+            });
+            void utils.file.getAlbumFiles.invalidate();
+        },
+        onError: () => {
+            toast({
+                variant: "destructive",
+                title: "Deleting Image Failed.",
+                description: `Uh oh! Something went wrong. Please try again.`,
+                action: <ToastAction altText="Try again">Try again</ToastAction>,
+            });
+        },
+    });
     const { mutate: deleteFile, isPending: isDeleting } =
         api.file.deleteFile.useMutation({
             onMutate: () => {
@@ -67,13 +83,18 @@ const DeleteButton = () => {
                     <AlertDialogAction
                         disabled={isDeleting}
                         onClick={async () => {
-                            deleteFile({
-                                id: selectedFiles.map((file) => file.id),
-                            });
-                            await deleteFileOnServer(
-                                selectedFiles.map((file) => file.fileKey),
-                            );
-                        }}>{isDeleting ? <LoaderCircle size={20} className="animate-spin" /> : "Continue"}</AlertDialogAction>
+                            if (albumId) {
+                                deleteFileFromAlbum({ albumId: Number(albumId), id: selectedFiles.map((file) => file.id) })
+                            } else {
+                                deleteFile({
+                                    id: selectedFiles.map((file) => file.id),
+                                });
+                                await deleteFileOnServer(
+                                    selectedFiles.map((file) => file.fileKey),
+                                );
+                            }
+
+                        }}>{isDeleting || isDeletingFromAlbum ? <LoaderCircle size={20} className="animate-spin" /> : "Continue"}</AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>

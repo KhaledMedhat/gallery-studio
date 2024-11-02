@@ -1,7 +1,7 @@
 import { albumFiles, albums, galleries } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const albumRouter = createTRPCRouter({
@@ -118,7 +118,8 @@ export const albumRouter = createTRPCRouter({
       if (existingAlbum) {
         throw new TRPCError({
           code: "CONFLICT",
-          message: "Album already exists, you cannot name it the same as an existing album",
+          message:
+            "Album already exists, you cannot name it the same as an existing album",
         });
       }
       await ctx.db
@@ -129,4 +130,32 @@ export const albumRouter = createTRPCRouter({
         .where(eq(albums.id, input.id));
     }),
 
+  addToAlbum: protectedProcedure
+    .input(
+      z.object({
+        id: z.array(z.string()),
+        albumId: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.insert(albumFiles).values(
+        input.id.map((fileId) => ({
+          albumId: input.albumId,
+          fileId,
+        })),
+      );
+    }),
+
+  deleteFileFromAlbum: protectedProcedure
+    .input(
+      z.object({
+        id: z.array(z.string()),
+        albumId: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db
+        .delete(albumFiles)
+        .where(inArray(albumFiles.fileId, input.id));
+    }),
 });

@@ -30,11 +30,14 @@ import { api } from "~/trpc/react";
 import { isAlbumOrFileEnum } from "~/types/types";
 import BlurFade from "~/components/ui/blur-fade";
 import AddFileButton from "./AddFileButton";
+import ChooseFilesModal from "./ChooseFilesModal";
 
 const EmptyPage: React.FC<{
-  gallerySlug: string;
-  isAlbumOrFilePage: isAlbumOrFileEnum;
-}> = ({ gallerySlug, isAlbumOrFilePage }) => {
+  albumId?: string;
+  gallerySlug?: string;
+  isAlbumOrFilePage?: isAlbumOrFileEnum;
+  isInsideAlbum?: boolean;
+}> = ({ gallerySlug, isAlbumOrFilePage, isInsideAlbum, albumId }) => {
   const utils = api.useUtils();
 
   const formSchema = z.object({
@@ -68,7 +71,10 @@ const EmptyPage: React.FC<{
     });
 
   const justText =
-    isAlbumOrFilePage === isAlbumOrFileEnum.album ? (
+    isInsideAlbum ? <h1 className="w-3/5 text-center text-2xl leading-relaxed tracking-wide">
+      No Images or Videos in your album, hurry up and add some and save your
+      moments, click the button below
+    </h1> : isAlbumOrFilePage === isAlbumOrFileEnum.album ? (
       <h1 className="w-1/2 text-center text-2xl leading-relaxed tracking-wide">
         No Albums, add one to get started and save your lovely moments in it,
         click the button below
@@ -80,74 +86,85 @@ const EmptyPage: React.FC<{
       </h1>
     );
 
+
   const onSubmit = (data: z.infer<typeof formSchema>) => {
-    addAlbum({
-      title: data.albumTitle,
-      id: gallerySlug,
-    });
+    if (gallerySlug) {
+      addAlbum({
+        title: data.albumTitle,
+        id: gallerySlug,
+      });
+    }
   };
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-4">
-      {isAlbumOrFilePage === isAlbumOrFileEnum.album ? (
+      {isInsideAlbum ?
         <BlurFade delay={0.6} inView>
           <div className="flex flex-col items-center gap-4">
             {justText}
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline">Add Album</Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Create Album</DialogTitle>
-                  <DialogDescription>
-                    Make your albums stand out with a Title , Images and Videos.
-                  </DialogDescription>
-                </DialogHeader>
-                <Form {...form}>
-                  <form
-                    id="album-id"
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="space-y-8"
-                  >
-                    <FormField
-                      control={form.control}
-                      name="albumTitle"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Title</FormLabel>
-                          <FormControl>
-                            <Input placeholder="example" {...field} />
-                          </FormControl>
-                          <FormDescription>
-                            Enter your album title.
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
+            <ChooseFilesModal albumId={albumId} isInsideAlbum={isInsideAlbum} />
+          </div>
+        </BlurFade>
+
+        : isAlbumOrFilePage === isAlbumOrFileEnum.album ? (
+          <BlurFade delay={0.6} inView>
+            <div className="flex flex-col items-center gap-4">
+              {justText}
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline">Add Album</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Create Album</DialogTitle>
+                    <DialogDescription>
+                      Make your albums stand out with a Title , Images and Videos.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Form {...form}>
+                    <form
+                      id="album-id"
+                      onSubmit={form.handleSubmit(onSubmit)}
+                      className="space-y-8"
+                    >
+                      <FormField
+                        control={form.control}
+                        name="albumTitle"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Title</FormLabel>
+                            <FormControl>
+                              <Input placeholder="example" {...field} />
+                            </FormControl>
+                            <FormDescription>
+                              Enter your album title.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </form>
+                  </Form>
+                  <DialogFooter>
+                    <Button form="album-id" type="submit">
+                      {isAddFilePending ? (
+                        <Loader2 className="animate-spin" />
+                      ) : (
+                        "Submit"
                       )}
-                    />
-                  </form>
-                </Form>
-                <DialogFooter>
-                  <Button form="album-id" type="submit">
-                    {isAddFilePending ? (
-                      <Loader2 className="animate-spin" />
-                    ) : (
-                      "Submit"
-                    )}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </BlurFade>
-      ) : (
-        <BlurFade delay={0.6} inView>
-          <div className="flex flex-col items-center gap-4">
-            {justText}
-            <AddFileButton gallerySlug={gallerySlug} />
-          </div>
-        </BlurFade>
-      )}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </BlurFade>
+        ) : (
+          <BlurFade delay={0.6} inView>
+            <div className="flex flex-col items-center gap-4">
+              {justText}
+              {gallerySlug && <AddFileButton gallerySlug={gallerySlug} />}
+            </div>
+          </BlurFade>
+        )}
     </div>
   );
 };

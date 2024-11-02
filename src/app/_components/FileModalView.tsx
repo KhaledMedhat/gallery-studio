@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Earth, LockKeyhole } from "lucide-react";
 import { useFileStore } from "~/store";
-import UpdateFileModalView from "./UpdateFileModalView";
+import UpdateFileView from "./UpdateFileView";
 import { api } from "~/trpc/react";
 
 dayjs.extend(relativeTime);
@@ -28,7 +28,7 @@ const FileModalView: React.FC<{
           ))}
         </div>
       </div>
-      <div className="relative mx-auto flex w-full max-w-full flex-col gap-4">
+      <div className="relative mx-auto flex w-full max-w-2xl lg:max-w-4xl flex-col gap-4">
         {file.fileType?.includes("video") ? (
           <Video url={file.url} className="rounded-lg h-auto w-full" />
         ) : (
@@ -43,18 +43,19 @@ const FileModalView: React.FC<{
             </AspectRatio>
           </div>
         )}
-        <div className="flex items-center gap-2">
-          <p className="text-sm text-accent-foreground">
-            {dayjs(file.createdAt).fromNow()}
-          </p>
-          <span className="block h-1 w-1 rounded-full bg-accent-foreground"></span>
-          {file.filePrivacy === 'private' ? <LockKeyhole size={16} className="text-accent-foreground" /> : <Earth size={16} className="text-accent-foreground" />}
 
-        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <p className="text-sm text-accent-foreground">
+          {dayjs(file.createdAt).fromNow()}
+        </p>
+        <span className="block h-1 w-1 rounded-full bg-accent-foreground"></span>
+        {file.filePrivacy === 'private' ? <LockKeyhole size={16} className="text-accent-foreground" /> : <Earth size={16} className="text-accent-foreground" />}
+
       </div>
     </section>
   ) : (
-    file && <UpdateFileModalView file={file} userName={userName} />
+    file && <UpdateFileView file={file} userName={userName} imageWanted={true} />
   );
 };
 

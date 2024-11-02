@@ -46,7 +46,7 @@ export function Modal({
   const initials = getInitials(name ?? "");
   return (
     <Dialog defaultOpen={true} open={true} onOpenChange={handleOpenModalChange}>
-      <DialogOverlay>
+      <DialogOverlay >
         <DialogContent isClosed={true}>
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -54,9 +54,9 @@ export function Modal({
                 <AvatarImage src={profileImage ?? ""} />
                 <AvatarFallback>{initials}</AvatarFallback>
               </Avatar>
-              <HoverCard>
+              <HoverCard openDelay={100} closeDelay={100}>
                 <HoverCardTrigger asChild>
-                  <Button variant="link" className="p-0 font-bold">
+                  <Button variant="link" className="p-0 font-bold" tabIndex={-1}>
                     @{name}
                   </Button>
                 </HoverCardTrigger>

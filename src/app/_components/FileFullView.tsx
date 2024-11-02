@@ -1,14 +1,9 @@
 'use client'
-import { motion } from "framer-motion"
-import { CalendarIcon, ChevronLeft, Download, Earth, Heart, Info, LockKeyhole, Share2 } from "lucide-react"
+import { CalendarIcon, ChevronLeft, Earth, LockKeyhole } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Button } from "~/components/ui/button"
-import { Card, CardContent } from "~/components/ui/card"
 import type { fileType, User } from "~/types/types"
 import Image from "next/image"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip"
-import { useState } from "react"
-import { ScrollArea } from "~/components/ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import dayjs from "dayjs"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/hover-card"
@@ -18,16 +13,15 @@ import Video from "./Video"
 import { AspectRatio } from "~/components/ui/aspect-ratio"
 import relativeTime from "dayjs/plugin/relativeTime";
 import Link from "next/link"
+import { useFileStore } from "~/store"
+import UpdateFileView from "./UpdateFileView"
 
 dayjs.extend(relativeTime);
 
 const FileFullView: React.FC<{ user: User | undefined, file: fileType, gallerySlug: string }> = ({ user, file, gallerySlug }) => {
     const router = useRouter()
-    const [isLiked, setIsLiked] = useState(false)
+    const { isUpdating } = useFileStore();
 
-    const handleLike = () => {
-        setIsLiked(!isLiked)
-    }
     const initials = getInitials(user?.name ?? "");
     return (
         <section className="container mx-auto flex flex-col items-start gap-4 justify-around p-4">
@@ -88,7 +82,7 @@ const FileFullView: React.FC<{ user: User | undefined, file: fileType, gallerySl
                             </div>
                         )}
 
-                        <div className="flex flex-col gap-2">
+                        {isUpdating ? <UpdateFileView file={file} imageWanted={false} /> : <div className="flex flex-col gap-2">
                             <h1>{file.caption}</h1>
                             <div className="flex items-center gap-2">
                                 {file.tags?.map((tag) => (
@@ -99,15 +93,16 @@ const FileFullView: React.FC<{ user: User | undefined, file: fileType, gallerySl
                                     </Button>
                                 ))}
                             </div>
-                                <div className="flex items-center gap-2">
-                                <p className="text-sm text-accent-foreground">
+                        </div>}
+                        <div className="flex items-center gap-2">
+                            <p className="text-sm text-accent-foreground">
                                 {dayjs(file.createdAt).fromNow()}
                             </p>
                             <span className="block h-1 w-1 rounded-full bg-accent-foreground"></span>
                             {file.filePrivacy === 'private' ? <LockKeyhole size={16} className="text-accent-foreground" /> : <Earth size={16} className="text-accent-foreground" />}
-                                </div>
-
                         </div>
+
+
                     </div>
                 </div>
             </div>

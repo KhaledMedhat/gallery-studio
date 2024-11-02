@@ -20,14 +20,16 @@ import { Textarea } from "~/components/ui/textarea";
 import { api } from "~/trpc/react";
 import { toast } from "~/hooks/use-toast";
 import { ToastAction } from "~/components/ui/toast";
+import { useRouter } from "next/navigation";
 
-const UpdateFileModalView: React.FC<{
+const UpdateFileView: React.FC<{
   file: fileType;
-  userName: string | null | undefined;
-}> = ({ file, userName }) => {
+  userName?: string | null | undefined;
+  imageWanted: boolean
+}> = ({ file, userName, imageWanted }) => {
   const { setIsUpdating, setIsUpdatingPending } = useFileStore();
   const utils = api.useUtils();
-
+  const router = useRouter()
   const formSchema = z.object({
     caption: z.string().min(1, { message: "Caption cannot be empty" }),
     tags: z
@@ -78,14 +80,14 @@ const UpdateFileModalView: React.FC<{
       onMutate: () => {
         setIsUpdatingPending(isFileUpdating);
       },
-      onSuccess: (data) => {
+      onSuccess: () => {
         setIsUpdating(false);
         toast({
           title: "Updated Successfully.",
           description: `Images has been Updated successfully.`,
         });
-        if (data[0]?.id)
-          void utils.file.getFileById.invalidate({ id: data[0]?.id });
+        void utils.file.getFileById.invalidate({ id: file.id });
+        if (!imageWanted) router.refresh()
       },
       onError: () => {
         toast({
@@ -161,7 +163,7 @@ const UpdateFileModalView: React.FC<{
           </form>
         </Form>
       </div>
-      <div className="relative mx-auto flex w-full max-w-full flex-col gap-4">
+      {imageWanted && <div className="relative mx-auto flex w-full max-w-full flex-col gap-4">
         {file.fileType?.includes("video") ? (
           <Video url={file.url} className="rounded-lg" />
         ) : (
@@ -177,9 +179,9 @@ const UpdateFileModalView: React.FC<{
             </AspectRatio>
           </div>
         )}
-      </div>
+      </div>}
     </section>
   );
 };
 
-export default UpdateFileModalView;
+export default UpdateFileView;
