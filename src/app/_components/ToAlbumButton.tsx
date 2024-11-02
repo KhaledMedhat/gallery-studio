@@ -1,6 +1,5 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ToastAction } from "@radix-ui/react-toast";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { FolderInput, LoaderCircle } from "lucide-react"
 import { useForm } from "react-hook-form";
@@ -59,7 +58,6 @@ const ToAlbumButton: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                 variant: "destructive",
                 title: "Uh oh! Something went wrong.",
                 description: e.message,
-                action: <ToastAction altText="Try again">Try again</ToastAction>,
             });
         },
     });
@@ -71,12 +69,11 @@ const ToAlbumButton: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                     description: `Images has been added to ${albumForm.getValues("album")} album successfully.`,
                 });
             },
-            onError: (e) => {
+            onError: () => {
                 toast({
                     variant: "destructive",
                     title: "Uh oh! Something went wrong.",
-                    description: e.message,
-                    action: <ToastAction altText="Try again">Try again</ToastAction>,
+                    description: 'One of the selected images is already in the album.',
                 });
             },
         });

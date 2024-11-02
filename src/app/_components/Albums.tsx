@@ -17,7 +17,6 @@ import {
 } from "~/components/ui/form";
 import { toast } from "~/hooks/use-toast";
 import { Input } from "~/components/ui/input";
-import { ToastAction } from "~/components/ui/toast";
 
 import { useEffect, useState } from "react";
 import {
@@ -68,7 +67,6 @@ const AlbumCoverImages: React.FC<{ album: Album, gallerySlug: string }> = ({
           variant: "destructive",
           title: "Deleting Album Failed.",
           description: `Uh oh! Something went wrong. Please try again.`,
-          action: <ToastAction altText="Try again">Try again</ToastAction>,
         });
       },
     });
@@ -87,7 +85,6 @@ const AlbumCoverImages: React.FC<{ album: Album, gallerySlug: string }> = ({
           variant: "destructive",
           title: "Uh oh! Something went wrong.",
           description: `Uh oh! Something went wrong. Please try again.`,
-          action: <ToastAction altText="Try again">Try again</ToastAction>,
         });
       },
     });

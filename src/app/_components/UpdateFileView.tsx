@@ -19,7 +19,6 @@ import {
 import { Textarea } from "~/components/ui/textarea";
 import { api } from "~/trpc/react";
 import { toast } from "~/hooks/use-toast";
-import { ToastAction } from "~/components/ui/toast";
 import { useRouter } from "next/navigation";
 
 const UpdateFileView: React.FC<{
@@ -94,7 +93,6 @@ const UpdateFileView: React.FC<{
           variant: "destructive",
           title: "Updating Image Failed.",
           description: `Uh oh! Something went wrong. Please try again.`,
-          action: <ToastAction altText="Try again">Try again</ToastAction>,
         });
       },
       onSettled: () => {

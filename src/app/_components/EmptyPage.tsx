@@ -24,7 +24,6 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { ToastAction } from "~/components/ui/toast";
 import { toast } from "~/hooks/use-toast";
 import { api } from "~/trpc/react";
 import { isAlbumOrFileEnum } from "~/types/types";
@@ -65,7 +64,6 @@ const EmptyPage: React.FC<{
           variant: "destructive",
           title: "Uh oh! Something went wrong.",
           description: `Uh oh! Something went wrong. Please try again.`,
-          action: <ToastAction altText="Try again">Try again</ToastAction>,
         });
       },
     });

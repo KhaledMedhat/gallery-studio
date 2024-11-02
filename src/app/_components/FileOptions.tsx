@@ -7,7 +7,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { ToastAction } from "~/components/ui/toast";
 import { toast } from "~/hooks/use-toast";
 import { api } from "~/trpc/react";
 import { deleteFileOnServer } from "../actions";
@@ -35,7 +34,6 @@ const FileOptions: React.FC<{
           variant: "destructive",
           title: "Deleting Image Failed.",
           description: `Uh oh! Something went wrong. Please try again.`,
-          action: <ToastAction altText="Try again">Try again</ToastAction>,
         });
       },
     });

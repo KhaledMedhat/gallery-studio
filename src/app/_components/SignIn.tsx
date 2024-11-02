@@ -20,7 +20,6 @@ import {
 } from "~/components/ui/form";
 import AuthButtons from "./AuthButtons";
 import { useToast } from "~/hooks/use-toast";
-import { ToastAction } from "~/components/ui/toast";
 
 const SignIn = () => {
   const router = useRouter();
@@ -48,7 +47,6 @@ const SignIn = () => {
           variant: "destructive",
           title: "Uh oh! Something went wrong.",
           description: error.message,
-          action: <ToastAction altText="Try again">Try again</ToastAction>,
         });
       },
     });

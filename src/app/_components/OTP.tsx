@@ -19,7 +19,6 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "~/components/ui/input-otp";
-import { ToastAction } from "~/components/ui/toast";
 import { useToast } from "~/hooks/use-toast";
 import { useUserStore } from "~/store";
 import { api } from "~/trpc/react";
@@ -53,7 +52,6 @@ const OTP = () => {
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
         description: error.message,
-        action: <ToastAction altText="Try again">Try again</ToastAction>,
       });
     },
   });

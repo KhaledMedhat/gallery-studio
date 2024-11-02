@@ -38,7 +38,6 @@ import { useState } from "react";
 import { useFileStore } from "~/store";
 import { api } from "~/trpc/react";
 import { toast } from "~/hooks/use-toast";
-import { ToastAction } from "~/components/ui/toast";
 import { useTheme } from "next-themes";
 import type { fileType } from "~/types/types";
 import Video from "./Video";
@@ -111,7 +110,6 @@ const AddFileButton: React.FC<{
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
         description: e.message,
-        action: <ToastAction altText="Try again">Try again</ToastAction>,
       });
     },
   });

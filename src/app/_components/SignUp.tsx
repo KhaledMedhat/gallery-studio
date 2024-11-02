@@ -24,7 +24,6 @@ import {
 import { stages } from "~/constants/Stages";
 import { deleteFileOnServer } from "../actions";
 import { useToast } from "~/hooks/use-toast";
-import { ToastAction } from "~/components/ui/toast";
 import AuthButtons from "./AuthButtons";
 import UploadthingButton from "./UploadthingButton";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
@@ -49,7 +48,6 @@ const SignUp = () => {
           variant: "destructive",
           title: "Uh oh! Something went wrong.",
           description: e.message,
-          action: <ToastAction altText="Try again">Try again</ToastAction>,
         });
       },
     });

@@ -54,7 +54,6 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { useFileStore } from "~/store";
-import { ToastAction } from "~/components/ui/toast";
 import { Input } from "~/components/ui/input";
 import BlurFade from "~/components/ui/blur-fade";
 import AddFileButton from "./AddFileButton";
@@ -98,7 +97,6 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
           variant: "destructive",
           title: "Uh oh! Something went wrong.",
           description: `Uh oh! Something went wrong. Please try again.`,
-          action: <ToastAction altText="Try again">Try again</ToastAction>,
         });
       },
     });

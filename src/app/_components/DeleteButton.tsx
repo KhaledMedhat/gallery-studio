@@ -1,7 +1,6 @@
 import { LoaderCircle, Trash2 } from "lucide-react"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "~/components/ui/alert-dialog"
 import { Button } from "~/components/ui/button"
-import { ToastAction } from "~/components/ui/toast";
 import { toast } from "~/hooks/use-toast";
 import { useFileStore } from "~/store";
 import { api } from "~/trpc/react";
@@ -27,7 +26,6 @@ const DeleteButton: React.FC<{ albumId: string | undefined }> = ({ albumId }) =>
                 variant: "destructive",
                 title: "Deleting Image Failed.",
                 description: `Uh oh! Something went wrong. Please try again.`,
-                action: <ToastAction altText="Try again">Try again</ToastAction>,
             });
         },
     });
@@ -51,7 +49,6 @@ const DeleteButton: React.FC<{ albumId: string | undefined }> = ({ albumId }) =>
                     variant: "destructive",
                     title: "Deleting Image Failed.",
                     description: `Uh oh! Something went wrong. Please try again.`,
-                    action: <ToastAction altText="Try again">Try again</ToastAction>,
                 });
             },
         });

@@ -11,7 +11,6 @@ import Video from "./Video"
 import Image from "next/legacy/image"
 import { Checkbox } from "~/components/ui/checkbox"
 import { useState } from "react"
-import { ToastAction } from "~/components/ui/toast"
 import { toast } from "~/hooks/use-toast"
 
 const ChooseFilesModal: React.FC<{ albumId: string | undefined, isInsideAlbum?: boolean }> = ({ albumId, isInsideAlbum }) => {
@@ -36,7 +35,6 @@ const ChooseFilesModal: React.FC<{ albumId: string | undefined, isInsideAlbum?: 
                 variant: "destructive",
                 title: "Uh oh! Something went wrong.",
                 description: `Uh oh! Something went wrong. Please try again.`,
-                action: <ToastAction altText="Try again">Try again</ToastAction>,
             });
         },
     });
