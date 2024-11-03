@@ -159,7 +159,7 @@ const EmptyPage: React.FC<{
           <BlurFade delay={0.6} inView>
             <div className="flex flex-col items-center gap-4">
               {justText}
-              {gallerySlug && <AddFileButton gallerySlug={gallerySlug} />}
+              {gallerySlug && <AddFileButton gallerySlug={gallerySlug} isEmptyPage={true} />}
             </div>
           </BlurFade>
         )}

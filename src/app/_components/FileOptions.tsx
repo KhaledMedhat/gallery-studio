@@ -11,6 +11,7 @@ import { toast } from "~/hooks/use-toast";
 import { api } from "~/trpc/react";
 import { deleteFileOnServer } from "../actions";
 import { useFileStore } from "~/store";
+import DeleteButton from "./DeleteButton";
 
 const FileOptions: React.FC<{
   handleOpenModalChange?: () => void;
@@ -18,26 +19,6 @@ const FileOptions: React.FC<{
   fileKey: string | null;
 }> = ({ fileId, fileKey, handleOpenModalChange }) => {
   const { setIsUpdating, isUpdating, isUpdatingPending } = useFileStore();
-  const utils = api.useUtils();
-  const { mutate: deleteFile, isPending: isFileDeleting } =
-    api.file.deleteFile.useMutation({
-      onSuccess: () => {
-        toast({
-          title: "Deleted Successfully.",
-          description: `Images has been deleted successfully.`,
-        });
-        if (handleOpenModalChange) handleOpenModalChange()
-        void utils.file.getFiles.invalidate();
-      },
-      onError: () => {
-        toast({
-          variant: "destructive",
-          title: "Deleting Image Failed.",
-          description: `Uh oh! Something went wrong. Please try again.`,
-        });
-      },
-    });
-
   return !isUpdating ? (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -58,24 +39,8 @@ const FileOptions: React.FC<{
               Edit
             </Button>
           </DropdownMenuItem>
-          <DropdownMenuItem className="p-0">
-            <Button
-              disabled={isFileDeleting}
-              onClick={async () => {
-                if (fileId) {
-                  deleteFile({ id: [fileId] });
-                  if (fileKey) await deleteFileOnServer(fileKey);
-                }
-              }}
-              variant="ghost"
-              className="text-destructive hover:bg-transparent hover:text-[#d33939]"
-            >
-              {isFileDeleting ? (
-                <LoaderCircle size={25} className="animate-spin" />
-              ) : (
-                "Delete"
-              )}
-            </Button>
+          <DropdownMenuItem className="p-0" asChild>
+            <DeleteButton fileId={fileId} fileKey={fileKey} isFileModal={true} handleOpenModalChange={handleOpenModalChange} />
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

@@ -12,6 +12,8 @@ import { useFileStore } from "~/store";
 import { useState } from "react";
 import { Badge } from "~/components/ui/badge";
 import EmptyPage from "./EmptyPage";
+import { Button } from "~/components/ui/button";
+import DeleteButton from "./DeleteButton";
 
 const Album: React.FC<{ id: string }> = ({ id }) => {
     const { data: albumFiles } = api.file.getAlbumFiles.useQuery({ id: Number(id) })
@@ -20,7 +22,7 @@ const Album: React.FC<{ id: string }> = ({ id }) => {
     const handleImageLoad = (id: number) => {
         setLoadedFiles((prev) => new Set(prev).add(id));
     };
-    const { setSelectedFiles, removeSelectedFiles, selectedFiles, isSelecting } =
+    const { setSelectedFiles, removeSelectedFiles, selectedFiles, isSelecting, setIsSelecting, setSelectedFilesToEmpty } =
         useFileStore();
     const isFileSelected = (fileId: string) => {
         return selectedFiles.some((file) => file.id === fileId);
@@ -31,7 +33,25 @@ const Album: React.FC<{ id: string }> = ({ id }) => {
     }
     if (albumFiles?.length === 0) return <EmptyPage isInsideAlbum={true} albumId={id} />
     return (
-        <div className="container mx-auto px-4 py-10 flex items-center gap-6">
+        <div className="container mx-auto px-4 py-10 flex flex-col items-center gap-6">
+            <div className="flex items-center gap-2">
+                {selectedFiles.length > 0 &&
+                    <div className="flex gap-2 items-center xl:hidden">
+                        <DeleteButton albumId={id} />
+                    </div>}
+                <Button onClick={() => {
+                    if (isSelecting) {
+                        setSelectedFilesToEmpty()
+                        setIsSelecting()
+                    } else {
+                        setIsSelecting()
+
+                    }
+                }} className="xl:hidden " variant="outline">
+                    {isSelecting ? 'Cancel' : 'Select'}
+                </Button>
+
+            </div>
             <div className="flex items-center gap-4 justify-center flex-wrap">
                 {albumFiles?.map((file, idx) => (
                     <BlurFade key={file.id} delay={0.25 + Number(idx) * 0.05} inView>

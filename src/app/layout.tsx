@@ -7,6 +7,7 @@ import { TRPCReactProvider } from "~/trpc/react";
 import { ThemeProvider } from "./_components/theme-provider";
 import { Toaster } from "~/components/ui/toaster";
 import AuthProvider from "~/AuthProvider";
+import SideFootnote from "./_components/SideFootnote";
 
 export const metadata: Metadata = {
   title: "Gallery Studio",

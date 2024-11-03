@@ -113,7 +113,6 @@ const ToAlbumButton: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                 </Tooltip>
             </TooltipProvider>
             <DialogContent
-                isClosed={true}
                 className="flex max-w-2xl items-center"
             >
                 <VisuallyHidden.Root>

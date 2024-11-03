@@ -1,5 +1,12 @@
 import { z } from "zod";
-import { accounts, files, galleries, otp, sessions, users } from "~/server/db/schema";
+import {
+  accounts,
+  files,
+  galleries,
+  otp,
+  sessions,
+  users,
+} from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { randomBytes } from "crypto";
 import { db } from "~/server/db";
@@ -10,6 +17,11 @@ import { Send } from "~/app/api/send/route";
 import { hashPassword, generateOTP } from "~/utils/utils";
 
 export const userRouter = createTRPCRouter({
+  deleteOtp: publicProcedure
+    .input(z.object({ email: z.string().min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.delete(otp).where(eq(otp.email, input.email));
+    }),
   verifyEmail: publicProcedure
     .input(
       z.object({
@@ -77,7 +89,7 @@ export const userRouter = createTRPCRouter({
           const [user] = await ctx.db
             .insert(users)
             .values({
-              email: input.email,
+              email: input.email.toLocaleLowerCase(),
               password: hashedPassword,
               provider: "email",
               image: input.image,
@@ -178,19 +190,21 @@ export const userRouter = createTRPCRouter({
     return null;
   }),
 
-  getFileUser: publicProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
-    const file = await ctx.db.query.files.findFirst({
-      where: eq(files.id, input.id),
-    });
-    if(!file){
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "File not found",
+  getFileUser: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const file = await ctx.db.query.files.findFirst({
+        where: eq(files.id, input.id),
       });
-    }
-    const user = await ctx.db.query.users.findFirst({
-      where: eq(users.id, file.createdById),
-    });
-    return user;
-  }),
+      if (!file) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "File not found",
+        });
+      }
+      const user = await ctx.db.query.users.findFirst({
+        where: eq(users.id, file.createdById),
+      });
+      return user;
+    }),
 });

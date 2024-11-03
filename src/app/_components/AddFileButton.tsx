@@ -45,8 +45,9 @@ import { Switch } from "~/components/ui/switch";
 
 const AddFileButton: React.FC<{
   files?: fileType[] | undefined;
+  isEmptyPage: boolean;
   gallerySlug: string;
-}> = ({ files, gallerySlug }) => {
+}> = ({ files, gallerySlug, isEmptyPage }) => {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [file, setFile] = useState<File | undefined>(undefined);
   const [isFileError, setIsFileError] = useState<boolean>(false);
@@ -134,21 +135,15 @@ const AddFileButton: React.FC<{
         <Tooltip>
           <TooltipTrigger asChild>
             <DialogTrigger asChild>
-              {files ? (
-                files.length > 0 ? (
-                  <Button variant="ghost">
-                    <Plus
-                      size={25}
-                      className={`${files && files?.length === 0 && "animate-bounce"}`}
-                    />
-                    <span className="sr-only">Add Image</span>
-                  </Button>
-                ) : (
-                  <Button variant="outline">Add Image or Video</Button>
-                )
-              ) : (
-                <Plus size={25} />
-              )}
+              {isEmptyPage ? <Button variant="outline">Add Image or Video</Button> :
+                <Button variant="ghost">
+                  <Plus
+                    size={25}
+                    className={`${files && files?.length === 0 && "animate-bounce"}`}
+                  />
+                  <span className="sr-only">Add Image</span>
+                </Button>
+              }
             </DialogTrigger>
           </TooltipTrigger>
           <TooltipContent>Add Image , Video or GIF</TooltipContent>

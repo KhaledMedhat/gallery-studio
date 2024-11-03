@@ -178,7 +178,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                 <TooltipContent>Add Album</TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <DialogContent isClosed={true}>
+            <DialogContent>
               <DialogHeader>
                 <DialogTitle>New Album</DialogTitle>
                 <DialogDescription>
@@ -222,15 +222,15 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
             </DialogContent>
           </Dialog>
         )}
-        {isInsideAlbum && <ChooseFilesModal albumId={albumId}/>}
-        {!isAlbum && !isInsideAlbum && <AddFileButton gallerySlug={gallerySlug} files={files} />}
+        {isInsideAlbum && <ChooseFilesModal albumId={albumId} />}
+        {!isAlbum && !isInsideAlbum && <AddFileButton gallerySlug={gallerySlug} files={files} isEmptyPage={false} />}
       </DockIcon>
       {selectedFiles.length > 0 && (
         <DockIcon className="hidden xl:flex">
-          <DeleteButton albumId={albumId}  />
+          <DeleteButton albumId={albumId} />
         </DockIcon>
       )}
-      {selectedFiles.length > 0 && !isInsideAlbum &&(
+      {selectedFiles.length > 0 && !isInsideAlbum && (
         <DockIcon className="hidden xl:flex">
           <ToAlbumButton gallerySlug={gallerySlug} />
         </DockIcon>

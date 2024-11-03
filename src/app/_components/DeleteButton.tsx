@@ -8,17 +8,29 @@ import { deleteFileOnServer } from "../actions";
 import { useState } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip";
 import BlurFade from "~/components/ui/blur-fade";
+import { useRouter } from "next/navigation";
 
-const DeleteButton: React.FC<{ albumId: string | undefined }> = ({ albumId }) => {
+const DeleteButton: React.FC<{
+    albumId?: string | undefined,
+    fileId?: string | null,
+    fileKey?: string | null,
+    isFileModal?: boolean;
+    handleOpenModalChange?: () => void;
+}> = ({ albumId, fileId, fileKey, isFileModal, handleOpenModalChange }) => {
     const { selectedFiles, setSelectedFilesToEmpty } = useFileStore();
     const utils = api.useUtils();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const { mutate: deleteFileFromAlbum, isPending: isDeletingFromAlbum } = api.album.deleteFileFromAlbum.useMutation({
+        onMutate: () => {
+            setIsDialogOpen(true)
+        },
         onSuccess: () => {
+            setSelectedFilesToEmpty()
             toast({
                 title: "Deleted Successfully.",
                 description: `Images has been deleted from the album successfully.`,
             });
+            setIsDialogOpen(false)
             void utils.file.getAlbumFiles.invalidate();
         },
         onError: () => {
@@ -41,8 +53,10 @@ const DeleteButton: React.FC<{ albumId: string | undefined }> = ({ albumId }) =>
                     description: `Images ${deleteFile.name} has been deleted successfully.`,
                 });
                 setIsDialogOpen(false)
+                if (handleOpenModalChange) handleOpenModalChange()
                 void utils.file.getFiles.invalidate();
-                void utils.file.getAlbumFiles.invalidate();
+                if (albumId) void utils.file.getAlbumFiles.invalidate();
+
             },
             onError: () => {
                 toast({
@@ -59,8 +73,9 @@ const DeleteButton: React.FC<{ albumId: string | undefined }> = ({ albumId }) =>
                     <TooltipTrigger asChild>
                         <BlurFade delay={0} inView yOffset={0}>
                             <AlertDialogTrigger asChild >
-                                <Button variant="ghost">
-                                    <Trash2 size={20} className="text-destructive" />
+                                <Button variant="ghost" className="text-destructive hover:bg-transparent hover:text-[#d33939]">
+                                    {isFileModal ? 'Delete' : <Trash2 size={20} className="text-destructive" />
+                                    }
                                 </Button>
                             </AlertDialogTrigger>
                         </BlurFade>
@@ -78,10 +93,14 @@ const DeleteButton: React.FC<{ albumId: string | undefined }> = ({ albumId }) =>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction
-                        disabled={isDeleting}
+                        disabled={isDeleting || isDeletingFromAlbum}
                         onClick={async () => {
                             if (albumId) {
                                 deleteFileFromAlbum({ albumId: Number(albumId), id: selectedFiles.map((file) => file.id) })
+                            } else if (fileId && selectedFiles.length === 0) {
+                                deleteFile({ id: [fileId] });
+                                if (fileKey) await deleteFileOnServer(fileKey);
+
                             } else {
                                 deleteFile({
                                     id: selectedFiles.map((file) => file.id),

@@ -44,8 +44,8 @@ const ChooseFilesModal: React.FC<{ albumId: string | undefined, isInsideAlbum?: 
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <DialogTrigger asChild>
-                            <Button variant={isInsideAlbum? 'outline' : 'ghost'}>
-                                {isInsideAlbum ? "Add to album" : <Images size={20} />}
+                            <Button variant={isInsideAlbum ? 'outline' : 'ghost'}>
+                                {isInsideAlbum ? "Add to album" : <Images className={`${albumFiles?.length === 0 && "animate-bounce"}`} size={20} />}
 
                             </Button>
                         </DialogTrigger>
@@ -53,7 +53,7 @@ const ChooseFilesModal: React.FC<{ albumId: string | undefined, isInsideAlbum?: 
                     <TooltipContent>Add from your gallery</TooltipContent>
                 </Tooltip>
             </TooltipProvider>
-            <DialogContent isClosed={true}>
+            <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Add from your gallery</DialogTitle>
                     <DialogDescription>
