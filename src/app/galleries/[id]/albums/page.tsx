@@ -6,5 +6,10 @@ export default async function GalleryAlbumsPage({
   params: { id: string };
 }) {
 
-  return <Albums gallerySlug={gallerySlug} />;
+  return (
+    <div className="flex flex-col items-center">
+      <h1 className="text-3xl mt-14 font-bold text-center">Your Albums</h1>
+      <Albums gallerySlug={gallerySlug} />
+    </div>
+  )
 }

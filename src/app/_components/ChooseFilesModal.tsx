@@ -12,10 +12,12 @@ import Image from "next/legacy/image"
 import { Checkbox } from "~/components/ui/checkbox"
 import { useState } from "react"
 import { toast } from "~/hooks/use-toast"
+import { useParams } from "next/navigation"
 
-const ChooseFilesModal: React.FC<{ albumId: string | undefined, isInsideAlbum?: boolean }> = ({ albumId, isInsideAlbum }) => {
+const ChooseFilesModal: React.FC<{ isInsideAlbum?: boolean }> = ({ isInsideAlbum }) => {
+    const param = useParams()
     const { data: files } = api.file.getFiles.useQuery()
-    const { data: albumFiles } = api.file.getAlbumFiles.useQuery({ id: Number(albumId) })
+    const { data: albumFiles } = api.file.getAlbumFiles.useQuery({ id: Number(param.albumId) })
     const isTheFileInAlbum = (id: string) => {
         return albumFiles?.some((file) => file.id === id)
     }
@@ -120,7 +122,7 @@ const ChooseFilesModal: React.FC<{ albumId: string | undefined, isInsideAlbum?: 
                 <DialogFooter>
                     <Button className="w-full"
                         disabled={isPending}
-                        onClick={() => addToExistedAlbum({ id: selectedFiles, albumId: Number(albumId) })}>
+                        onClick={() => addToExistedAlbum({ id: selectedFiles, albumId: Number(param.albumId) })}>
                         {isPending ? (
                             <LoaderCircle size={20} className="animate-spin" />
                         ) : (

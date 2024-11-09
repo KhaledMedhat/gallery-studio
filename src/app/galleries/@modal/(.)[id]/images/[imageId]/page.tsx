@@ -16,7 +16,7 @@ export default async function ImagePage({
       bio={user?.bio}
       createdAt={user?.createdAt}
     >
-      <FileModalView fileId={imageId} userName={user?.name} />
+      <FileModalView fileId={imageId} userName={user?.name} userId={user?.id} />
     </Modal>
   );
 }

@@ -32,13 +32,12 @@ import AddFileButton from "./AddFileButton";
 import ChooseFilesModal from "./ChooseFilesModal";
 
 const EmptyPage: React.FC<{
-  albumId?: string;
   gallerySlug?: string;
   isAlbumOrFilePage?: isAlbumOrFileEnum;
   isInsideAlbum?: boolean;
-}> = ({ gallerySlug, isAlbumOrFilePage, isInsideAlbum, albumId }) => {
-  const utils = api.useUtils();
+}> = ({ gallerySlug, isAlbumOrFilePage, isInsideAlbum }) => {
 
+  const utils = api.useUtils();
   const formSchema = z.object({
     albumTitle: z.string().min(1, { message: "Album name Cannot be empty." }),
   });
@@ -99,7 +98,7 @@ const EmptyPage: React.FC<{
         <BlurFade delay={0.6} inView>
           <div className="flex flex-col items-center gap-4">
             {justText}
-            <ChooseFilesModal albumId={albumId} isInsideAlbum={isInsideAlbum} />
+            <ChooseFilesModal isInsideAlbum={isInsideAlbum} />
           </div>
         </BlurFade>
 

@@ -8,17 +8,17 @@ import { deleteFileOnServer } from "../actions";
 import { useState } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip";
 import BlurFade from "~/components/ui/blur-fade";
-import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 
 const DeleteButton: React.FC<{
-    albumId?: string | undefined,
     fileId?: string | null,
     fileKey?: string | null,
     isFileModal?: boolean;
     handleOpenModalChange?: () => void;
-}> = ({ albumId, fileId, fileKey, isFileModal, handleOpenModalChange }) => {
+}> = ({ fileId, fileKey, isFileModal, handleOpenModalChange }) => {
     const { selectedFiles, setSelectedFilesToEmpty } = useFileStore();
     const utils = api.useUtils();
+    const param = useParams()
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const { mutate: deleteFileFromAlbum, isPending: isDeletingFromAlbum } = api.album.deleteFileFromAlbum.useMutation({
         onMutate: () => {
@@ -55,7 +55,7 @@ const DeleteButton: React.FC<{
                 setIsDialogOpen(false)
                 if (handleOpenModalChange) handleOpenModalChange()
                 void utils.file.getFiles.invalidate();
-                if (albumId) void utils.file.getAlbumFiles.invalidate();
+                if (param.albumId) void utils.file.getAlbumFiles.invalidate();
 
             },
             onError: () => {
@@ -95,8 +95,8 @@ const DeleteButton: React.FC<{
                     <AlertDialogAction
                         disabled={isDeleting || isDeletingFromAlbum}
                         onClick={async () => {
-                            if (albumId) {
-                                deleteFileFromAlbum({ albumId: Number(albumId), id: selectedFiles.map((file) => file.id) })
+                            if (param.albumId) {
+                                deleteFileFromAlbum({ albumId: Number(param.albumId), id: selectedFiles.map((file) => file.id) })
                             } else if (fileId && selectedFiles.length === 0) {
                                 deleteFile({ id: [fileId] });
                                 if (fileKey) await deleteFileOnServer(fileKey);

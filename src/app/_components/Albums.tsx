@@ -28,11 +28,12 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { Button } from "~/components/ui/button";
 import { Dot, EllipsisVertical, ImageOff, LoaderCircle } from "lucide-react";
+import { useParams } from "next/navigation";
 
-const AlbumCoverImages: React.FC<{ album: Album, gallerySlug: string }> = ({
+const AlbumCoverImages: React.FC<{ album: Album }> = ({
   album,
-  gallerySlug
 }) => {
+  const param = useParams()
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const { data: albumFiles } = api.file.getAlbumFiles.useQuery({ id: album.id });
   const displayFiles = [...(albumFiles ?? []), null, null, null, null].slice(
@@ -180,7 +181,7 @@ const AlbumCoverImages: React.FC<{ album: Album, gallerySlug: string }> = ({
             </div>
           )}
         </div>
-        <Link href={`/galleries/${gallerySlug}/albums/${album.id}`}>
+        <Link href={`/galleries/${String(param.id)}/albums/${album.id}`}>
           <div className="group/album w-full h-full absolute z-20 flex items-center justify-center bg-black/25 rounded-lg">
             {isUpdating ?
               <Form {...form}>
@@ -266,7 +267,7 @@ const Albums: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
       (<div className="container mx-auto px-4 py-10">
         <div className="flex flex-wrap items-center justify-center gap-4 md:justify-start">
           {albums?.map((album) => (
-            <AlbumCoverImages key={album.id} album={album} gallerySlug={gallerySlug} />
+            <AlbumCoverImages key={album.id} album={album} />
           ))}
         </div>
       </div>)

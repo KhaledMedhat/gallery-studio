@@ -48,6 +48,7 @@ export const files = createTable("image", {
   filePrivacy: privacyEnum('privacy').default("private"),
   views: integer('file_views').notNull().default(0),
   likes: integer('file_likes').notNull().default(0),
+  likesInfo: json("likes_info").$type<{ liked: boolean; userId: string }[]>().default([]),
   galleryId: integer("gallery_id")
     .notNull()
     .references(() => galleries.id),

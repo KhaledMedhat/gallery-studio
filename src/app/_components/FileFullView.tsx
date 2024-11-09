@@ -3,7 +3,7 @@ import { CalendarIcon, ChevronLeft, Earth, LockKeyhole } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Button } from "~/components/ui/button"
 import type { fileType, User } from "~/types/types"
-import Image from "next/image"
+import Image from "next/legacy/image"
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import dayjs from "dayjs"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/hover-card"
@@ -70,13 +70,14 @@ const FileFullView: React.FC<{ user: User | undefined, file: fileType, gallerySl
                         {file.fileType?.includes("video") ? (
                             <Video url={file.url} className="rounded-lg xl:h-[752px]" />
                         ) : (
-                            <div className="aspect-w-2 aspect-h-1 relative h-auto w-full">
-                                <AspectRatio ratio={2 / 1} className="bg-muted">
+                            <div className="aspect-w-2 aspect-h-1 h-auto w-full">
+                                <AspectRatio ratio={16 / 9} className="bg-muted">
                                     <Image
+                                    priority
                                         src={file.url}
                                         alt={`One of ${user?.name}'s images`}
-                                        fill
-                                        className="h-full xl:h-[752px] w-full rounded-md object-cover"
+                                        layout="fill"
+                                        className="h-full w-full rounded-md object-contain"
                                     />
                                 </AspectRatio>
                             </div>

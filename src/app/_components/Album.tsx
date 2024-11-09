@@ -14,10 +14,11 @@ import { Badge } from "~/components/ui/badge";
 import EmptyPage from "./EmptyPage";
 import { Button } from "~/components/ui/button";
 import DeleteButton from "./DeleteButton";
+import { useParams } from "next/navigation";
 
 const Album: React.FC<{ id: string }> = ({ id }) => {
+    const param = useParams()
     const { data: albumFiles } = api.file.getAlbumFiles.useQuery({ id: Number(id) })
-    const { data: gallerySlug } = api.gallery.getGallerySlug.useQuery({ id: albumFiles?.[0]?.galleryId ?? 0 });
     const [loadedFiles, setLoadedFiles] = useState<Set<number>>(new Set());
     const handleImageLoad = (id: number) => {
         setLoadedFiles((prev) => new Set(prev).add(id));
@@ -31,13 +32,13 @@ const Album: React.FC<{ id: string }> = ({ id }) => {
         const isFoundedFile = selectedFiles.find((file) => file.id === id);
         return isFoundedFile;
     }
-    if (albumFiles?.length === 0) return <EmptyPage isInsideAlbum={true} albumId={id} />
+    if (albumFiles?.length === 0) return <EmptyPage isInsideAlbum={true} />
     return (
         <div className="container mx-auto px-4 py-10 flex flex-col items-center gap-6">
             <div className="flex items-center gap-2">
                 {selectedFiles.length > 0 &&
                     <div className="flex gap-2 items-center xl:hidden">
-                        <DeleteButton albumId={id} />
+                        <DeleteButton />
                     </div>}
                 <Button onClick={() => {
                     if (isSelecting) {
@@ -75,7 +76,7 @@ const Album: React.FC<{ id: string }> = ({ id }) => {
                                 className={`absolute right-2 top-2 z-10 items-center justify-center bg-muted ${foundedFileInSelectedFiles(file.id) ? "flex" : "hidden"
                                     } group-hover:flex  ${isSelecting && 'flex'}  `}
                             />
-                            <Link href={`/galleries/${gallerySlug}/images/${file.id}`}>
+                            <Link href={`/galleries/${String(param.id)}/images/${file.id}`}>
                                 <div className="relative h-full w-full">
                                     <div className="h-full w-[300px]">
 

@@ -39,7 +39,7 @@ import {
 import {
   FolderPlus,
   GalleryHorizontalEnd,
-  House,
+  LayoutDashboard,
   Library,
   LoaderCircle,
   X,
@@ -71,7 +71,6 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
   const { selectedFiles, setSelectedFilesToEmpty } = useFileStore();
   const isAlbum = pathname.includes("albums");
   const isInsideAlbum = pathname.includes("albums/");
-  const albumId = pathname.split("/").pop()
   const formSchema = z.object({
     albumTitle: z.string().min(1, { message: "Album name Cannot be empty." }),
   });
@@ -122,11 +121,11 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Link href={"/"}>
-                <House size={20} />
+              <Link href={"/showcases"}>
+              <LayoutDashboard size={20}/>
               </Link>
             </TooltipTrigger>
-            <TooltipContent>Home</TooltipContent>
+            <TooltipContent>Showcases</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </DockIcon>
@@ -222,12 +221,12 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
             </DialogContent>
           </Dialog>
         )}
-        {isInsideAlbum && <ChooseFilesModal albumId={albumId} />}
+        {isInsideAlbum && <ChooseFilesModal />}
         {!isAlbum && !isInsideAlbum && <AddFileButton gallerySlug={gallerySlug} files={files} isEmptyPage={false} />}
       </DockIcon>
       {selectedFiles.length > 0 && (
         <DockIcon className="hidden xl:flex">
-          <DeleteButton albumId={albumId} />
+          <DeleteButton />
         </DockIcon>
       )}
       {selectedFiles.length > 0 && !isInsideAlbum && (
@@ -297,6 +296,11 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem className="cursor-pointer">
+             <Link href={"/"}>
+                Home
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem className="cursor-pointer">
               Settings
             </DropdownMenuItem>

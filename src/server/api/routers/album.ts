@@ -5,7 +5,7 @@ import { eq, inArray } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const albumRouter = createTRPCRouter({
-  getAlbums: protectedProcedure
+ getAlbums: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       const gallery = await ctx.db.query.galleries.findFirst({
@@ -158,4 +158,19 @@ export const albumRouter = createTRPCRouter({
         .delete(albumFiles)
         .where(inArray(albumFiles.fileId, input.id));
     }),
+
+    getAlbumById: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const existingAlbum = await ctx.db.query.albums.findFirst({
+          where: eq(albums.id, input.id),
+        });
+        if (!existingAlbum) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Album not found",
+          });
+        }
+        return existingAlbum;
+      }),
 });

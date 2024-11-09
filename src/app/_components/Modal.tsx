@@ -90,7 +90,8 @@ export function Modal({
             )}
           </DialogTitle>
           {children}
-          <DialogDescription></DialogDescription>
+          <DialogDescription>
+          </DialogDescription>
         </DialogContent>
       </DialogOverlay>
     </Dialog>

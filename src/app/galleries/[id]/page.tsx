@@ -5,5 +5,11 @@ export default async function UserGalleryPage({
 }: {
   params: { id: string };
 }) {
-  return <Files gallerySlug={gallerySlug} />;
+  return (
+    <div className="flex flex-col items-center">
+      <h1 className="text-3xl mt-14 font-bold text-center">Your Gallery</h1>
+      <Files gallerySlug={gallerySlug} />
+    </div>
+  )
+
 }

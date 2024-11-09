@@ -4,18 +4,33 @@ import Video from "./Video";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { Earth, LockKeyhole } from "lucide-react";
+import { Earth, Heart, LockKeyhole } from "lucide-react";
 import { useFileStore } from "~/store";
 import UpdateFileView from "./UpdateFileView";
 import { api } from "~/trpc/react";
+import { Button } from "~/components/ui/button";
+import { formatNumber } from "~/utils/utils";
 
 dayjs.extend(relativeTime);
 const FileModalView: React.FC<{
   fileId: string;
+  userId: string | null | undefined;
   userName: string | null | undefined;
-}> = ({ fileId, userName }) => {
+}> = ({ fileId, userName, userId }) => {
+  const utils = api.useUtils();
   const { isUpdating } = useFileStore();
   const { data: file } = api.file.getFileById.useQuery({ id: fileId });
+  const { mutate: likeFile } = api.file.likeFile.useMutation({
+    onSuccess: () => {
+      void utils.file.getFileById.invalidate();
+    },
+  })
+  const { mutate: unlikeFile } = api.file.unlikeFile.useMutation({
+    onSuccess: () => {
+      void utils.file.getFileById.invalidate();
+    },
+  })
+  const findUserLikedFile = file?.likesInfo?.find(like => like.userId === userId)
   return !isUpdating && file ? (
     <section className="flex flex-col gap-4">
       <div className="flex flex-col gap-4">
@@ -45,14 +60,35 @@ const FileModalView: React.FC<{
         )}
 
       </div>
-      <div className="flex items-center gap-2">
-        <p className="text-sm text-accent-foreground">
-          {dayjs(file.createdAt).fromNow()}
-        </p>
-        <span className="block h-1 w-1 rounded-full bg-accent-foreground"></span>
-        {file.filePrivacy === 'private' ? <LockKeyhole size={16} className="text-accent-foreground" /> : <Earth size={16} className="text-accent-foreground" />}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <p className="text-sm text-accent-foreground">
+            {dayjs(file.createdAt).fromNow()}
+          </p>
+          <span className="block h-1 w-1 rounded-full bg-accent-foreground"></span>
+          {file.filePrivacy === 'private' ? <LockKeyhole size={16} className="text-accent-foreground" /> : <Earth size={16} className="text-accent-foreground" />}
+        </div>
+        <div>
+          <div className="flex items-center gap-1">
+            <Button variant='ghost' onClick={() => {
+              if (findUserLikedFile) {
+                unlikeFile({ id: file.id })
+              } else {
+                likeFile({ id: file.id })
 
+              }
+            }}
+              className="p-0"
+            >
+              <Heart size={22} fill={findUserLikedFile ? "#FF0000" : "#FFFFFF"} color={findUserLikedFile && "#FF0000"} />
+            </Button>
+            <p>
+              {formatNumber(file.likes)}
+            </p>
+          </div>
+        </div>
       </div>
+
     </section>
   ) : (
     file && <UpdateFileView file={file} userName={userName} imageWanted={true} />

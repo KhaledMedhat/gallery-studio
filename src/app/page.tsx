@@ -8,7 +8,6 @@ import Footer from "./_components/Footer";
 import ParticlesWrapper from "./_components/ParticlesWrapper";
 import BlurFade from "~/components/ui/blur-fade";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
-import SideFootnote from "./_components/SideFootnote";
 export default async function Home() {
   const session = await api.user.getUser();
   const userGallery = await api.gallery.getProvidedUserAccountGallery({
@@ -16,10 +15,12 @@ export default async function Home() {
   });
   return (
     <HydrateClient>
+      <div className="bg-accent-foreground w-fit fixed top-1/2 -right-10 text-accent px-6 py-2 rounded-br-md rounded-bl-md rotate-90 z-40">
+        <Link href="/feedback">Feedback</Link>
+      </div>
       <BlurFade delay={0.6} inView>
         <ParticlesWrapper>
           <Navbar userGallery={userGallery} />
-          <SideFootnote />
           <main>
             <section className="py-12 md:py-24">
               <div className="container mx-auto px-4 text-center">

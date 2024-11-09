@@ -5,6 +5,64 @@ import { eq, inArray } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const fileRouter = createTRPCRouter({
+  unlikeFile: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const foundedFile = await ctx.db.query.files.findFirst({
+        where: eq(files.id, input.id),
+      });
+      if (foundedFile) {
+        if (ctx.user) {
+          await ctx.db
+            .update(files)
+            .set({
+              likesInfo: foundedFile.likesInfo?.filter(
+                (like) => like.userId !== ctx.user?.id,
+              ),
+            })
+            .where(eq(files.id, input.id));
+          await ctx.db
+            .update(files)
+            .set({
+              likes: foundedFile.likes - 1,
+            })
+            .where(eq(files.id, input.id));
+        }
+      }
+    }),
+
+  likeFile: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const foundedFile = await ctx.db.query.files.findFirst({
+        where: eq(files.id, input.id),
+      });
+
+      if (foundedFile) {
+        if (ctx.user) {
+          await ctx.db
+            .update(files)
+            .set({
+              likesInfo: [{ liked: true, userId: ctx.user?.id }],
+            })
+            .where(eq(files.id, input.id));
+          await ctx.db
+            .update(files)
+            .set({
+              likes: foundedFile.likes + 1,
+            })
+            .where(eq(files.id, input.id));
+        }
+      }
+    }),
+
+  getShowcaseFiles: publicProcedure.query(async ({ ctx }) => {
+    const showcaseFiles = await ctx.db.query.files.findMany({
+      where: eq(files.filePrivacy, "public"),
+    });
+    return showcaseFiles;
+  }),
+
   fileViewCount: publicProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
