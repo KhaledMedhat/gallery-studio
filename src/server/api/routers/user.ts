@@ -176,6 +176,9 @@ export const userRouter = createTRPCRouter({
     }
     const existedUser = await ctx.db.query.users.findFirst({
       where: eq(users.id, ctx.user?.id ?? ""),
+      with: {
+        gallery: true,
+      },
     });
     return existedUser;
   }),

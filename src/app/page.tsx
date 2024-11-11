@@ -38,7 +38,9 @@ export default async function Home() {
                   </p>
                 </div>
                 <Button className="mt-8" size="lg">
-                  Explore Gallery
+                  <Link href={'/showcases'}>
+                    Explore Showcases
+                  </Link>
                 </Button>
               </div>
             </section>

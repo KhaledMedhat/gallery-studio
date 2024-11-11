@@ -61,13 +61,13 @@ import DeleteButton from "./DeleteButton";
 import ToAlbumButton from "./ToAlbumButton";
 import ChooseFilesModal from "./ChooseFilesModal";
 
-const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
+const GalleryNavbar = () => {
   const router = useRouter();
   const pathname = usePathname();
   const utils = api.useUtils();
   const { data: user } = api.user.getUser.useQuery();
   const { data: files } = api.file.getFiles.useQuery();
-  const { data: albums } = api.album.getAlbums.useQuery({ id: gallerySlug });
+  const { data: albums } = api.album.getAlbums.useQuery({ id: user?.gallery.slug ?? "" });
   const { selectedFiles, setSelectedFilesToEmpty } = useFileStore();
   const isAlbum = pathname.includes("albums");
   const isInsideAlbum = pathname.includes("albums/");
@@ -103,7 +103,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     addAlbum({
       title: data.albumTitle,
-      id: gallerySlug,
+      id: user?.gallery.slug ?? "",
     });
   };
 
@@ -122,7 +122,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
           <Tooltip>
             <TooltipTrigger asChild>
               <Link href={"/showcases"}>
-              <LayoutDashboard size={20}/>
+                <LayoutDashboard size={20} />
               </Link>
             </TooltipTrigger>
             <TooltipContent>Showcases</TooltipContent>
@@ -135,7 +135,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="ghost">
-                <Link href={`/galleries/${gallerySlug}`}>
+                <Link href={`/galleries/${user?.gallery.slug}`}>
                   <GalleryHorizontalEnd size={20} />
                 </Link>
               </Button>
@@ -149,7 +149,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="ghost">
-                <Link href={`/galleries/${gallerySlug}/albums`}>
+                <Link href={`/galleries/${user?.gallery.slug}/albums`}>
                   <Library size={20} />
                 </Link>
               </Button>
@@ -222,7 +222,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
           </Dialog>
         )}
         {isInsideAlbum && <ChooseFilesModal />}
-        {!isAlbum && !isInsideAlbum && <AddFileButton gallerySlug={gallerySlug} files={files} isEmptyPage={false} />}
+        {!isAlbum && !isInsideAlbum && <AddFileButton gallerySlug={user?.gallery.slug ?? ""} files={files} isEmptyPage={false} />}
       </DockIcon>
       {selectedFiles.length > 0 && (
         <DockIcon className="hidden xl:flex">
@@ -231,7 +231,7 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
       )}
       {selectedFiles.length > 0 && !isInsideAlbum && (
         <DockIcon className="hidden xl:flex">
-          <ToAlbumButton gallerySlug={gallerySlug} />
+          <ToAlbumButton gallerySlug={user?.gallery.slug ?? ""} />
         </DockIcon>
       )}
       {selectedFiles.length > 0 && (
@@ -297,7 +297,12 @@ const GalleryNavbar: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="cursor-pointer">
-             <Link href={"/"}>
+              <Link href={"/profile"}>
+                Profile
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer">
+              <Link href={"/"}>
                 Home
               </Link>
             </DropdownMenuItem>

@@ -27,7 +27,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Button } from "~/components/ui/button";
-import { Dot, EllipsisVertical, ImageOff, LoaderCircle } from "lucide-react";
+import { Dot, EllipsisVertical, LoaderCircle } from "lucide-react";
 import { useParams } from "next/navigation";
 
 const AlbumCoverImages: React.FC<{ album: Album }> = ({
@@ -222,7 +222,7 @@ const AlbumCoverImages: React.FC<{ album: Album }> = ({
 
           </div> :
             <div
-              className={`grid grid-cols-[repeat(3,1fr)] grid-rows-[repeat(2,1fr)] gap-0 w-full h-full shadow
+              className={`grid grid-cols-[repeat(3,1fr)] grid-rows-[repeat(2,1fr)] gap-[1px] w-full h-full shadow
                         [&>*:nth-child(1)]:col-span-2 [&>*:nth-child(1)]:rounded-tl-lg
                         [&>*:nth-child(2)]:col-start-3 [&>*:nth-child(2)]:rounded-tr-lg
                         [&>*:nth-child(3)]:row-start-2 [&>*:nth-child(3)]:rounded-bl-lg
@@ -233,10 +233,7 @@ const AlbumCoverImages: React.FC<{ album: Album }> = ({
                 file ? <div key={idx} className="relative w-full h-full overflow-hidden">
                   <Image src={file?.url ?? ''} alt={`One of ${album.name}'s images`} width={100} height={100} className="w-full h-full blur-[1px] object-cover" />
                 </div> :
-                  <div key={idx} className="relative bg-accent-foreground flex items-center justify-center gap-2 ">
-                    <ImageOff size={50} className="text-accent" />
-                    <h1 className="text-accent text-center absolute z-10">
-                      {displayFiles.length - idx} more to fill your album cover</h1>
+                  <div key={idx} className="bg-accent-foreground">
                   </div>
               ))}
             </div>

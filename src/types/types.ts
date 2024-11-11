@@ -3,6 +3,37 @@ export enum isAlbumOrFileEnum {
   album = "album",
 }
 
+export interface Showcase {
+  createdAt: Date;
+  id: string;
+  url: string;
+  createdById: string;
+  caption: string | null;
+  tags: string[] | null;
+  fileKey: string | null;
+  fileType: string | null;
+  filePrivacy: "private" | "public" | null;
+  galleryId: number;
+  likes: number;
+  comments: number;
+  likesInfo: LikesInfo[] | null;
+  user: User | null | undefined;
+  commentsInfo: Comment[] | null;
+}
+
+export interface Comment {
+  id: string;
+  fileId: string;
+  userId: string;
+  content: string;
+  createdAt: Date;
+  user: User;
+}
+
+export interface LikesInfo {
+  liked: boolean;
+  userId: string;
+}
 export interface User {
   email: string;
   name: string | null;
@@ -77,9 +108,11 @@ export interface FileStore {
   isUpdating: boolean;
   isUpdatingPending: boolean;
   isSelecting: boolean;
+  isCommenting: boolean;
   progress: number;
   selectedFiles: selectedFiles[];
   setIsSelecting: () => void;
+  setIsCommenting: (isCommenting: boolean) => void;
   setSelectedFilesToEmpty: () => void;
   setSelectedFiles: (selectedFiles: selectedFiles) => void;
   removeSelectedFiles: (selectedFiles: selectedFiles) => void;

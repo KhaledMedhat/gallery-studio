@@ -21,29 +21,27 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
 import FileOptions from "./FileOptions";
 import { api } from "~/trpc/react";
+import { useFileStore } from "~/store";
+import { type User } from "~/types/types";
 
 dayjs.extend(relativeTime);
 export function Modal({
   children,
-  name,
-  bio,
-  profileImage,
-  createdAt,
   fileId,
+  user,
 }: {
   children: React.ReactNode;
-  name?: string | null;
-  bio?: string | null;
-  profileImage?: string | null;
-  createdAt?: Date | null;
   fileId: string;
+  user: User | undefined | null;
 }) {
   const router = useRouter();
   const { data: file } = api.file.getFileById.useQuery({ id: fileId });
+  const { setIsCommenting } = useFileStore();
   const handleOpenModalChange = () => {
+    setIsCommenting(false)
     router.back();
   };
-  const initials = getInitials(name ?? "");
+  const initials = getInitials(file?.user.name ?? "");
   return (
     <Dialog defaultOpen={true} open={true} onOpenChange={handleOpenModalChange}>
       <DialogOverlay >
@@ -51,29 +49,29 @@ export function Modal({
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Avatar>
-                <AvatarImage src={profileImage ?? ""} />
+                <AvatarImage src={file?.user.image ?? ""} />
                 <AvatarFallback>{initials}</AvatarFallback>
               </Avatar>
               <HoverCard openDelay={100} closeDelay={100}>
                 <HoverCardTrigger asChild>
                   <Button variant="link" className="p-0 font-bold" tabIndex={-1}>
-                    @{name}
+                    @{file?.user.name}
                   </Button>
                 </HoverCardTrigger>
                 <HoverCardContent className="w-80">
                   <div className="flex items-center justify-start space-x-4">
                     <Avatar>
-                      <AvatarImage src={profileImage ?? ""} />
+                      <AvatarImage src={file?.user.image ?? ""} />
                       <AvatarFallback>{initials}</AvatarFallback>
                     </Avatar>
                     <div className="space-y-1">
-                      <h4 className="text-sm font-semibold">@{name}</h4>
-                      <p className="text-sm">{bio ? `${bio}.` : ""}</p>
+                      <h4 className="text-sm font-semibold">@{file?.user.name}</h4>
+                      <p className="text-sm">{file?.user.bio ? `${file?.user.bio}.` : ""}</p>
                       <div className="flex items-center pt-2">
                         <CalendarIcon className="mr-2 h-4 w-4 opacity-70" />
                         <span className="text-xs text-muted-foreground">
-                          Joined {dayjs(createdAt).format("MMMM")}{" "}
-                          {dayjs(createdAt).format("YYYY")}
+                          Joined {dayjs(file?.user.createdAt).format("MMMM")}{" "}
+                          {dayjs(file?.user.createdAt).format("YYYY")}
                         </span>
                       </div>
                     </div>
@@ -81,7 +79,7 @@ export function Modal({
                 </HoverCardContent>
               </HoverCard>
             </div>
-            {file && (
+            {file && user?.id === file.user.id && (
               <FileOptions
                 fileId={fileId}
                 fileKey={file.fileKey}

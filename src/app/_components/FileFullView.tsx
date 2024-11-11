@@ -73,7 +73,7 @@ const FileFullView: React.FC<{ user: User | undefined, file: fileType, gallerySl
                             <div className="aspect-w-2 aspect-h-1 h-auto w-full">
                                 <AspectRatio ratio={16 / 9} className="bg-muted">
                                     <Image
-                                    priority
+                                        priority
                                         src={file.url}
                                         alt={`One of ${user?.name}'s images`}
                                         layout="fill"

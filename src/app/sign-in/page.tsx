@@ -7,5 +7,5 @@ export default async function SignInPage({
   searchParams: Record<string, string | string[] | undefined>;
 }) {
   await getProvidedUserAccountGallery();
-  return <SignIn paramError={searchParams.error} />;
+  return <SignIn />;
 }

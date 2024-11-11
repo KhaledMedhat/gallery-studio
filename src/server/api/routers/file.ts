@@ -8,85 +8,77 @@ export const fileRouter = createTRPCRouter({
   unlikeFile: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Unauthorized",
+        });
+      }
       const foundedFile = await ctx.db.query.files.findFirst({
         where: eq(files.id, input.id),
       });
       if (foundedFile) {
-        if (ctx.user) {
-          await ctx.db
-            .update(files)
-            .set({
-              likesInfo: foundedFile.likesInfo?.filter(
-                (like) => like.userId !== ctx.user?.id,
-              ),
-            })
-            .where(eq(files.id, input.id));
-          await ctx.db
-            .update(files)
-            .set({
-              likes: foundedFile.likes - 1,
-            })
-            .where(eq(files.id, input.id));
-        }
+        await ctx.db
+          .update(files)
+          .set({
+            likesInfo: foundedFile.likesInfo?.filter(
+              (like) => like.userId !== ctx.user?.id,
+            ),
+          })
+          .where(eq(files.id, input.id));
+        await ctx.db
+          .update(files)
+          .set({
+            likes: foundedFile.likes - 1,
+          })
+          .where(eq(files.id, input.id));
       }
     }),
 
   likeFile: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Unauthorized",
+        });
+      }
       const foundedFile = await ctx.db.query.files.findFirst({
         where: eq(files.id, input.id),
       });
 
       if (foundedFile) {
-        if (ctx.user) {
-          await ctx.db
-            .update(files)
-            .set({
-              likesInfo: [{ liked: true, userId: ctx.user?.id }],
-            })
-            .where(eq(files.id, input.id));
-          await ctx.db
-            .update(files)
-            .set({
-              likes: foundedFile.likes + 1,
-            })
-            .where(eq(files.id, input.id));
-        }
+        await ctx.db
+          .update(files)
+          .set({
+            likesInfo: [{ liked: true, userId: ctx.user?.id }],
+          })
+          .where(eq(files.id, input.id));
+        await ctx.db
+          .update(files)
+          .set({
+            likes: foundedFile.likes + 1,
+          })
+          .where(eq(files.id, input.id));
       }
     }),
 
   getShowcaseFiles: publicProcedure.query(async ({ ctx }) => {
     const showcaseFiles = await ctx.db.query.files.findMany({
       where: eq(files.filePrivacy, "public"),
+      with: {
+        user: true,
+        commentsInfo: {
+          with: {
+            user: true,
+          },
+        },
+      },
     });
     return showcaseFiles;
   }),
 
-  fileViewCount: publicProcedure
-    .input(z.object({ id: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-      const foundedFile = await ctx.db.query.files.findFirst({
-        where: eq(files.id, input.id),
-      });
-      if (foundedFile) {
-        if (foundedFile?.createdById === ctx.user?.id) {
-          await ctx.db
-            .update(files)
-            .set({
-              views: foundedFile?.views,
-            })
-            .where(eq(files.id, input.id));
-        } else {
-          await ctx.db
-            .update(files)
-            .set({
-              views: foundedFile.views + 1,
-            })
-            .where(eq(files.id, input.id));
-        }
-      }
-    }),
   getFiles: protectedProcedure.query(async ({ ctx }) => {
     if (!ctx.user) {
       throw new TRPCError({
@@ -160,6 +152,14 @@ export const fileRouter = createTRPCRouter({
       }
       const foundedFile = await ctx.db.query.files.findFirst({
         where: eq(files.id, input.id),
+        with: {
+          user: true,
+          commentsInfo: {
+            with: {
+              user: true,
+            },
+          },
+        },
       });
       if (!foundedFile) {
         throw new TRPCError({

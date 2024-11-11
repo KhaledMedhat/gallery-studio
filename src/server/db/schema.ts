@@ -45,10 +45,12 @@ export const files = createTable("image", {
   tags: json("tags").$type<string[]>().default([]),
   fileKey: varchar("image_key", { length: 255 }),
   fileType: varchar("file_type", { length: 255 }),
-  filePrivacy: privacyEnum('privacy').default("private"),
-  views: integer('file_views').notNull().default(0),
-  likes: integer('file_likes').notNull().default(0),
-  likesInfo: json("likes_info").$type<{ liked: boolean; userId: string }[]>().default([]),
+  filePrivacy: privacyEnum("privacy").default("private"),
+  likes: integer("file_likes").notNull().default(0),
+  comments: integer("file_comments").notNull().default(0),
+  likesInfo: json("likes_info")
+    .$type<{ liked: boolean; userId: string }[]>()
+    .default([]),
   galleryId: integer("gallery_id")
     .notNull()
     .references(() => galleries.id),
@@ -56,6 +58,26 @@ export const files = createTable("image", {
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
 });
+
+export const comments = createTable("comments", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  fileId: varchar("file_id", { length: 255 })
+    .notNull()
+    .references(() => files.id), // Link to the file
+  userId: varchar("user_id", { length: 255 })
+    .notNull()
+    .references(() => users.id), // Link to the user who commented
+  content: text("content").notNull(), // Comment text
+  // parentId: varchar("parent_id", { length: 255 }).references(() => comments.id), // Self-reference for nested replies
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+
+
 export const albumFiles = createTable(
   "album_files",
   {
@@ -189,6 +211,7 @@ export const verificationTokens = createTable(
 
 export const usersRelations = relations(users, ({ many, one }) => ({
   accounts: many(accounts),
+  comments: many(comments),
   gallery: one(galleries, {
     fields: [users.id],
     references: [galleries.createdById],
@@ -201,9 +224,11 @@ export const galleriesRelations = relations(galleries, ({ one, many }) => ({
   images: many(files),
 }));
 
-export const filesRelations = relations(files, ({ many }) => ({
+export const filesRelations = relations(files, ({ one, many }) => ({
+  user: one(users, { fields: [files.createdById], references: [users.id] }),
   gallery: many(galleries), // Direct relation to gallery
   albumFiles: many(albumFiles), // Link to the join table albumFiles
+  commentsInfo: many(comments),
 }));
 
 export const albumsRelations = relations(albums, ({ many }) => ({
@@ -214,4 +239,9 @@ export const albumsRelations = relations(albums, ({ many }) => ({
 export const albumFilesRelations = relations(albumFiles, ({ one }) => ({
   file: one(files), // Direct relation to files
   album: one(albums), // Direct relation to albums
+}));
+
+export const commentsRelations = relations(comments, ({ one }) => ({
+  file: one(files, { fields: [comments.fileId], references: [files.id] }),
+  user: one(users, { fields: [comments.userId], references: [users.id] }),
 }));

@@ -7,16 +7,13 @@ export default async function ImagePage({
 }: {
   params: { imageId: string };
 }) {
-  const user = await api.user.getFileUser({ id: imageId });
+  const user = await api.user.getUser();
   return (
     <Modal
       fileId={imageId}
-      name={user?.name}
-      profileImage={user?.image}
-      bio={user?.bio}
-      createdAt={user?.createdAt}
+      user={user}
     >
-      <FileModalView fileId={imageId} userName={user?.name} userId={user?.id} />
+      <FileModalView fileId={imageId} user={user} />
     </Modal>
   );
 }

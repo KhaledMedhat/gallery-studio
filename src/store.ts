@@ -1,6 +1,11 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { Store, UserRegistry, FileStore, selectedFiles } from "./types/types";
+import type {
+  Store,
+  UserRegistry,
+  FileStore,
+  selectedFiles,
+} from "./types/types";
 
 export const useUserStore = create<Store>()(
   persist(
@@ -32,9 +37,12 @@ export const useFileStore = create<FileStore>()((set, get) => ({
   isUploading: false,
   isUpdating: false,
   isUpdatingPending: false,
-  isSelecting : false,
+  isSelecting: false,
+  isCommenting: false,
   progress: 0,
   selectedFiles: [],
+  setIsCommenting: (isCommenting: boolean) =>
+    set(() => ({ isCommenting: isCommenting })),
   setIsSelecting: () => set((state) => ({ isSelecting: !state.isSelecting })),
   setSelectedFilesToEmpty: () => set(() => ({ selectedFiles: [] })),
   setSelectedFiles: (selectedFiles: selectedFiles) =>
