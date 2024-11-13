@@ -45,8 +45,15 @@ export interface User {
   provider: string | null;
   emailVerified: Date | null;
   updatedAt: Date | null;
+  gallery?: Gallery | null;
 }
 
+export interface Gallery {
+  id: number;
+  createdById: string;
+  slug: string;
+  createdAt: Date;
+}
 export interface Album {
   id: number;
   createdAt: Date;
@@ -64,15 +71,6 @@ export interface fileType {
   fileType: string | null;
   filePrivacy: "private" | "public" | null;
   galleryId: number;
-}
-export interface UserSession {
-  id: string;
-  image?: string;
-  email: string;
-  name: string;
-  bio?: string;
-  password?: string;
-  emailVerified?: Date;
 }
 
 export interface UserGallery {

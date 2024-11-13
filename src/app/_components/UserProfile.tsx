@@ -27,15 +27,14 @@ import { deleteCookie } from "../actions";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import type { UserSession } from "~/types/types";
+import type { User as UserType } from "~/types/types";
 import { getInitials } from "~/utils/utils";
 
 const UserProfile: React.FC<{
-  session: UserSession;
-  gallerySlug: string | undefined;
-}> = ({ session, gallerySlug }) => {
+  user: UserType ;
+}> = ({ user }) => {
   const router = useRouter();
-  const initials = getInitials(session?.name);
+  const initials = getInitials(user?.name ??"");
 
   const handleLogout = async () => {
     await signOut();
@@ -48,8 +47,8 @@ const UserProfile: React.FC<{
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
             <AvatarImage
-              src={session.image ?? undefined}
-              alt={session.name ?? undefined}
+              src={user.image ?? undefined}
+              alt={user.name ?? undefined}
             />
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
@@ -58,9 +57,9 @@ const UserProfile: React.FC<{
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{session.name}</p>
+            <p className="text-sm font-medium leading-none">{user.name}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {session.email}
+              {user.email}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -72,7 +71,7 @@ const UserProfile: React.FC<{
           </DropdownMenuItem>
           <DropdownMenuItem>
             <GalleryHorizontalEnd size={16} className="mr-2" />
-            <Link href={`/galleries/${gallerySlug}`}>Gallery</Link>
+            <Link href={`/galleries/${user.gallery?.slug}`}>Gallery</Link>
           </DropdownMenuItem>
           <DropdownMenuItem className="cursor-pointer">
             <Settings size={16} className="mr-2" />

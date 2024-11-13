@@ -18,18 +18,15 @@ import { api } from "~/trpc/react";
 import UserProfile from "./UserProfile";
 import { isURLActive } from "~/utils/utils";
 import ModeToggle from "./ModeToggle";
-import type { UserGallery, UserSession } from "~/types/types";
 
-const Navbar: React.FC<{ userGallery: UserGallery | undefined }> = ({
-  userGallery,
-}) => {
+const Navbar = () => {
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const theme = useTheme();
   const pathname = usePathname();
 
-  const { data: session } = api.user.getUser.useQuery();
+  const { data: user } = api.user.getUser.useQuery();
   return (
     <header className="container px-2 sticky top-0 z-40 m-auto mt-1 w-full border-b bg-background/95 pt-1 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-14 items-center">
@@ -126,11 +123,8 @@ const Navbar: React.FC<{ userGallery: UserGallery | undefined }> = ({
             </div>
           </motion.div> */}
 
-          {session ? (
-            <UserProfile
-              session={session as UserSession}
-              gallerySlug={userGallery?.slug}
-            />
+          {user ? (
+            <UserProfile user={user} />
           ) : (
             <Button variant="default" className="m-0 px-4 py-0">
               <Link href="/sign-in">Login</Link>

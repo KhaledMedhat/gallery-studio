@@ -1,3 +1,4 @@
+'use client'
 import React from "react";
 
 export default function ShowcasesPageLayout({
@@ -5,13 +6,14 @@ export default function ShowcasesPageLayout({
     showcasemodal,
 }: Readonly<{
     children: React.ReactNode;
-    showcasemodal: React.ReactNode ;
+    showcasemodal: React.ReactNode;
 }>) {
     return (
         <div className="flex min-h-screen w-full flex-col">
             <main>
                 {children}
                 {showcasemodal}
+
             </main>
         </div>
     );

@@ -7,7 +7,7 @@
  * need to use are documented accordingly near the end.
  */
 
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import superjson from "superjson";
 import { ZodError } from "zod";
@@ -16,6 +16,7 @@ import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
 import { sessions } from "../db/schema";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 /**
  * 1. CONTEXT
@@ -132,6 +133,7 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  */
 export const publicProcedure = t.procedure.use(timingMiddleware);
 
+
 /**
  * Protected (authenticated) procedure
  *
@@ -144,11 +146,13 @@ export const protectedProcedure = t.procedure
   .use(timingMiddleware)
   .use(({ ctx, next }) => {
     if (!ctx.user) {
-      return next()
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "You need to be logged in to access this.",
+      });
     }
     return next({
       ctx: {
-        // infers the `session` as non-nullable
         user: ctx.user,
       },
     });

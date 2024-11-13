@@ -64,7 +64,13 @@ export const fileRouter = createTRPCRouter({
       }
     }),
 
-  getShowcaseFiles: publicProcedure.query(async ({ ctx }) => {
+  getShowcaseFiles: protectedProcedure.query(async ({ ctx }) => {
+    if(!ctx.user) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "You need to be logged in to access this.",
+      });
+    }
     const showcaseFiles = await ctx.db.query.files.findMany({
       where: eq(files.filePrivacy, "public"),
       with: {

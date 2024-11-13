@@ -170,10 +170,8 @@ export const userRouter = createTRPCRouter({
       return { session, sessionToken };
     }),
 
-  getUser: protectedProcedure.query(async ({ ctx }) => {
-    if (!ctx.user) {
-      return null;
-    }
+  getUser: publicProcedure.query(async ({ ctx }) => {
+    if(!ctx.user) { return null }
     const existedUser = await ctx.db.query.users.findFirst({
       where: eq(users.id, ctx.user?.id ?? ""),
       with: {

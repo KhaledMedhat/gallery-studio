@@ -45,7 +45,7 @@ export function Modal({
   return (
     <Dialog defaultOpen={true} open={true} onOpenChange={handleOpenModalChange}>
       <DialogOverlay >
-        <DialogContent>
+        <DialogContent className="h-[80vh] overflow-y-auto">
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Avatar>

@@ -9,10 +9,7 @@ import ParticlesWrapper from "./_components/ParticlesWrapper";
 import BlurFade from "~/components/ui/blur-fade";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 export default async function Home() {
-  const session = await api.user.getUser();
-  const userGallery = await api.gallery.getProvidedUserAccountGallery({
-    id: session?.id ?? "",
-  });
+  const user = await api.user.getUser();
   return (
     <HydrateClient>
       <div className="bg-accent-foreground w-fit fixed top-1/2 -right-10 text-accent px-6 py-2 rounded-br-md rounded-bl-md rotate-90 z-40">
@@ -20,7 +17,7 @@ export default async function Home() {
       </div>
       <BlurFade delay={0.6} inView>
         <ParticlesWrapper>
-          <Navbar userGallery={userGallery} />
+          <Navbar />
           <main>
             <section className="py-12 md:py-24">
               <div className="container mx-auto px-4 text-center">
@@ -71,12 +68,12 @@ export default async function Home() {
                   <Button variant="outline">
                     <Link
                       href={
-                        userGallery
-                          ? `/galleries/${userGallery.slug}`
+                        user
+                          ? `/galleries/${user.gallery.slug}`
                           : "/sign-in"
                       }
                     >
-                      {session ? "Go to your gallery" : "Join GalleryStudio"}
+                      {user ? "Go to your gallery" : "Join GalleryStudio"}
                     </Link>
                   </Button>
                 </div>

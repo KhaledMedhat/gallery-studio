@@ -1,39 +1,22 @@
 import dayjs from "dayjs"
-import { CalendarIcon, Earth, Heart, MessageCircle, Smile, SendHorizontal } from "lucide-react"
+import { CalendarIcon, Earth, Heart, MessageCircle } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import { Card, CardContent } from "~/components/ui/card"
-import { Form, FormField, FormItem, FormControl, FormMessage } from "~/components/ui/form"
 import type { User, Showcase } from "~/types/types"
 import { formatNumber, getInitials } from "~/utils/utils"
 import Video from "./Video"
 import { AspectRatio } from "~/components/ui/aspect-ratio"
 import { Button } from "~/components/ui/button"
-import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover"
-import { Input } from "~/components/ui/input"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/hover-card"
 import { api } from "~/trpc/react"
-import data, { type Emoji } from '@emoji-mart/data'
-import Picker from '@emoji-mart/react'
-import { zodResolver } from "@hookform/resolvers/zod"
 import { useTheme } from "next-themes"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
 import Image from "next/legacy/image"
 import Link from "next/link"
 import { useFileStore } from "~/store"
-import { Separator } from "~/components/ui/separator"
+import CommentInput from "./CommentInput"
 const Showcase: React.FC<{ file: Showcase, user: User | undefined | null }> = ({ file, user }) => {
     const { setIsCommenting } = useFileStore()
     const theme = useTheme()
-    const formSchema = z.object({
-        comment: z.string()
-    })
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            comment: "",
-        },
-    });
     const utils = api.useUtils();
     const { mutate: likeFile } = api.file.likeFile.useMutation({
         onSuccess: () => {
@@ -45,21 +28,6 @@ const Showcase: React.FC<{ file: Showcase, user: User | undefined | null }> = ({
             void utils.file.getShowcaseFiles.invalidate();
         },
     })
-    const { mutate: postComment } = api.comment.postComment.useMutation({
-        onSuccess: () => {
-            void utils.file.getFileById.invalidate();
-            void utils.file.getShowcaseFiles.invalidate();
-            form.reset()
-        },
-    })
-    const onEmojiSelect = (emoji: Emoji) => {
-        const currentComment = form.getValues("comment");
-        form.setValue("comment", currentComment + emoji.native);
-
-    }
-    const onSubmit = (data: z.infer<typeof formSchema>) => {
-        postComment({ id: file.id, content: data.comment })
-    };
     return (
         <div key={file.id} className="flex flex-col items-center gap-2">
             <div className="flex self-start gap-2">
@@ -203,42 +171,15 @@ const Showcase: React.FC<{ file: Showcase, user: User | undefined | null }> = ({
                                             .replace("days", "d")
                                             .replace("day", "d")
                                             .replace("seconds", "s")
-                                            .replace("second", "s")}</p>
+                                            .replace("second", "s")
+                                            .replace("a", "1")}</p>
                                     </div>
                                 </div>
 
                             ))}
                         </div>
                     }
-
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="flex w-full gap-2 items-center justify-between">
-                            <FormField
-                                control={form.control}
-                                name="comment"
-                                render={({ field }) => (
-                                    <FormItem className="w-full">
-                                        <FormControl>
-                                            <Input className="border-none focus-visible:ring-0 focus-visible:ring-offset-0" placeholder="Write a comment ... " {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <Popover>
-                                <PopoverTrigger>
-                                    <Smile size={20} />
-                                </PopoverTrigger>
-                                <PopoverContent className="w-fit">
-                                    <Picker data={data} onEmojiSelect={onEmojiSelect} theme={theme.resolvedTheme} />
-                                </PopoverContent>
-                            </Popover>
-                            <Button className='hover:bg-none' variant='ghost' disabled={form.getValues("comment").length === 0}>
-                                <SendHorizontal size={20} />
-                            </Button>
-                        </form>
-                    </Form>
+                    <CommentInput fileId={file.id} />
                 </CardContent>
             </Card>
 

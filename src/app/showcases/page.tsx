@@ -8,7 +8,6 @@ export default async function ShowCasesPage() {
         <>
             {user && <GalleryNavbar />}
             <Showcases user={user} />
-
         </>
     )
 }
