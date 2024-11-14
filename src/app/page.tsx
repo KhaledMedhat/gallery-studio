@@ -34,7 +34,7 @@ export default async function Home() {
                     creativity!
                   </p>
                 </div>
-                <Button className="mt-8" size="lg">
+                <Button asChild className="mt-8" size="lg">
                   <Link href={'/showcases'}>
                     Explore Showcases
                   </Link>

@@ -167,6 +167,16 @@ export const accounts = createTable(
   }),
 );
 
+export const feedbacks = createTable("feedback", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 })
+    .notNull()
+    .references(() => users.id),
+  feedback: text("feedback").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
 export const accountsRelations = relations(accounts, ({ one }) => ({
   user: one(users, { fields: [accounts.userId], references: [users.id] }),
 }));
@@ -210,6 +220,7 @@ export const verificationTokens = createTable(
 );
 
 export const usersRelations = relations(users, ({ many, one }) => ({
+  feedbacks: many(feedbacks),
   accounts: many(accounts),
   comments: many(comments),
   gallery: one(galleries, {
@@ -218,6 +229,9 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   }),
 }));
 
+export const feedbacksRelations = relations(feedbacks, ({ one }) => ({
+  user: one(users, { fields: [feedbacks.userId], references: [users.id] }),
+}));
 export const galleriesRelations = relations(galleries, ({ one, many }) => ({
   user: one(users, { fields: [galleries.createdById], references: [users.id] }),
   albums: many(albums),
