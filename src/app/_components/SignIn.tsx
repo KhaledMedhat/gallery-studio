@@ -22,7 +22,6 @@ import AuthButtons from "./AuthButtons";
 import { useToast } from "~/hooks/use-toast";
 import ResetPassword from "./ResetPassword";
 import ForgetPassword from "./ForgetPassword";
-import { Suspense } from "react";
 
 const SignIn = () => {
   const router = useRouter();
@@ -97,7 +96,6 @@ const SignIn = () => {
             Create an account
           </Link>
         </div>
-        <Suspense> zx
           {isPasswordReset
             ?
             userEncryptedId ? <ResetPassword userEncryptedId={userEncryptedId} />
@@ -211,7 +209,6 @@ const SignIn = () => {
               <AuthButtons />
             </motion.div>
           }
-        </Suspense>
       </div>
     </div>
   );

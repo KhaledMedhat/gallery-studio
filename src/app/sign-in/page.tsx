@@ -1,5 +1,6 @@
 import SignIn from "../_components/SignIn";
 import { getProvidedUserAccountGallery } from "../actions";
+import { Suspense } from "react";
 
 export default async function SignInPage({
   searchParams,
@@ -7,5 +8,9 @@ export default async function SignInPage({
   searchParams: Record<string, string | string[] | undefined>;
 }) {
   await getProvidedUserAccountGallery();
-  return <SignIn />;
+  return (
+    <Suspense  fallback={<div className="text-white">Loading...</div>}>
+      <SignIn />
+    </Suspense>
+  );
 }
