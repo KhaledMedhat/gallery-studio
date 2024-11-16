@@ -21,7 +21,8 @@ import {
 import AuthButtons from "./AuthButtons";
 import { useToast } from "~/hooks/use-toast";
 import ResetPassword from "./ResetPassword";
-import ForgetPassword from "./forgetPassword";
+import ForgetPassword from "./ForgetPassword";
+import { Suspense } from "react";
 
 const SignIn = () => {
   const router = useRouter();
@@ -96,119 +97,121 @@ const SignIn = () => {
             Create an account
           </Link>
         </div>
-        {isPasswordReset
-          ?
-          userEncryptedId ? <ResetPassword userEncryptedId={userEncryptedId} />
+        <Suspense> zx
+          {isPasswordReset
+            ?
+            userEncryptedId ? <ResetPassword userEncryptedId={userEncryptedId} />
+              :
+              <ForgetPassword />
             :
-            <ForgetPassword />
-          :
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="w-full max-w-md"
-          >
-            <h1 className="mb-2 text-center text-3xl font-bold text-gray-100">
-              Welcome Back!
-            </h1>
-            <Form {...form}>
-              <form
-                id="sign-in-form"
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="w-full space-y-8"
-              >
-                <div className="flex flex-col gap-6">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel
-                          className={`${form.formState.errors.email
-                            ? "text-red-500"
-                            : "text-gray-100"
-                            }`}
-                        >
-                          Email
-                        </FormLabel>
-                        <FormControl className="bg-transparent">
-                          <Input
-                            className="text-gray-100"
-                            placeholder="you@example.com"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Enter your email address.
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <div className="flex items-center justify-between">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="w-full max-w-md"
+            >
+              <h1 className="mb-2 text-center text-3xl font-bold text-gray-100">
+                Welcome Back!
+              </h1>
+              <Form {...form}>
+                <form
+                  id="sign-in-form"
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="w-full space-y-8"
+                >
+                  <div className="flex flex-col gap-6">
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
                           <FormLabel
-                            className={`${form.formState.errors.password
+                            className={`${form.formState.errors.email
                               ? "text-red-500"
                               : "text-gray-100"
                               }`}
                           >
-                            Password
+                            Email
                           </FormLabel>
-                          <div className="text-center">
-                            <Link
-                              href="/sign-in?ctxFP=true"
-                              className="text-sm text-gray-100 hover:underline"
+                          <FormControl className="bg-transparent">
+                            <Input
+                              className="text-gray-100"
+                              placeholder="you@example.com"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Enter your email address.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <div className="flex items-center justify-between">
+                            <FormLabel
+                              className={`${form.formState.errors.password
+                                ? "text-red-500"
+                                : "text-gray-100"
+                                }`}
                             >
-                              Forgot your password?
-                            </Link>
+                              Password
+                            </FormLabel>
+                            <div className="text-center">
+                              <Link
+                                href="/sign-in?ctxFP=true"
+                                className="text-sm text-gray-100 hover:underline"
+                              >
+                                Forgot your password?
+                              </Link>
+                            </div>
                           </div>
-                        </div>
-                        <FormControl className="bg-transparent">
-                          <Input
-                            className="text-gray-100"
-                            {...field}
-                            type="password"
-                          />
-                        </FormControl>
-                        <FormDescription>Enter your password.</FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </form>
-            </Form>
-            <Button
-              form="sign-in-form"
-              type="submit"
-              className="mt-6 w-full transform rounded-md bg-gradient-to-r from-gray-700 to-gray-900 px-4 py-2 font-bold text-white transition duration-300 ease-in-out hover:scale-105 hover:from-gray-800 hover:to-black focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
-              disabled={isPendingLogin}
-            >
-              {isPendingLogin ? (
-                <>
-                  <LoaderCircle size={16} className="mr-2 animate-spin" />
-                  Signing In...
-                </>
-              ) : (
-                "Sign In"
-              )}
-            </Button>
-            <div className="my-6 flex items-center">
-              <hr className="inline-block grow-[4] border-white" />
-              <span className="text-md flex flex-grow justify-center text-center uppercase text-white">
-                Or log in with
-              </span>
-              <hr className="inline-block grow-[4] border-white" />
-            </div>
+                          <FormControl className="bg-transparent">
+                            <Input
+                              className="text-gray-100"
+                              {...field}
+                              type="password"
+                            />
+                          </FormControl>
+                          <FormDescription>Enter your password.</FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </form>
+              </Form>
+              <Button
+                form="sign-in-form"
+                type="submit"
+                className="mt-6 w-full transform rounded-md bg-gradient-to-r from-gray-700 to-gray-900 px-4 py-2 font-bold text-white transition duration-300 ease-in-out hover:scale-105 hover:from-gray-800 hover:to-black focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
+                disabled={isPendingLogin}
+              >
+                {isPendingLogin ? (
+                  <>
+                    <LoaderCircle size={16} className="mr-2 animate-spin" />
+                    Signing In...
+                  </>
+                ) : (
+                  "Sign In"
+                )}
+              </Button>
+              <div className="my-6 flex items-center">
+                <hr className="inline-block grow-[4] border-white" />
+                <span className="text-md flex flex-grow justify-center text-center uppercase text-white">
+                  Or log in with
+                </span>
+                <hr className="inline-block grow-[4] border-white" />
+              </div>
 
-            <AuthButtons />
-          </motion.div>
-        }
+              <AuthButtons />
+            </motion.div>
+          }
+        </Suspense>
       </div>
     </div>
   );
