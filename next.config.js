@@ -11,6 +11,9 @@ const config = {
       {
         hostname: "images.unsplash.com",
       },
+      {
+        hostname: "lh3.googleusercontent.com",
+      },
 
       {
         hostname: "utfs.io",

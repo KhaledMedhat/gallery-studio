@@ -6,11 +6,15 @@ import { TRPCError } from "@trpc/server";
 
 export const feedbackRouter = createTRPCRouter({
   allFeedbacks: publicProcedure.query(async ({ ctx }) => {
-    const feedbacks = await ctx.db.query.feedbacks.findMany();
+    const feedbacks = await ctx.db.query.feedbacks.findMany({
+      with: {
+        user: true,
+      },
+    });
     return feedbacks;
   }),
   postFeedback: protectedProcedure
-    .input(z.object({ id: z.string(), content: z.string() }))
+    .input(z.object({ content: z.string() }))
     .mutation(async ({ input, ctx }) => {
       if (!ctx.user) {
         throw new TRPCError({

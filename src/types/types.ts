@@ -20,7 +20,17 @@ export interface Showcase {
   user: User | null | undefined;
   commentsInfo: Comment[] | null;
 }
+export interface Feedback {
+  id: number;
 
+  feedback: string;
+
+  userId: string;
+
+  createdAt: Date;
+
+  user: User;
+}
 export interface Comment {
   id: string;
   fileId: string;
