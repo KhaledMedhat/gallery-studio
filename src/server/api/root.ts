@@ -4,6 +4,7 @@ import { galleryRouter } from "~/server/api/routers/gallery";
 import { fileRouter } from "~/server/api/routers/file";
 import { albumRouter } from "~/server/api/routers/album";
 import { commentRouter } from "~/server/api/routers/comment";
+import { feedbackRouter } from "~/server/api/routers/feedback";
 
 /**
  * This is the primary router for your server.
@@ -16,6 +17,7 @@ export const appRouter = createTRPCRouter({
   file: fileRouter,
   album: albumRouter,
   comment: commentRouter,
+  feedback: feedbackRouter,
 });
 
 // export type definition of API

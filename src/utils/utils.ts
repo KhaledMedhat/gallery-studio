@@ -1,5 +1,4 @@
 import { createHash } from "crypto";
-
 export const isURLActive = (pathname: string, url: string) => {
   return pathname === url;
 };

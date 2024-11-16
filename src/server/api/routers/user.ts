@@ -13,10 +13,52 @@ import { db } from "~/server/db";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
-import { Send } from "~/app/api/send/route";
+import { Send, SendResetPasswordLink } from "~/app/api/send/route";
 import { hashPassword, generateOTP } from "~/utils/utils";
+import CryptoJS from "crypto-js";
 
 export const userRouter = createTRPCRouter({
+  resetPassword: publicProcedure
+    .input(z.object({ id: z.string().min(1), password: z.string().min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      const bytes = CryptoJS.AES.decrypt(
+        input.id,
+        process.env.NEXT_PUBLIC_ENCRYPTION_SECRET_KEY!,
+      );
+      const decryptedId = bytes.toString(CryptoJS.enc.Utf8);
+      await ctx.db
+        .update(users)
+        .set({ password: hashPassword(input.password) })
+        .where(eq(users.id, decryptedId));
+    }),
+  sendResetPasswordLink: publicProcedure
+    .input(
+      z.object({
+        email: z.string().min(1),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const user = await ctx.db.query.users.findFirst({
+        where: eq(users.email, input.email),
+      });
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Invalid email",
+        });
+      }
+      if (user.provider !== "email") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: `Your account is linked to ${user.provider} account. Please login with ${user.provider}`,
+        });
+      }
+      const encryptedId = CryptoJS.AES.encrypt(
+        user.id,
+        process.env.NEXT_PUBLIC_ENCRYPTION_SECRET_KEY!,
+      ).toString();
+      await SendResetPasswordLink(user.name!, encryptedId, input.email);
+    }),
   deleteOtp: publicProcedure
     .input(z.object({ email: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
