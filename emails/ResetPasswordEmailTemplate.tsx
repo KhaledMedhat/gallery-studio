@@ -36,7 +36,7 @@ export const ResetPasswordEmailTemplate = ({
                 <br />
                 <Section>
                     <Text style={text}>You can reset your password from here:</Text>
-                    <Link href={`http://localhost:3000/sign-in?ctxFP=true&ctxId=${id}`}>Reset</Link>
+                    <Link href={`https://gallery-studio.vercel.app/sign-in?ctxFP=true&ctxId=${id}`}>Reset</Link>
                 </Section>
                 <br />
                 <br />
