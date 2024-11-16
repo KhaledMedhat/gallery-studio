@@ -21,7 +21,6 @@ import {
 import AuthButtons from "./AuthButtons";
 import { useToast } from "~/hooks/use-toast";
 import ResetPassword from "./ResetPassword";
-import ForgetPassword from "./ForgetPassword";
 
 const SignIn = () => {
   const router = useRouter();
@@ -100,7 +99,8 @@ const SignIn = () => {
           ?
           userEncryptedId ? <ResetPassword userEncryptedId={userEncryptedId} />
             :
-            <ForgetPassword />
+            <h1>ss</h1>
+            // <ForgetPassword />
           :
           <motion.div
             initial={{ opacity: 0, y: -20 }}
