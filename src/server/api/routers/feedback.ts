@@ -1,18 +1,35 @@
-import { comments, feedbacks, files } from "~/server/db/schema";
+import { feedbacks } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { z } from "zod";
-import { eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const feedbackRouter = createTRPCRouter({
-  allFeedbacks: publicProcedure.query(async ({ ctx }) => {
-    const feedbacks = await ctx.db.query.feedbacks.findMany({
-      with: {
-        user: true,
-      },
-    });
-    return feedbacks;
-  }),
+  allFeedbacks: publicProcedure
+    .input(
+      z.object({
+        page: z.number().int().positive(),
+        limit: z.number().int().positive(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { page, limit } = input;
+      const offset = (page - 1) * limit;
+      const feedbacks = await ctx.db.query.feedbacks.findMany({
+        limit: input.limit,
+        offset,
+        with: {
+          user: true,
+        },
+        orderBy: (feedbacks, { desc }) => [desc(feedbacks.createdAt)],
+      });
+      const totalCount = await ctx.db.query.feedbacks.findMany();
+      const totalPages = Math.ceil(totalCount.length / limit);
+      return {
+        feedbacks,
+        totalPages,
+        currentPage: page,
+      };
+    }),
   postFeedback: protectedProcedure
     .input(z.object({ content: z.string() }))
     .mutation(async ({ input, ctx }) => {

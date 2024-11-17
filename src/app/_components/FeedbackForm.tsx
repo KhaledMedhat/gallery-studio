@@ -51,7 +51,7 @@ const FeedbackForm = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="w-1/2"
+            className="w-full md:w-1/2 p-5"
         >
             <h1 className="mb-2 text-center text-2xl font-bol">Send Feedback</h1>
             <Form {...form}>

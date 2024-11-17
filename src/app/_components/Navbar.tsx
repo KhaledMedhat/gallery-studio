@@ -70,7 +70,7 @@ const Navbar = () => {
             </Link>
           </nav>
         </div>
-        <div className="flex flex-1 items-center justify-between gap-2 space-x-2 md:justify-end">
+        <div className="flex flex-1 items-center justify-between gap-2 space-x-2 md:justify-end px-2">
           {/* <motion.div
             className="relative"
             initial={false}
@@ -140,7 +140,7 @@ const Navbar = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem>
-                <Link href="#">Home</Link>
+                <Link href="/">Home</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Link href="#">Artists</Link>
