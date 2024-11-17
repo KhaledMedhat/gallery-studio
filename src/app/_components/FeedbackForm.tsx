@@ -1,8 +1,6 @@
-'use client'
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { LoaderCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
@@ -12,9 +10,9 @@ import { toast } from "~/hooks/use-toast";
 import { api } from "~/trpc/react";
 
 const FeedbackForm = () => {
-    const router = useRouter();
+    const utils = api.useUtils();
     const formSchema = z.object({
-        content: z.string().min(1, "Content is required"),
+        content: z.string().min(1, "Content is required").refine((value) => value.trim().length > 0, "Content is required"),
     });
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -27,7 +25,7 @@ const FeedbackForm = () => {
         api.feedback.postFeedback.useMutation({
             onSuccess: () => {
                 form.reset()
-                router.refresh()
+                void utils.feedback.allFeedbacks.invalidate();
                 toast({
                     title: "Feedback sent Successfully",
                 });
