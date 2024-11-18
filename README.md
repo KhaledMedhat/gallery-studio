@@ -42,8 +42,6 @@
 This project is licensed under the MIT License - see the *An external link was removed to protect your privacy.* file for details.
 
 ## Contact
-For any questions or suggestions, please contact us at *An external link was removed to protect your privacy.*.
+For any questions or suggestions, please contact us at khaledmedhat.dev@gmail.com .
 
 ---
-
-Feel free to customize this README file further to fit your needs!
