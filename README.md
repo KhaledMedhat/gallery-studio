@@ -17,7 +17,7 @@
 ### Installation
 1. **Clone the repository**:
     ```bash
-    git clone https://github.com/yourusername/Gallery-Studio.git
+    git clone https://github.com/KhaledMedhat/gallery-studio.git
     ```
 2. **Navigate to the project directory**:
     ```bash
