@@ -4,9 +4,14 @@
 
 ## Features
 - **User Galleries**: Each user has a dedicated gallery to upload and organize their images.
+- **User Profile**: Each user has a profile page that anyone can link to it once they press on @(his name).
 - **Privacy Control**: Users can set their images to private or public.
 - **Showcases Page**: Public images are displayed on a showcases page, accessible to followers of the image owner.
 - **Follow System**: Users can follow others to see their public images on the showcases page.
+- **Feedback System**: Users can add their feedbacks for the website and be shown in the home or feedback page.
+- **Album**: Users can create albums for themselves to add their favourite images / videos in it.
+- **Interaction System**: Users can comment or like on others images / videos if they follows them and the image/ video set to public.
+- **Signin in/up**: User can create their own account or use other providers such as X or Google to login with.
 
 ## Getting Started
 
@@ -39,7 +44,7 @@
 4. **Explore Showcases**: View public images on the showcases page by following other users.
 
 ## License
-This project is licensed under the MIT License - see the *An external link was removed to protect your privacy.* file for details.
+This project is licensed under the MIT License .
 
 ## Contact
 For any questions or suggestions, please contact us at khaledmedhat.dev@gmail.com .
