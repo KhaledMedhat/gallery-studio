@@ -1,29 +1,52 @@
-# Create T3 App
+# Gallery-Studio
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+**Gallery-Studio** is a social media application similar to Instagram, designed to provide users with a personal gallery where they can upload and manage their images. Each user has the option to make their images private or public. Public images are featured on a showcases page, visible to any user who follows the image owner.
 
-## What's next? How do I make an app with this?
+## Features
+- **User Galleries**: Each user has a dedicated gallery to upload and organize their images.
+- **User Profile**: Each user has a profile page that anyone can link to it once they press on @(his name).
+- **Privacy Control**: Users can set their images to private or public.
+- **Showcases Page**: Public images are displayed on a showcases page, accessible to followers of the image owner.
+- **Follow System**: Users can follow others to see their public images on the showcases page.
+- **Feedback System**: Users can add their feedbacks for the website and be shown in the home or feedback page.
+- **Album**: Users can create albums for themselves to add their favourite images / videos in it.
+- **Interaction System**: Users can comment or like on others images / videos if they follows them and the image/ video set to public.
+- **Signin in/up**: User can create their own account or use other providers such as X or Google to login with.
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+## Getting Started
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+### Prerequisites
+- Node.js
+- npm (Node Package Manager)
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+### Installation
+1. **Clone the repository**:
+    ```bash
+    git clone https://github.com/KhaledMedhat/gallery-studio.git
+    ```
+2. **Navigate to the project directory**:
+    ```bash
+    cd Gallery-Studio
+    ```
+3. **Install dependencies**:
+    ```bash
+    npm install
+    ```
+4. **Run the application**:
+    ```bash
+    npm start
+    ```
 
-## Learn More
+## Usage
+1. **Sign Up**: Create a new account or log in with existing credentials.
+2. **Upload Images**: Upload images to your personal gallery.
+3. **Set Privacy**: Choose to make your images private or public.
+4. **Explore Showcases**: View public images on the showcases page by following other users.
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+## License
+This project is licensed under the MIT License .
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+## Contact
+For any questions or suggestions, please contact us at khaledmedhat.dev@gmail.com .
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
-
-## How do I deploy this?
-
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+---
