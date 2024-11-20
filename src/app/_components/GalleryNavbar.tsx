@@ -37,11 +37,11 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 import {
+  FolderOpen,
   FolderPlus,
-  GalleryHorizontalEnd,
-  LayoutDashboard,
-  Library,
+  Images,
   LoaderCircle,
+  Telescope,
   X,
 } from "lucide-react";
 import {
@@ -60,6 +60,7 @@ import AddFileButton from "./AddFileButton";
 import DeleteButton from "./DeleteButton";
 import ToAlbumButton from "./ToAlbumButton";
 import ChooseFilesModal from "./ChooseFilesModal";
+import { isURLActive } from "~/utils/utils";
 
 const GalleryNavbar = () => {
   const router = useRouter();
@@ -113,218 +114,222 @@ const GalleryNavbar = () => {
     await deleteCookie();
   };
   return (
-    <Dock
-      direction="middle"
-      className="fixed inset-x-0 bottom-0 z-10 mx-auto mb-4 flex origin-bottom gap-4 rounded-3xl bg-background"
-    >
-      <DockIcon>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link href={"/showcases"}>
-                <LayoutDashboard size={20} />
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent>Showcases</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </DockIcon>
-      <Separator orientation="vertical" className="h-full py-2" />
-      <DockIcon>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost">
-                <Link href={`/galleries/${user?.gallery.slug}`}>
-                  <GalleryHorizontalEnd size={20} />
-                </Link>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Gallery</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </DockIcon>
-      <DockIcon>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost">
-                <Link href={`/galleries/${user?.gallery.slug}/albums`}>
-                  <Library size={20} />
-                </Link>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Albums</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </DockIcon>
+    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 mx-auto mb-4 flex origin-bottom h-full max-h-14">
+      <div className="fixed bottom-0 inset-x-0 h-16 w-full bg-background to-transparent backdrop-blur-lg [-webkit-mask-image:linear-gradient(to_top,black,transparent)] dark:bg-background"></div>
+      <Dock
+        direction="middle"
+        className="z-50 bottom-8 pointer-events-auto relative  mx-auto mb-4 flex origin-bottom gap-4 rounded-3xl bg-background">
+        <DockIcon>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" className={`${isURLActive(pathname, '/showcases') && 'rounded-full p-3 bg-accent text-accent-foreground'}`}>
+                  <Link href={"/showcases"} >
+                    <Telescope size={20} />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Showcases</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </DockIcon>
+        <Separator orientation="vertical" className="h-full py-2" />
+        <DockIcon>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost"  className={`${isURLActive(pathname, `/galleries/${user?.gallery.slug}`) && 'bg-accent text-accent-foreground'}`}>
+                  <Link href={`/galleries/${user?.gallery.slug}`}>
+                    <Images size={20} />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Gallery</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </DockIcon>
+        <DockIcon>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost"  className={`${isURLActive(pathname, `/galleries/${user?.gallery.slug}/albums`) && 'bg-accent text-accent-foreground'}`}>
+                  <Link href={`/galleries/${user?.gallery.slug}/albums`}>
+                    <FolderOpen size={20} />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Albums</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </DockIcon>
 
-      <DockIcon>
-        {isAlbum && !isInsideAlbum && (
-          <Dialog>
+        <DockIcon>
+          {isAlbum && !isInsideAlbum && (
+            <Dialog>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost">
+                        <FolderPlus
+                          size={20}
+                          className={`${albums && albums?.length === 0 && "animate-bounce"}`}
+                        />
+                      </Button>
+                    </DialogTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>Add Album</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>New Album</DialogTitle>
+                  <DialogDescription>
+                    You can create new album from here and add your selected
+                    images to it.
+                  </DialogDescription>
+                </DialogHeader>
+                <Form {...form}>
+                  <form
+                    id="album-id"
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="space-y-8"
+                  >
+                    <FormField
+                      control={form.control}
+                      name="albumTitle"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Title</FormLabel>
+                          <FormControl>
+                            <Input placeholder="example" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            Enter your album title.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </form>
+                </Form>
+                <DialogFooter>
+                  <Button form="album-id" type="submit">
+                    {isAddFilePending ? (
+                      <LoaderCircle size={20} className="animate-spin" />
+                    ) : (
+                      "Submit"
+                    )}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
+          {isInsideAlbum && <ChooseFilesModal />}
+          {!isAlbum && !isInsideAlbum && <AddFileButton gallerySlug={user?.gallery.slug ?? ""} files={files} isEmptyPage={false} />}
+        </DockIcon>
+        {selectedFiles.length > 0 && (
+          <DockIcon className="hidden xl:flex">
+            <DeleteButton />
+          </DockIcon>
+        )}
+        {selectedFiles.length > 0 && !isInsideAlbum && (
+          <DockIcon className="hidden xl:flex">
+            <ToAlbumButton gallerySlug={user?.gallery.slug ?? ""} />
+          </DockIcon>
+        )}
+        {selectedFiles.length > 0 && (
+          <DockIcon className="hidden xl:flex">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <DialogTrigger asChild>
-                    <Button variant="ghost">
-                      <FolderPlus
-                        size={20}
-                        className={`${albums && albums?.length === 0 && "animate-bounce"}`}
-                      />
+                  <BlurFade delay={0} inView yOffset={0}>
+                    <Button
+                      variant="ghost"
+                      onClick={() => setSelectedFilesToEmpty()}
+                    >
+                      <X size={20} />
                     </Button>
-                  </DialogTrigger>
+                  </BlurFade>
                 </TooltipTrigger>
-                <TooltipContent>Add Album</TooltipContent>
+                <TooltipContent>Cancel</TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>New Album</DialogTitle>
-                <DialogDescription>
-                  You can create new album from here and add your selected
-                  images to it.
-                </DialogDescription>
-              </DialogHeader>
-              <Form {...form}>
-                <form
-                  id="album-id"
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-8"
-                >
-                  <FormField
-                    control={form.control}
-                    name="albumTitle"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Title</FormLabel>
-                        <FormControl>
-                          <Input placeholder="example" {...field} />
-                        </FormControl>
-                        <FormDescription>
-                          Enter your album title.
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </form>
-              </Form>
-              <DialogFooter>
-                <Button form="album-id" type="submit">
-                  {isAddFilePending ? (
-                    <LoaderCircle size={20} className="animate-spin" />
-                  ) : (
-                    "Submit"
-                  )}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          </DockIcon>
         )}
-        {isInsideAlbum && <ChooseFilesModal />}
-        {!isAlbum && !isInsideAlbum && <AddFileButton gallerySlug={user?.gallery.slug ?? ""} files={files} isEmptyPage={false} />}
-      </DockIcon>
-      {selectedFiles.length > 0 && (
-        <DockIcon className="hidden xl:flex">
-          <DeleteButton />
-        </DockIcon>
-      )}
-      {selectedFiles.length > 0 && !isInsideAlbum && (
-        <DockIcon className="hidden xl:flex">
-          <ToAlbumButton gallerySlug={user?.gallery.slug ?? ""} />
-        </DockIcon>
-      )}
-      {selectedFiles.length > 0 && (
-        <DockIcon className="hidden xl:flex">
+        <DockIcon>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <BlurFade delay={0} inView yOffset={0}>
-                  <Button
-                    variant="ghost"
-                    onClick={() => setSelectedFilesToEmpty()}
-                  >
-                    <X size={20} />
-                  </Button>
-                </BlurFade>
+                <ModeToggle />
               </TooltipTrigger>
-              <TooltipContent>Cancel</TooltipContent>
+              <TooltipContent>Mode</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </DockIcon>
-      )}
-      <DockIcon>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <ModeToggle />
-            </TooltipTrigger>
-            <TooltipContent>Mode</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </DockIcon>
-      <Separator orientation="vertical" className="h-full py-2" />
-      <DockIcon>
-        <DropdownMenu>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="overflow-hidden rounded-full"
-                  >
-                    <Avatar>
-                      <AvatarImage
-                        src={user?.image ?? ""}
-                        alt={user?.name ?? "Avatar"}
-                      />
-                      <AvatarFallback>
-                        {user?.name
-                          ?.split(" ")
-                          .map((part) => part[0]?.toUpperCase())
-                          .join("") ?? ""}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-              </TooltipTrigger>
-              <TooltipContent>Profile</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer">
-              <Link href={"/profile"}>
-                Profile
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer">
-              <Link href={"/"}>
-                Home
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer">
-              Settings
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer">
-              Support
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={async () => {
-                await handleLogout();
-              }}
-            >
-              Logout
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </DockIcon>
-    </Dock>
+        <Separator orientation="vertical" className="h-full py-2" />
+        <DockIcon>
+          <DropdownMenu>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="overflow-hidden rounded-full"
+                    >
+                      <Avatar>
+                        <AvatarImage
+                          src={user?.image ?? ""}
+                          alt={user?.name ?? "Avatar"}
+                        />
+                        <AvatarFallback>
+                          {user?.name
+                            ?.split(" ")
+                            .map((part) => part[0]?.toUpperCase())
+                            .join("") ?? ""}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                </TooltipTrigger>
+                <TooltipContent>Profile</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="cursor-pointer">
+                <Link href={"/profile"}>
+                  Profile
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                <Link href={"/"}>
+                  Home
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                Support
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={async () => {
+                  await handleLogout();
+                }}
+              >
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </DockIcon>
+      </Dock>
+    </div>
   );
 };
 

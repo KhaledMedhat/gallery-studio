@@ -13,9 +13,10 @@ import { useParams } from "next/navigation";
 const DeleteButton: React.FC<{
     fileId?: string | null,
     fileKey?: string | null,
+    fileType?: string | null,
     isFileModal?: boolean;
     handleOpenModalChange?: () => void;
-}> = ({ fileId, fileKey, isFileModal, handleOpenModalChange }) => {
+}> = ({ fileId, fileKey, isFileModal, handleOpenModalChange, fileType }) => {
     const { selectedFiles, setSelectedFilesToEmpty } = useFileStore();
     const utils = api.useUtils();
     const param = useParams()
@@ -28,7 +29,7 @@ const DeleteButton: React.FC<{
             setSelectedFilesToEmpty()
             toast({
                 title: "Deleted Successfully.",
-                description: `Images has been deleted from the album successfully.`,
+                description: `${fileType?.includes('image') ? fileType.includes("gif") ? "GIF" : "Image" : "Video"} has been deleted from the album successfully.`,
             });
             setIsDialogOpen(false)
             void utils.file.getAlbumFiles.invalidate();
@@ -50,7 +51,7 @@ const DeleteButton: React.FC<{
                 setSelectedFilesToEmpty();
                 toast({
                     title: "Deleted Successfully.",
-                    description: `Images ${deleteFile.name} has been deleted successfully.`,
+                    description: `${fileType?.includes('image') ? fileType.includes("gif") ? "GIF" : "Image" : "Video"} has been deleted successfully.`,
                 });
                 setIsDialogOpen(false)
                 if (handleOpenModalChange) handleOpenModalChange()

@@ -7,6 +7,7 @@ import { TRPCReactProvider } from "~/trpc/react";
 import { ThemeProvider } from "./_components/theme-provider";
 import { Toaster } from "~/components/ui/toaster";
 import AuthProvider from "~/AuthProvider";
+import RouteChangeHandler from "./_components/RouteChangeHandler";
 
 export const metadata: Metadata = {
   title: "Gallery Studio",
@@ -27,6 +28,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <RouteChangeHandler />
             <TRPCReactProvider>{children}</TRPCReactProvider>
             <Toaster />
           </ThemeProvider>

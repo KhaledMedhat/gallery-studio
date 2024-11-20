@@ -11,7 +11,7 @@ import { Input } from "~/components/ui/input";
 import { useTheme } from "next-themes";
 import Picker from '@emoji-mart/react'
 
-const CommentInput:React.FC<{fileId: string}> = ({ fileId }) => {
+const CommentInput: React.FC<{ fileId: string }> = ({ fileId }) => {
     const theme = useTheme()
     const formSchema = z.object({
         comment: z.string()
@@ -56,7 +56,7 @@ const CommentInput:React.FC<{fileId: string}> = ({ fileId }) => {
                 />
 
                 <Popover>
-                    <PopoverTrigger>
+                    <PopoverTrigger className="hidden xl:block">
                         <Smile size={20} />
                     </PopoverTrigger>
                     <PopoverContent className="w-fit">

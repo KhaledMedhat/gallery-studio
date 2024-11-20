@@ -7,9 +7,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { toast } from "~/hooks/use-toast";
-import { api } from "~/trpc/react";
-import { deleteFileOnServer } from "../actions";
 import { useFileStore } from "~/store";
 import DeleteButton from "./DeleteButton";
 
@@ -17,7 +14,8 @@ const FileOptions: React.FC<{
   handleOpenModalChange?: () => void;
   fileId: string | null;
   fileKey: string | null;
-}> = ({ fileId, fileKey, handleOpenModalChange }) => {
+  fileType: string | null;
+}> = ({ fileId, fileKey, handleOpenModalChange, fileType }) => {
   const { setIsUpdating, isUpdating, isUpdatingPending } = useFileStore();
   return !isUpdating ? (
     <DropdownMenu>
@@ -40,7 +38,7 @@ const FileOptions: React.FC<{
             </Button>
           </DropdownMenuItem>
           <DropdownMenuItem className="p-0" asChild>
-            <DeleteButton fileId={fileId} fileKey={fileKey} isFileModal={true} handleOpenModalChange={handleOpenModalChange} />
+            <DeleteButton fileType={fileType} fileId={fileId} fileKey={fileKey} isFileModal={true} handleOpenModalChange={handleOpenModalChange} />
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

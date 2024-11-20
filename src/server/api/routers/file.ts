@@ -1,5 +1,11 @@
-import { galleries, files, albums, albumFiles } from "~/server/db/schema";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import {
+  galleries,
+  files,
+  albums,
+  albumFiles,
+  users,
+} from "~/server/db/schema";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { z } from "zod";
 import { eq, inArray } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
@@ -24,11 +30,6 @@ export const fileRouter = createTRPCRouter({
             likesInfo: foundedFile.likesInfo?.filter(
               (like) => like.userId !== ctx.user?.id,
             ),
-          })
-          .where(eq(files.id, input.id));
-        await ctx.db
-          .update(files)
-          .set({
             likes: foundedFile.likes - 1,
           })
           .where(eq(files.id, input.id));
@@ -49,15 +50,14 @@ export const fileRouter = createTRPCRouter({
       });
 
       if (foundedFile) {
+        const updatedLikesInfo = [
+          ...(foundedFile.likesInfo ?? []), 
+          { liked: true, userId: ctx.user?.id }, 
+        ];
         await ctx.db
           .update(files)
           .set({
-            likesInfo: [{ liked: true, userId: ctx.user?.id }],
-          })
-          .where(eq(files.id, input.id));
-        await ctx.db
-          .update(files)
-          .set({
+            likesInfo: updatedLikesInfo,
             likes: foundedFile.likes + 1,
           })
           .where(eq(files.id, input.id));
@@ -65,7 +65,7 @@ export const fileRouter = createTRPCRouter({
     }),
 
   getShowcaseFiles: protectedProcedure.query(async ({ ctx }) => {
-    if(!ctx.user) {
+    if (!ctx.user) {
       throw new TRPCError({
         code: "UNAUTHORIZED",
         message: "You need to be logged in to access this.",
@@ -82,8 +82,24 @@ export const fileRouter = createTRPCRouter({
         },
       },
     });
-    return showcaseFiles;
+    const filesWithLikedUsers = await Promise.all(
+      showcaseFiles.map(async (file) => {
+        const userIds = file?.likesInfo?.map((like) => like.userId) ?? [];
+
+        const likedUsers = await ctx.db.query.users.findMany({
+          where: inArray(users.id, userIds),
+        });
+
+        return {
+          ...file,
+          likedUsers,
+        };
+      }),
+    );
+
+    return filesWithLikedUsers;
   }),
+
 
   getFiles: protectedProcedure.query(async ({ ctx }) => {
     if (!ctx.user) {
@@ -194,6 +210,7 @@ export const fileRouter = createTRPCRouter({
         id: z.string(),
         caption: z.string(),
         tags: z.array(z.string()).optional(),
+        privacy: z.enum(["private", "public"]).optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -209,6 +226,7 @@ export const fileRouter = createTRPCRouter({
         .set({
           caption: input.caption,
           tags: input.tags,
+          filePrivacy: input.privacy,
         })
         .where(eq(files.id, input.id))
         .returning();

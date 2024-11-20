@@ -81,6 +81,7 @@ export function Modal({
             </div>
             {file && user?.id === file.user.id && (
               <FileOptions
+                fileType={file.fileType}
                 fileId={fileId}
                 fileKey={file.fileKey}
                 handleOpenModalChange={handleOpenModalChange}

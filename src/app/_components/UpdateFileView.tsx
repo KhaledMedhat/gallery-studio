@@ -20,12 +20,15 @@ import { Textarea } from "~/components/ui/textarea";
 import { api } from "~/trpc/react";
 import { toast } from "~/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
+import { useState } from "react";
 
 const UpdateFileView: React.FC<{
   file: fileType;
   userName?: string | null | undefined;
   imageWanted: boolean
 }> = ({ file, userName, imageWanted }) => {
+  const [privacy, setPrivacy] = useState<"public" | "private" | null>(file.filePrivacy);
   const { setIsUpdating, setIsUpdatingPending } = useFileStore();
   const utils = api.useUtils();
   const router = useRouter()
@@ -104,7 +107,7 @@ const UpdateFileView: React.FC<{
     const initialTags = file.tags?.toString().split(",").join(" ");
     const isChanged =
       data.caption !== (file.caption ?? "") || data.tags !== initialTags;
-    if (!isChanged) {
+    if (!isChanged && !privacy) {
       setIsUpdating(false);
       toast({
         description: `No changes made.`,
@@ -114,11 +117,14 @@ const UpdateFileView: React.FC<{
         ?.split(" ") // convert string to array as api expects
         .filter((tag) => tag.startsWith("#") && tag.trim() !== "");
 
-      updateFile({
-        id: file.id,
-        caption: data.caption,
-        tags,
-      });
+      if (privacy) {
+        updateFile({
+          id: file.id,
+          caption: data.caption,
+          tags,
+          privacy
+        });
+      }
     }
   };
   return (
@@ -178,6 +184,19 @@ const UpdateFileView: React.FC<{
           </div>
         )}
       </div>}
+      {privacy &&
+        <Select value={privacy} onValueChange={(value) => setPrivacy(value as "public" | "private")}>
+          <SelectTrigger className="w-fit">
+            <SelectValue placeholder={file.filePrivacy} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="private">Private</SelectItem>
+              <SelectItem value="public">Public</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      }
     </section>
   );
 };

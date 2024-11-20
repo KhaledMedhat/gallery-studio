@@ -2,7 +2,6 @@ export enum isAlbumOrFileEnum {
   file = "file",
   album = "album",
 }
-
 export interface Showcase {
   createdAt: Date;
   id: string;
@@ -12,11 +11,12 @@ export interface Showcase {
   tags: string[] | null;
   fileKey: string | null;
   fileType: string | null;
-  filePrivacy: "private" | "public" | null;
+  filePrivacy: "public" | "private" | null;
   galleryId: number;
   likes: number;
   comments: number;
   likesInfo: LikesInfo[] | null;
+  likedUsers: User[];
   user: User | null | undefined;
   commentsInfo: Comment[] | null;
 }
@@ -79,7 +79,7 @@ export interface fileType {
   tags: string[] | null;
   fileKey: string | null;
   fileType: string | null;
-  filePrivacy: "private" | "public" | null;
+  filePrivacy: "public" | "private" | null;
   galleryId: number;
 }
 

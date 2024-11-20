@@ -5,7 +5,6 @@ import BlurFade from "~/components/ui/blur-fade"
 import { Button } from "~/components/ui/button"
 import { Card, CardContent } from "~/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip"
 import { api } from "~/trpc/react"
 import Video from "./Video"
 import Image from "next/legacy/image"
@@ -42,20 +41,13 @@ const ChooseFilesModal: React.FC<{ isInsideAlbum?: boolean }> = ({ isInsideAlbum
     });
     return (
         <Dialog>
-            <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <DialogTrigger asChild>
-                            <Button variant={isInsideAlbum ? 'outline' : 'ghost'}>
-                                {isInsideAlbum ? "Add to album" : <Images className={`${albumFiles?.length === 0 && "animate-bounce"}`} size={20} />}
+            <DialogTrigger asChild>
+                <Button variant={isInsideAlbum ? 'outline' : 'ghost'}>
+                    {isInsideAlbum ? "Add to album" : <Images className={`${albumFiles?.length === 0 && "animate-bounce"}`} size={20} />}
 
-                            </Button>
-                        </DialogTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent>Add from your gallery</TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
-            <DialogContent>
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="h-fit max-h-full overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Add from your gallery</DialogTitle>
                     <DialogDescription>

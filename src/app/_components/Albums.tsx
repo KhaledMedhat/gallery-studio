@@ -95,12 +95,21 @@ const AlbumCoverImages: React.FC<{ album: Album }> = ({
   }, [album, form]);
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
-    if (data.albumTitle) {
-      updateAlbum({
-        id: album.id,
-        title: data.albumTitle,
+    const isChanged = data.albumTitle !== album.name;
+    if (!isChanged) {
+      setIsUpdating(false);
+      toast({
+        description: `No changes made.`,
       });
+    } else {
+      if (data.albumTitle) {
+        updateAlbum({
+          id: album.id,
+          title: data.albumTitle,
+        });
+      }
     }
+
 
   };
 

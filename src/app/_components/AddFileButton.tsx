@@ -1,5 +1,5 @@
 import Image from "next/legacy/image";
-import { Plus, X, LoaderCircle } from "lucide-react";
+import { X, LoaderCircle, ImagePlus } from "lucide-react";
 import AnimatedCircularProgressBar from "~/components/ui/animated-circular-progress-bar";
 import {
   Dialog,
@@ -137,10 +137,10 @@ const AddFileButton: React.FC<{
             <DialogTrigger asChild>
               {isEmptyPage ? <Button variant="outline">Add Image or Video</Button> :
                 <Button variant="ghost">
-                  <Plus
+                  <ImagePlus
                     size={25}
-                    className={`${files && files?.length === 0 && "animate-bounce"}`}
-                  />
+                    className={`${files && files?.length === 0 && "animate-bounce"}`} />
+
                   <span className="sr-only">Add Image</span>
                 </Button>
               }

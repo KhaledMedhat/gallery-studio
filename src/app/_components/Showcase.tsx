@@ -96,18 +96,30 @@ const Showcase: React.FC<{ file: Showcase, user: User | undefined | null }> = ({
                 </div>
                 <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1">
-                        <Button variant='ghost' onClick={() => {
-                            if (file?.likesInfo?.find(like => like.userId === user?.id)) {
-                                unlikeFile({ id: file.id })
-                            } else {
-                                likeFile({ id: file.id })
+                        <HoverCard>
+                            <HoverCardTrigger asChild>
+                                <Button variant='ghost' onClick={() => {
+                                    if (file?.likesInfo?.find(like => like.userId === user?.id)) {
+                                        unlikeFile({ id: file.id })
+                                    } else {
+                                        likeFile({ id: file.id })
 
+                                    }
+                                }}
+                                    className="p-0 hover:bg-transparent"
+                                >
+                                    <Heart size={22} fill={file?.likesInfo?.find(like => like.userId === user?.id) ? "#FF0000" : theme.resolvedTheme === 'dark' ? "#171717" : "#FFFFFF"} color={file?.likesInfo?.find(like => like.userId === user?.id) && "#FF0000"} />
+                                </Button>
+                            </HoverCardTrigger>
+                            {file.likedUsers?.length > 0 &&
+                                <HoverCardContent className="w-fit p-3">
+                                    {file.likedUsers?.map((liker) => (
+                                        <p className="text-xs" key={liker.id}>{liker.name}</p>
+                                    ))}
+                                </HoverCardContent>
                             }
-                        }}
-                            className="p-0 hover:bg-transparent"
-                        >
-                            <Heart size={22} fill={file?.likesInfo?.find(like => like.userId === user?.id) ? "#FF0000" : theme.resolvedTheme === 'dark' ? "#171717" : "#FFFFFF"} color={file?.likesInfo?.find(like => like.userId === user?.id) && "#FF0000"} />
-                        </Button>
+                        </HoverCard>
+
                         <p>
                             {formatNumber(file.likes)}
                         </p>
