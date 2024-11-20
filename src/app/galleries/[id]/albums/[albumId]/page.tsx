@@ -9,7 +9,7 @@ export default async function AlbumPage({
   const album = await api.album.getAlbumById({ id: Number(albumId) })
   return (
     <div className="flex flex-col items-center">
-      <h1 className="text-3xl mt-8 font-bold text-center">{album.name} Album</h1>
+      <h1 className="text-3xl mt-8 font-bold text-center">{album.name}</h1>
       <Album id={albumId} />
     </div>
 
