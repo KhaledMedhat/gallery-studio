@@ -28,7 +28,7 @@ import { api } from "~/trpc/react";
 const OTP = () => {
   const router = useRouter();
   const { toast } = useToast();
-  const [timer, setTimer] = useState<number>(300);
+  const [timer, setTimer] = useState<number>(35);
   const [isTimerFinished, setIsTimerFinished] = useState(false);
   const userRegistryInfo = useUserStore((state) => state.userRegistrationInfo);
   const FormSchema = z.object({
@@ -38,7 +38,7 @@ const OTP = () => {
   });
   const startTimer = () => {
     setIsTimerFinished(false);
-    setTimer(300); // Reset timer to 5 minutes
+    setTimer(35); // Reset timer to 35 seconds 
     const interval = setInterval(() => {
       setTimer((prev) => {
         if (prev <= 1) {
@@ -64,10 +64,18 @@ const OTP = () => {
   const { mutate: deleteOtp } = api.user.deleteOtp.useMutation();
 
   useEffect(() => {
-    if (isTimerFinished) deleteOtp({ email: userRegistryInfo.email });
-  }, [deleteOtp, isTimerFinished, userRegistryInfo.email]);
+    const timeout = setTimeout(() => {
+      deleteOtp({ email: userRegistryInfo.email });
+    }, 5 * 60 * 1000); // 5 minutes in milliseconds
+
+    return () => clearTimeout(timeout); // Cleanup on unmount
+
+  }, [deleteOtp, userRegistryInfo.email]);
 
   const { mutate: resendOtp } = api.user.sendingOTP.useMutation({
+    onMutate: () => {
+      deleteOtp({ email: userRegistryInfo.email })
+    },
     onSuccess: () => {
       startTimer()
     },
@@ -105,23 +113,22 @@ const OTP = () => {
   };
 
   return (
-    <div
-      className={`flex min-h-screen flex-col items-center justify-center gap-10 bg-background p-8`}
+    <div className="flex flex-col items-center gap-6 w-full"
     >
-      <div className="w-full max-w-4xl">
+      <div>
         <h1 className="text-left text-3xl font-bold">OTP Verification</h1>
       </div>
-      <div className="w-full max-w-4xl">
+      <div>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="w-2/3 space-y-6"
+            className="flex items-center flex-col gap-6 space-y-6"
           >
             <FormField
               control={form.control}
               name="otp"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex items-center flex-col gap-6">
                   <FormLabel>One-Time Password</FormLabel>
                   <FormControl>
                     <InputOTP maxLength={6} {...field}>
@@ -173,8 +180,8 @@ const OTP = () => {
                 )}
               </div>
             </div>
-            {!isTimerFinished && <div>
-              <p>You will be able to resend OTP after 5 minutes.</p>
+            {!isTimerFinished && <div className="w-full">
+              <p>You will be able to resend OTP after 35 seconds.</p>
             </div>}
           </form>
         </Form>

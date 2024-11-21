@@ -1,5 +1,5 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { api } from "~/trpc/react";
 import { useFileStore, useUserStore } from "~/store";
@@ -28,9 +28,12 @@ import AuthButtons from "./AuthButtons";
 import UploadthingButton from "./UploadthingButton";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 import AnimatedCircularProgressBar from "~/components/ui/animated-circular-progress-bar";
+import OTP from "./OTP";
 
 const SignUp = () => {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const isCodeVerifying = searchParams.get('ctxVerificationCode')
   const router = useRouter();
   const [stage, setStage] = useState<number>(0);
   const [file, setFile] = useState<File | undefined>(undefined);
@@ -41,7 +44,7 @@ const SignUp = () => {
     api.user.sendingOTP.useMutation({
       onSuccess: async () => {
         setIsLoading(isSendingOTP);
-        router.push("/sign-up/otp_verification");
+        router.push("/sign-up?ctxVerificationCode=true");
       },
       onError: (e) => {
         toast({
@@ -250,7 +253,7 @@ const SignUp = () => {
           </p>
         </div>
       </div>
-      <div className="relative flex w-full flex-col items-center justify-center gap-4 bg-[#171717] p-8 lg:w-3/4">
+      <div className="relative flex w-full flex-col items-center justify-around gap-4 bg-[#171717] p-8 lg:w-3/4">
         <div className="flex w-full items-center justify-between sm:size-0">
           <div className="left-10 top-10 block text-center sm:absolute">
             <Button className="border border-solid border-gray-100 bg-transparent hover:bg-transparent">
@@ -276,73 +279,79 @@ const SignUp = () => {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="w-full max-w-md"
+          className="max-w-md flex items-center h-[80vh]"
         >
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={stage}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <h1 className="mb-2 text-center text-3xl font-bold text-gray-100">
-                {stages[stage]?.title}
-              </h1>
-              <p className="mb-6 text-center text-gray-100">
-                {stages[stage]?.subtitle}
-              </p>
-              {renderStageContent()}
-              <div className="mt-6 flex justify-between">
-                {stage > 0 && (
-                  <Button
-                    type="button"
-                    onClick={() => setStage((prev) => prev - 1)}
-                    className="bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  >
-                    <ArrowLeft size={16} className="mr-2" />
-                    Back
-                  </Button>
-                )}
-                <Button
-                  form={stage === 0 ? "sign-up-form" : undefined}
-                  type={stage === 0 ? "submit" : "button"}
-                  className={`${stage === 0 ? "w-full" : "ml-auto"
-                    } transform rounded-md border border-solid border-white bg-gradient-to-r from-gray-700 to-gray-900 px-4 py-2 font-bold text-white transition duration-300 ease-in-out hover:scale-105 hover:from-gray-800 hover:to-black focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50`}
-                  disabled={isLoading || isVerifyEmailPending}
-                  onClick={
-                    stage === stages.length - 1 ? onFinishRegistry : undefined
-                  }
-                >
-                  {isLoading || isVerifyEmailPending ? (
-                    <div className="flex items-center">
-                      <LoaderCircle size={16} className="mr-2 animate-spin" />
-                      Processing...
-                    </div>
-                  ) : stage === stages.length - 1 ? (
-                    fileUrl ? (
-                      "Submit"
-                    ) : (
-                      "Continue Without Profile Picture"
-                    )
-                  ) : (
-                    <div className="flex items-center">
-                      Next < ArrowRight size={16} className="ml-2" />
-                    </div>
-                  )}
-                </Button>
-              </div>
-              <div className="my-6 flex items-center">
-                <hr className="inline-block grow-[4] border-white" />
-                <span className="text-md flex flex-grow justify-center text-center uppercase text-white">
-                  Or login with
-                </span>
-                <hr className="inline-block grow-[4] border-white" />
-              </div>
+          {isCodeVerifying ?
+            <OTP />
+            :
 
-              <AuthButtons />
-            </motion.div>
-          </AnimatePresence>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={stage}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <h1 className="mb-2 text-center text-3xl font-bold text-gray-100">
+                  {stages[stage]?.title}
+                </h1>
+                <p className="mb-6 text-center text-gray-100">
+                  {stages[stage]?.subtitle}
+                </p>
+                {renderStageContent()}
+                <div className="mt-6 flex justify-between">
+                  {stage > 0 && (
+                    <Button
+                      type="button"
+                      onClick={() => setStage((prev) => prev - 1)}
+                      className="bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    >
+                      <ArrowLeft size={16} className="mr-2" />
+                      Back
+                    </Button>
+                  )}
+                  <Button
+                    form={stage === 0 ? "sign-up-form" : undefined}
+                    type={stage === 0 ? "submit" : "button"}
+                    className={`${stage === 0 ? "w-full" : "ml-auto"
+                      } transform rounded-md border border-solid border-white bg-gradient-to-r from-gray-700 to-gray-900 px-4 py-2 font-bold text-white transition duration-300 ease-in-out hover:scale-105 hover:from-gray-800 hover:to-black focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50`}
+                    disabled={isLoading || isVerifyEmailPending}
+                    onClick={
+                      stage === stages.length - 1 ? onFinishRegistry : undefined
+                    }
+                  >
+                    {isLoading || isVerifyEmailPending ? (
+                      <div className="flex items-center">
+                        <LoaderCircle size={16} className="mr-2 animate-spin" />
+                        Processing...
+                      </div>
+                    ) : stage === stages.length - 1 ? (
+                      fileUrl ? (
+                        "Submit"
+                      ) : (
+                        "Continue Without Profile Picture"
+                      )
+                    ) : (
+                      <div className="flex items-center">
+                        Next < ArrowRight size={16} className="ml-2" />
+                      </div>
+                    )}
+                  </Button>
+                </div>
+                <div className="my-6 flex items-center">
+                  <hr className="inline-block grow-[4] border-white" />
+                  <span className="text-md flex flex-grow justify-center text-center uppercase text-white">
+                    Or login with
+                  </span>
+                  <hr className="inline-block grow-[4] border-white" />
+                </div>
+
+                <AuthButtons />
+              </motion.div>
+            </AnimatePresence>
+          }
+
         </motion.div>
       </div>
     </div>

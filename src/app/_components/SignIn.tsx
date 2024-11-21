@@ -76,7 +76,7 @@ const SignIn = () => {
           </p>
         </div>
       </div>
-      <div className="relative flex w-full flex-col items-center justify-center bg-[#171717] p-8 lg:w-3/4">
+      <div className="relative flex w-full flex-col items-center justify-around bg-[#171717] p-8 lg:w-3/4">
         <div className="absolute left-10 top-10 text-center">
           <Button className="border border-solid border-gray-100 bg-transparent hover:bg-transparent">
             <Link
