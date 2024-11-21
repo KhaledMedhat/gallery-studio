@@ -51,7 +51,6 @@ const AddFileButton: React.FC<{
   gallerySlug: string;
   isTabs?: boolean;
 }> = ({ files, gallerySlug, isEmptyPage, isTabs, albumId }) => {
-  console.log(gallerySlug)
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [file, setFile] = useState<File | undefined>(undefined);
   const [isFileError, setIsFileError] = useState<boolean>(false);

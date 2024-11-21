@@ -4,8 +4,8 @@ import { Badge } from "~/components/ui/badge"
 import BlurFade from "~/components/ui/blur-fade"
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Button } from "~/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/components/ui/card"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog"
 import { api } from "~/trpc/react"
 import Video from "./Video"
 import Image from "next/legacy/image"
@@ -18,6 +18,7 @@ import AddFileButton from "./AddFileButton";
 
 const ChooseFilesModal: React.FC<{ isInsideAlbum?: boolean }> = ({ isInsideAlbum }) => {
     const param = useParams()
+    const [currentTab, setCurrentTab] = useState<string>("choose-from-gallery");
     const { data: files } = api.file.getFiles.useQuery()
     const { data: albumFiles } = api.file.getAlbumFiles.useQuery({ id: Number(param.albumId) })
     const isTheFileInAlbum = (id: string) => {
@@ -57,7 +58,7 @@ const ChooseFilesModal: React.FC<{ isInsideAlbum?: boolean }> = ({ isInsideAlbum
                         <DialogDescription></DialogDescription>
                     </DialogHeader>
                 </VisuallyHidden.Root>
-                <Tabs defaultValue="Albums" className="w-full">
+                <Tabs onValueChange={setCurrentTab} defaultValue="choose-from-gallery" className="w-full">
                     <TabsList className="grid w-full grid-cols-2">
                         <TabsTrigger value="choose-from-gallery">Choose from your gallery</TabsTrigger>
                         <TabsTrigger value="add-file">Add</TabsTrigger>
@@ -73,7 +74,7 @@ const ChooseFilesModal: React.FC<{ isInsideAlbum?: boolean }> = ({ isInsideAlbum
                             <CardContent className="flex gap-4 p-6 flex-wrap justify-center">
                                 {files?.map((file, idx) => (
                                     <BlurFade key={file.id} delay={0.25 + Number(idx) * 0.05} inView>
-                                        <div className={`group flex flex-col gap-1 relative h-full w-full overflow-hidden rounded-lg`}>
+                                        <div className={`group flex flex-col gap-1 relative h-full w-full overflow-hidden rounded-lg ${isTheFileInAlbum(file.id) && 'hidden'}`}>
                                             <Checkbox
                                                 disabled={isTheFileInAlbum(file.id)}
                                                 onCheckedChange={(checked) => {
@@ -125,23 +126,26 @@ const ChooseFilesModal: React.FC<{ isInsideAlbum?: boolean }> = ({ isInsideAlbum
                                     </BlurFade>
                                 ))}
                             </CardContent>
-                            <CardFooter>
-                                <Button className="w-full"
-                                    disabled={isPending || selectedFiles.length === 0}
-                                    onClick={() => addToExistedAlbum({ id: selectedFiles, albumId: Number(param.albumId) })}>
-                                    {isPending ? (
-                                        <LoaderCircle size={20} className="animate-spin" />
-                                    ) : (
-                                        'Add'
-                                    )}
-                                </Button>
-                            </CardFooter>
                         </Card>
                     </TabsContent>
                     <TabsContent value="add-file">
                         <AddFileButton isTabs={true} gallerySlug={param.id as string} albumId={param.albumId as string} />
                     </TabsContent>
                 </Tabs>
+                {currentTab === 'choose-from-gallery' &&
+                    <DialogFooter>
+                        <Button
+                            className="w-full"
+                            disabled={isPending || selectedFiles.length === 0}
+                            onClick={() => addToExistedAlbum({ id: selectedFiles, albumId: Number(param.albumId) })}>
+                            {isPending ? (
+                                <LoaderCircle size={20} className="animate-spin" />
+                            ) : (
+                                'Add'
+                            )}
+                        </Button>
+                    </DialogFooter>
+                }
             </DialogContent>
         </Dialog>
     )

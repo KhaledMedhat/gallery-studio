@@ -34,7 +34,6 @@ const UploadthingButton: React.FC<{
       setProgress(progress);
     },
     onUploadError: (e) => {
-      console.log(e.code);
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",

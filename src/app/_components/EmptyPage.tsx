@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
@@ -48,7 +48,7 @@ const EmptyPage: React.FC<{
       albumTitle: "",
     },
   });
-  const { mutate: addAlbum, isPending: isAddFilePending } =
+  const { mutate: addAlbum, isPending: isAddAlbumPending } =
     api.album.createAlbum.useMutation({
       onSuccess: () => {
         form.reset();
@@ -142,9 +142,9 @@ const EmptyPage: React.FC<{
                     </form>
                   </Form>
                   <DialogFooter>
-                    <Button form="album-id" type="submit">
-                      {isAddFilePending ? (
-                        <Loader2 className="animate-spin" />
+                    <Button form="album-id" type="submit" disabled={isAddAlbumPending}>
+                      {isAddAlbumPending ? (
+                        <LoaderCircle className="animate-spin" />
                       ) : (
                         "Submit"
                       )}

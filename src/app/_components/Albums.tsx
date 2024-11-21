@@ -29,6 +29,7 @@ import {
 import { Button } from "~/components/ui/button";
 import { Dot, EllipsisVertical, LoaderCircle } from "lucide-react";
 import { useParams } from "next/navigation";
+import DeleteButton from "./DeleteButton";
 
 const AlbumCoverImages: React.FC<{ album: Album }> = ({
   album,
@@ -54,23 +55,6 @@ const AlbumCoverImages: React.FC<{ album: Album }> = ({
     },
   });
 
-  const { mutate: deleteAlbum, isPending: isAlbumDeleting } =
-    api.album.deleteAlbum.useMutation({
-      onSuccess: () => {
-        toast({
-          title: "Deleted Successfully.",
-          description: `Album has been deleted successfully.`,
-        });
-        void utils.album.getAlbums.invalidate();
-      },
-      onError: () => {
-        toast({
-          variant: "destructive",
-          title: "Deleting Album Failed.",
-          description: `Uh oh! Something went wrong. Please try again.`,
-        });
-      },
-    });
   const { mutate: updateAlbum, isPending: isAlbumUpdatePending } =
     api.album.updateAlbum.useMutation({
       onSuccess: () => {
@@ -125,7 +109,7 @@ const AlbumCoverImages: React.FC<{ album: Album }> = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuGroup>
+                <DropdownMenuGroup className="flex flex-col items-center">
                   <DropdownMenuItem className="p-0">
                     <Button
                       onClick={() => {
@@ -144,24 +128,8 @@ const AlbumCoverImages: React.FC<{ album: Album }> = ({
                       )}
                     </Button>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="p-0">
-                    <Button
-                      disabled={isAlbumDeleting}
-                      onClick={async () => {
-                        deleteAlbum({ id: album.id });
-                      }}
-                      variant="ghost"
-                      className="w-full text-destructive hover:bg-transparent hover:text-[#d33939]"
-                    >
-                      {isAlbumDeleting ? (
-                        <LoaderCircle
-                          size={25}
-                          className="animate-spin"
-                        />
-                      ) : (
-                        "Delete"
-                      )}
-                    </Button>
+                  <DropdownMenuItem className="p-0" asChild>
+                    <DeleteButton albumId={album.id} isAlbum={true} />
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>

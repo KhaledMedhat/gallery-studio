@@ -82,7 +82,7 @@ const GalleryNavbar = () => {
       albumTitle: "",
     },
   });
-  const { mutate: addAlbum, isPending: isAddFilePending } =
+  const { mutate: addAlbum, isPending: isAddAlbumPending } =
     api.album.createAlbum.useMutation({
       onSuccess: () => {
         form.reset();
@@ -138,7 +138,7 @@ const GalleryNavbar = () => {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost"  className={`${isURLActive(pathname, `/galleries/${user?.gallery.slug}`) && 'bg-accent text-accent-foreground'}`}>
+                <Button variant="ghost" className={`${isURLActive(pathname, `/galleries/${user?.gallery.slug}`) && 'bg-accent text-accent-foreground'}`}>
                   <Link href={`/galleries/${user?.gallery.slug}`}>
                     <Images size={20} />
                   </Link>
@@ -152,7 +152,7 @@ const GalleryNavbar = () => {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost"  className={`${isURLActive(pathname, `/galleries/${user?.gallery.slug}/albums`) && 'bg-accent text-accent-foreground'}`}>
+                <Button variant="ghost" className={`${isURLActive(pathname, `/galleries/${user?.gallery.slug}/albums`) && 'bg-accent text-accent-foreground'}`}>
                   <Link href={`/galleries/${user?.gallery.slug}/albums`}>
                     <FolderOpen size={20} />
                   </Link>
@@ -214,8 +214,8 @@ const GalleryNavbar = () => {
                   </form>
                 </Form>
                 <DialogFooter>
-                  <Button form="album-id" type="submit">
-                    {isAddFilePending ? (
+                  <Button form="album-id" type="submit" disabled={isAddAlbumPending}>
+                    {isAddAlbumPending ? (
                       <LoaderCircle size={20} className="animate-spin" />
                     ) : (
                       "Submit"

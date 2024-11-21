@@ -15,8 +15,10 @@ const DeleteButton: React.FC<{
     fileKey?: string | null,
     fileType?: string | null,
     isFileModal?: boolean;
+    isAlbum?: boolean;
+    albumId?: number;
     handleOpenModalChange?: () => void;
-}> = ({ fileId, fileKey, isFileModal, handleOpenModalChange, fileType }) => {
+}> = ({ fileId, fileKey, isFileModal, handleOpenModalChange, fileType, isAlbum, albumId }) => {
     const { selectedFiles, setSelectedFilesToEmpty } = useFileStore();
     const utils = api.useUtils();
     const param = useParams()
@@ -67,6 +69,28 @@ const DeleteButton: React.FC<{
                 });
             },
         });
+
+    const { mutate: deleteAlbum, isPending: isAlbumDeleting } =
+        api.album.deleteAlbum.useMutation({
+            onMutate: () => {
+                setIsDialogOpen(true)
+            },
+            onSuccess: () => {
+                setIsDialogOpen(false)
+                toast({
+                    title: "Deleted Successfully.",
+                    description: `Album has been deleted successfully.`,
+                });
+                void utils.album.getAlbums.invalidate();
+            },
+            onError: () => {
+                toast({
+                    variant: "destructive",
+                    title: "Deleting Album Failed.",
+                    description: `Uh oh! Something went wrong. Please try again.`,
+                });
+            },
+        });
     return (
         <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <TooltipProvider>
@@ -75,7 +99,7 @@ const DeleteButton: React.FC<{
                         <BlurFade delay={0} inView yOffset={0}>
                             <AlertDialogTrigger asChild >
                                 <Button variant="ghost" className="text-destructive hover:bg-transparent hover:text-[#d33939]">
-                                    {isFileModal ? 'Delete' : <Trash2 size={20} className="text-destructive" />
+                                    {isFileModal || isAlbum && albumId ? 'Delete' : <Trash2 size={20} className="text-destructive" />
                                     }
                                 </Button>
                             </AlertDialogTrigger>
@@ -94,9 +118,11 @@ const DeleteButton: React.FC<{
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction
-                        disabled={isDeleting || isDeletingFromAlbum}
+                        disabled={isDeleting || isDeletingFromAlbum || isAlbumDeleting}
                         onClick={async () => {
-                            if (param.albumId) {
+                            if (isAlbum && albumId) {
+                                deleteAlbum({ id: albumId })
+                            } else if (param.albumId) {
                                 deleteFileFromAlbum({ albumId: Number(param.albumId), id: selectedFiles.map((file) => file.id) })
                             } else if (fileId && selectedFiles.length === 0) {
                                 deleteFile({ id: [fileId] });
@@ -111,7 +137,7 @@ const DeleteButton: React.FC<{
                                 );
                             }
 
-                        }}>{isDeleting || isDeletingFromAlbum ? <LoaderCircle size={20} className="animate-spin" /> : "Continue"}</AlertDialogAction>
+                        }}>{isDeleting || isDeletingFromAlbum || isAlbumDeleting ? <LoaderCircle size={20} className="animate-spin" /> : "Continue"}</AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>

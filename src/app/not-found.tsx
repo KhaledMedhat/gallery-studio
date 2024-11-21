@@ -8,7 +8,6 @@ import Navbar from './_components/Navbar'
 export default async function NotFound() {
     const headersList = headers()
     const url = headersList.get('referer')
-    console.log(url)
     return (
         <BlurFade delay={0.6} inView>
             <Navbar />
