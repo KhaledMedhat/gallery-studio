@@ -56,7 +56,7 @@ const SignUp = () => {
   const userImage = useUserStore((state) => state.setUserImage);
   const formSchema = z.object({
     fullName: z.string().min(1, "Full name is required"),
-    email: z.string().email().min(1, "Email is required").toLowerCase(),
+    email: z.string().email().min(1, "Email is required"),
     password: z.string().min(1, "Password is required")
       .min(8, "Password cannot be less than 8 characters"),
   });

@@ -30,7 +30,7 @@ const SignIn = () => {
   const userEncryptedId = searchParams.get('ctxId')
   const { toast } = useToast()
   const formSchema = z.object({
-    email: z.string().email().toLowerCase(),
+    email: z.string().email(),
     password: z.string().min(1, "Password is required"),
   });
 

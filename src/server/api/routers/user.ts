@@ -67,7 +67,7 @@ export const userRouter = createTRPCRouter({
   verifyEmail: publicProcedure
     .input(
       z.object({
-        email: z.string().min(1),
+        email: z.string().min(1).toLowerCase(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -103,7 +103,7 @@ export const userRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string().min(1),
-        email: z.string().min(1),
+        email: z.string().min(1).toLowerCase(),
         password: z.string().min(1),
         otp: z.string().length(6),
         image: z.string().optional(),
@@ -158,7 +158,7 @@ export const userRouter = createTRPCRouter({
     }),
 
   login: publicProcedure
-    .input(z.object({ email: z.string().min(1), password: z.string().min(1) }))
+    .input(z.object({ email: z.string().min(1).toLowerCase(), password: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
       const hashedPassword = hashPassword(input.password);
       const cookieStore = cookies();
