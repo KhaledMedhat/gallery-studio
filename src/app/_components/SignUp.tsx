@@ -56,8 +56,9 @@ const SignUp = () => {
   const userImage = useUserStore((state) => state.setUserImage);
   const formSchema = z.object({
     fullName: z.string().min(1, "Full name is required"),
-    email: z.string().email().min(1, "Email is required"),
-    password: z.string().min(8, "Password is required"),
+    email: z.string().email().min(1, "Email is required").toLowerCase(),
+    password: z.string().min(1, "Password is required")
+      .min(8, "Password cannot be less than 8 characters"),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -68,7 +69,7 @@ const SignUp = () => {
       password: "",
     },
   });
-  const { mutate: verifyEmail } = api.user.verifyEmail.useMutation({
+  const { mutate: verifyEmail, isPending: isVerifyEmailPending } = api.user.verifyEmail.useMutation({
     onSuccess: async () => {
       setIsLoading(true);
       userRegistryInfo({
@@ -119,8 +120,8 @@ const SignUp = () => {
                   <FormItem>
                     <FormLabel
                       className={`${form.formState.errors.fullName
-                          ? "text-red-500"
-                          : "text-gray-100"
+                        ? "text-red-500"
+                        : "text-gray-100"
                         }`}
                     >
                       Full Name
@@ -144,8 +145,8 @@ const SignUp = () => {
                   <FormItem>
                     <FormLabel
                       className={`${form.formState.errors.email
-                          ? "text-red-500"
-                          : "text-gray-100"
+                        ? "text-red-500"
+                        : "text-gray-100"
                         }`}
                     >
                       Email
@@ -169,8 +170,8 @@ const SignUp = () => {
                   <FormItem>
                     <FormLabel
                       className={`${form.formState.errors.password
-                          ? "text-red-500"
-                          : "text-gray-100"
+                        ? "text-red-500"
+                        : "text-gray-100"
                         }`}
                     >
                       Password
@@ -308,16 +309,16 @@ const SignUp = () => {
                   type={stage === 0 ? "submit" : "button"}
                   className={`${stage === 0 ? "w-full" : "ml-auto"
                     } transform rounded-md border border-solid border-white bg-gradient-to-r from-gray-700 to-gray-900 px-4 py-2 font-bold text-white transition duration-300 ease-in-out hover:scale-105 hover:from-gray-800 hover:to-black focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50`}
-                  disabled={isLoading}
+                  disabled={isLoading || isVerifyEmailPending}
                   onClick={
                     stage === stages.length - 1 ? onFinishRegistry : undefined
                   }
                 >
-                  {isLoading ? (
-                    <>
+                  {isLoading || isVerifyEmailPending ? (
+                    <div className="flex items-center">
                       <LoaderCircle size={16} className="mr-2 animate-spin" />
                       Processing...
-                    </>
+                    </div>
                   ) : stage === stages.length - 1 ? (
                     fileUrl ? (
                       "Submit"
@@ -325,10 +326,9 @@ const SignUp = () => {
                       "Continue Without Profile Picture"
                     )
                   ) : (
-                    <>
-                      Next
-                      <ArrowRight size={16} className="ml-2" />
-                    </>
+                    <div className="flex items-center">
+                      Next < ArrowRight size={16} className="ml-2" />
+                    </div>
                   )}
                 </Button>
               </div>
