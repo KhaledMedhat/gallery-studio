@@ -51,8 +51,8 @@ export const fileRouter = createTRPCRouter({
 
       if (foundedFile) {
         const updatedLikesInfo = [
-          ...(foundedFile.likesInfo ?? []), 
-          { liked: true, userId: ctx.user?.id }, 
+          ...(foundedFile.likesInfo ?? []),
+          { liked: true, userId: ctx.user?.id },
         ];
         await ctx.db
           .update(files)
@@ -99,7 +99,6 @@ export const fileRouter = createTRPCRouter({
 
     return filesWithLikedUsers;
   }),
-
 
   getFiles: protectedProcedure.query(async ({ ctx }) => {
     if (!ctx.user) {
@@ -189,7 +188,29 @@ export const fileRouter = createTRPCRouter({
           message: "Image not found",
         });
       }
-      return foundedFile;
+      // const filesWithLikedUsers = await Promise.all(
+      //   foundedFile.map(async (file) => {
+      //     const userIds = file?.likesInfo?.map((like) => like.userId) ?? [];
+
+      // const likedUsers = await ctx.db.query.users.findMany({
+      //   where: inArray(users.id, userIds),
+      // });
+
+      //     return {
+      //       ...file,
+      //       likedUsers,
+      //     };
+      //   }),
+      // );
+      const usersIds = foundedFile.likesInfo?.map((like) => like.userId) ?? [];
+      const likedUsers = await ctx.db.query.users.findMany({
+        where: inArray(users.id, usersIds),
+      });
+
+      return {
+        ...foundedFile,
+        likedUsers,
+      };
     }),
 
   deleteFile: protectedProcedure

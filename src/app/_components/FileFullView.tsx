@@ -70,7 +70,7 @@ const FileFullView: React.FC<{ user: User | undefined | null, file: Showcase, ga
                             </HoverCardContent>
                         </HoverCard>
                     </div>
-                    {user?.id === file?.user?.id && <FileOptions fileId={file.id} fileKey={file.fileKey} />
+                    {user?.id === file?.user?.id && <FileOptions fileId={file.id} fileKey={file.fileKey} fileType={file.fileType} />
                     }
                 </div>
                 <div>

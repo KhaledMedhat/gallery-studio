@@ -60,7 +60,7 @@ const ChooseFilesModal: React.FC<{ isInsideAlbum?: boolean }> = ({ isInsideAlbum
                 </VisuallyHidden.Root>
                 <Tabs onValueChange={setCurrentTab} defaultValue="choose-from-gallery" className="w-full">
                     <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="choose-from-gallery">Choose from your gallery</TabsTrigger>
+                        <TabsTrigger value="choose-from-gallery">Choose from gallery</TabsTrigger>
                         <TabsTrigger value="add-file">Add</TabsTrigger>
                     </TabsList>
                     <TabsContent value="choose-from-gallery">

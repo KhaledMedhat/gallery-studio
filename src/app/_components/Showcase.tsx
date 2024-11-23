@@ -38,7 +38,9 @@ const Showcase: React.FC<{ file: Showcase, user: User | undefined | null }> = ({
                 <HoverCard>
                     <HoverCardTrigger asChild>
                         <Button variant="link" className="p-0 font-bold">
-                            @{file.user?.name}
+                            <Link href={`/${file?.user?.id}`} >
+                                @{file.user?.name}
+                            </Link>
                         </Button>
                     </HoverCardTrigger>
                     <HoverCardContent className="w-80">
@@ -150,7 +152,10 @@ const Showcase: React.FC<{ file: Showcase, user: User | undefined | null }> = ({
                                         <HoverCard>
                                             <HoverCardTrigger asChild>
                                                 <Button variant="link" className="p-0 font-bold">
-                                                    @{comment.user?.name}
+                                                    <Link href={`/${comment?.user?.id}`} >
+                                                        @{comment.user?.name}
+                                                    </Link>
+
                                                 </Button>
                                             </HoverCardTrigger>
                                             <HoverCardContent className="w-80">
