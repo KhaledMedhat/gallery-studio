@@ -25,9 +25,9 @@ import { useState } from "react";
 
 const UpdateFileView: React.FC<{
   file: fileType;
-  userName?: string | null | undefined;
+  username?: string | null | undefined;
   imageWanted: boolean
-}> = ({ file, userName, imageWanted }) => {
+}> = ({ file, username, imageWanted }) => {
   const [privacy, setPrivacy] = useState<"public" | "private" | null>(file.filePrivacy);
   const { setIsUpdating, setIsUpdatingPending } = useFileStore();
   const utils = api.useUtils();
@@ -175,7 +175,7 @@ const UpdateFileView: React.FC<{
             <AspectRatio ratio={4 / 3} className="bg-muted">
               <Image
                 src={file.url}
-                alt={`One of ${userName}'s images`}
+                alt={`One of ${username}'s images`}
                 fill
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="h-full w-full rounded-md object-cover"

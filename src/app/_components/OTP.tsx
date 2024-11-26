@@ -31,6 +31,7 @@ const OTP = () => {
   const [timer, setTimer] = useState<number>(35);
   const [isTimerFinished, setIsTimerFinished] = useState(false);
   const userRegistryInfo = useUserStore((state) => state.userRegistrationInfo);
+  const fullName = userRegistryInfo.firstName + " " + userRegistryInfo.lastName;
   const FormSchema = z.object({
     otp: z.string().min(6, {
       message: "Your one-time password must be 6 digits.",
@@ -104,7 +105,9 @@ const OTP = () => {
   });
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     createUser({
-      name: userRegistryInfo.fullName,
+      firstName: userRegistryInfo.firstName,
+      lastName: userRegistryInfo.lastName,
+      username: userRegistryInfo.username,
       email: userRegistryInfo.email,
       password: userRegistryInfo.password,
       image: userRegistryInfo.image,
@@ -169,7 +172,7 @@ const OTP = () => {
                     variant='link'
                     onClick={(e) => {
                       e.preventDefault();
-                      resendOtp({ name: userRegistryInfo.fullName, email: userRegistryInfo.email })
+                      resendOtp({ name: fullName, email: userRegistryInfo.email })
                     }
                     }
                   >

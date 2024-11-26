@@ -77,18 +77,19 @@ export const authOptions: NextAuthOptions = {
     },
   },
   events: {
-    signIn: async ({ user, account }) => {
-      if (account) {
-        await db
-          .update(users)
-          .set({ provider: account.provider })
-          .where(eq(users.id, user.id));
-      }
-    },
     createUser: async ({ user }) => {
+      const username = user?.email
+        ? user.email.split("@")[0]
+        : `user_${crypto.randomUUID()}`;
+      const [firstName, lastName] = user?.name?.split(" ") ?? ["", ""];
       await db
         .update(users)
-        .set({ createdAt: new Date() })
+        .set({
+          createdAt: new Date(),
+          name: username,
+          firstName,
+          lastName,
+        })
         .where(eq(users.id, user.id));
       try {
         const account = await db.query.accounts.findFirst({
@@ -97,7 +98,9 @@ export const authOptions: NextAuthOptions = {
         if (account) {
           await db
             .update(users)
-            .set({ provider: account.provider })
+            .set({
+              provider: account.provider,
+            })
             .where(eq(users.id, user.id));
         }
         await db.insert(galleries).values({
@@ -115,6 +118,7 @@ export const authOptions: NextAuthOptions = {
     sessionsTable: sessions,
     verificationTokensTable: verificationTokens,
   }) as Adapter,
+
   providers: [
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,

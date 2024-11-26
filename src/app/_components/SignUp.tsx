@@ -58,7 +58,9 @@ const SignUp = () => {
   const userInfo = useUserStore((state) => state.userRegistrationInfo);
   const userImage = useUserStore((state) => state.setUserImage);
   const formSchema = z.object({
-    fullName: z.string().min(1, "Full name is required"),
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
+    username: z.string().min(1, "Email is required"),
     email: z.string().email().min(1, "Email is required"),
     password: z.string().min(1, "Password is required")
       .min(8, "Password cannot be less than 8 characters"),
@@ -67,7 +69,9 @@ const SignUp = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      fullName: "",
+      firstName: "",
+      lastName: '',
+      username: "",
       email: "",
       password: "",
     },
@@ -76,7 +80,9 @@ const SignUp = () => {
     onSuccess: async () => {
       setIsLoading(true);
       userRegistryInfo({
-        fullName: form.getValues("fullName"),
+        firstName: form.getValues("firstName"),
+        lastName: form.getValues("lastName"),
+        username: form.getValues('username'),
         email: form.getValues("email"),
         password: form.getValues("password"),
         image: "",
@@ -96,15 +102,16 @@ const SignUp = () => {
     },
   });
   const onSubmitFirstStage = async (data: z.infer<typeof formSchema>) => {
-    verifyEmail({ email: data.email });
+    verifyEmail({ email: data.email, username: data.username });
   };
 
   const onFinishRegistry = () => {
+    const fullName = userInfo.firstName + " " + userInfo.lastName;
     if (fileUrl) {
       userImage(fileUrl);
-      sendingOTP({ name: userInfo.fullName, email: userInfo.email });
+      sendingOTP({ name: fullName, email: userInfo.email });
     }
-    sendingOTP({ name: userInfo.fullName, email: userInfo.email });
+    sendingOTP({ name: fullName, email: userInfo.email });
   };
   const renderStageContent = () => {
     switch (stage) {
@@ -114,20 +121,72 @@ const SignUp = () => {
             <form
               id="sign-up-form"
               onSubmit={form.handleSubmit(onSubmitFirstStage)}
-              className="w-full space-y-8"
+              className="w-full"
             >
+              <div className="flex items-center gap-2">
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel
+                        className={`${form.formState.errors.firstName
+                          ? "text-red-500"
+                          : "text-gray-100"
+                          }`}
+                      >
+                        First Name
+                      </FormLabel>
+                      <FormControl className="bg-transparent">
+                        <Input
+                          placeholder="John"
+                          {...field}
+                          className="text-gray-100"
+                        />
+                      </FormControl>
+                      <FormDescription>Enter your First name.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel
+                        className={`${form.formState.errors.lastName
+                          ? "text-red-500"
+                          : "text-gray-100"
+                          }`}
+                      >
+                        Last Name
+                      </FormLabel>
+                      <FormControl className="bg-transparent">
+                        <Input
+                          placeholder="Doe"
+                          {...field}
+                          className="text-gray-100"
+                        />
+                      </FormControl>
+                      <FormDescription>Enter your Last name.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <FormField
                 control={form.control}
-                name="fullName"
+                name="username"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel
-                      className={`${form.formState.errors.fullName
+                      className={`${form.formState.errors.username
                         ? "text-red-500"
                         : "text-gray-100"
                         }`}
                     >
-                      Full Name
+                      Username
                     </FormLabel>
                     <FormControl className="bg-transparent">
                       <Input
@@ -136,7 +195,7 @@ const SignUp = () => {
                         className="text-gray-100"
                       />
                     </FormControl>
-                    <FormDescription>Enter your full name.</FormDescription>
+                    <FormDescription>This username will be shown to other users.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -240,7 +299,7 @@ const SignUp = () => {
     }
   };
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-full">
       <div className="hidden items-center justify-center bg-neutral-300 p-12 lg:flex lg:w-1/2">
         <div className="max-w-md text-center">
           <h1 className="mb-4 text-4xl font-bold text-gray-800">
@@ -253,9 +312,9 @@ const SignUp = () => {
           </p>
         </div>
       </div>
-      <div className="relative flex w-full flex-col items-center justify-around gap-4 bg-[#171717] p-8 lg:w-3/4">
-        <div className="flex w-full items-center justify-between sm:size-0">
-          <div className="left-10 top-10 block text-center sm:absolute">
+      <div className="relative flex w-full flex-col items-center justify-center bg-[#171717] p-8 lg:w-3/4">
+        <div className="absolute top-6 sm:top-10 px-10 flex w-full items-center justify-between">
+          <div className="text-center">
             <Button className="border border-solid border-gray-100 bg-transparent hover:bg-transparent">
               <Link
                 href="/"
@@ -266,7 +325,7 @@ const SignUp = () => {
               </Link>
             </Button>
           </div>
-          <div className="right-10 top-10 block text-center sm:absolute">
+          <div className="text-center">
             <Link
               href="/sign-in"
               className="font-medium text-gray-100 hover:underline"
@@ -279,7 +338,7 @@ const SignUp = () => {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="max-w-md flex items-center h-[80vh]"
+          className="max-w-md flex items-center"
         >
           {isCodeVerifying ?
             <OTP />
@@ -292,15 +351,16 @@ const SignUp = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
+                className="flex flex-col gap-4"
               >
-                <h1 className="mb-2 text-center text-3xl font-bold text-gray-100">
+                <h1 className="text-center text-3xl font-bold text-gray-100">
                   {stages[stage]?.title}
                 </h1>
-                <p className="mb-6 text-center text-gray-100">
+                <p className="text-center text-gray-100">
                   {stages[stage]?.subtitle}
                 </p>
                 {renderStageContent()}
-                <div className="mt-6 flex justify-between">
+                <div className="flex justify-between">
                   {stage > 0 && (
                     <Button
                       type="button"
@@ -315,19 +375,19 @@ const SignUp = () => {
                     form={stage === 0 ? "sign-up-form" : undefined}
                     type={stage === 0 ? "submit" : "button"}
                     className={`${stage === 0 ? "w-full" : "ml-auto"
-                      } transform rounded-md border border-solid border-white bg-gradient-to-r from-gray-700 to-gray-900 px-4 py-2 font-bold text-white transition duration-300 ease-in-out hover:scale-105 hover:from-gray-800 hover:to-black focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50`}
+                      } ${progress !== 100 && 'hidden'} transform rounded-md border border-solid border-white bg-gradient-to-r from-gray-700 to-gray-900 px-4 py-2 font-bold text-white transition duration-300 ease-in-out hover:scale-105 hover:from-gray-800 hover:to-black focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50`}
                     disabled={isLoading || isVerifyEmailPending}
                     onClick={
                       stage === stages.length - 1 ? onFinishRegistry : undefined
                     }
                   >
                     {isLoading || isVerifyEmailPending ? (
-                      <div className="flex items-center">
+                      <div className="flex items-center ">
                         <LoaderCircle size={16} className="mr-2 animate-spin" />
                         Processing...
                       </div>
                     ) : stage === stages.length - 1 ? (
-                      fileUrl ? (
+                      fileUrl && progress === 100 ? (
                         "Submit"
                       ) : (
                         "Continue Without Profile Picture"
@@ -339,7 +399,7 @@ const SignUp = () => {
                     )}
                   </Button>
                 </div>
-                <div className="my-6 flex items-center">
+                <div className="flex items-center">
                   <hr className="inline-block grow-[4] border-white" />
                   <span className="text-md flex flex-grow justify-center text-center uppercase text-white">
                     Or login with

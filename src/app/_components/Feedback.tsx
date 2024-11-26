@@ -10,7 +10,7 @@ const Feedback: React.FC<{ feedback: Feedback }> = ({ feedback }) => {
                     <div className="flex items-center gap-2">
                         <Avatar>
                             <AvatarImage src={feedback.user?.image ?? ""} />
-                            <AvatarFallback>{getInitials(feedback.user?.name ?? "")}</AvatarFallback>
+                            <AvatarFallback>{getInitials(feedback.user?.firstName ?? "" , feedback.user?.lastName ?? "")}</AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col">
                             <div className="text-sm font-medium">{feedback.user.name}</div>

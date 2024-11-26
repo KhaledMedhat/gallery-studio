@@ -46,7 +46,9 @@ export interface LikesInfo {
 }
 export interface User {
   email: string;
-  name: string | null;
+  name: string;
+  firstName: string | null;
+  lastName: string | null;
   createdAt: Date | null;
   image: string | null;
   id: string;
@@ -91,7 +93,9 @@ export interface UserGallery {
 }
 
 export interface UserRegistry {
-  fullName: string;
+  firstName: string;
+  lastName: string;
+  username: string;
   email: string;
   password: string;
   image: string;

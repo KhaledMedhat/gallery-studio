@@ -4,7 +4,7 @@ import Video from "./Video";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { CalendarIcon, Earth, Heart, LockKeyhole, MessageCircle } from "lucide-react";
+import { CalendarIcon, Earth, LockKeyhole, MessageCircle } from "lucide-react";
 import { useFileStore } from "~/store";
 import UpdateFileView from "./UpdateFileView";
 import { api } from "~/trpc/react";
@@ -84,7 +84,7 @@ const FileModalView: React.FC<{
                     <div className="flex self-start items-center gap-2">
                       <Avatar className="h-8 w-8" >
                         <AvatarImage src={comment.user?.image ?? ""} />
-                        <AvatarFallback>{getInitials(comment.user?.name ?? "")}</AvatarFallback>
+                        <AvatarFallback>{getInitials(comment.user?.firstName ?? "", comment.user?.lastName ?? "")}</AvatarFallback>
                       </Avatar>
                       <HoverCard>
                         <HoverCardTrigger asChild>
@@ -96,7 +96,7 @@ const FileModalView: React.FC<{
                           <div className="flex items-center justify-start space-x-4">
                             <Avatar>
                               <AvatarImage src={comment.user?.image ?? ""} />
-                              <AvatarFallback>{getInitials(comment.user?.name ?? "")}</AvatarFallback>
+                              <AvatarFallback>{getInitials(comment.user?.firstName ?? "", comment.user?.lastName ?? "")}</AvatarFallback>
                             </Avatar>
                             <div className="space-y-1">
                               <h4 className="text-sm font-semibold">@{comment.user?.name}</h4>
@@ -144,7 +144,7 @@ const FileModalView: React.FC<{
 
     </section>
   ) : (
-    file && <UpdateFileView file={file} userName={file.user.name} imageWanted={true} />
+    file && <UpdateFileView file={file} username={file.user.name} imageWanted={true} />
   );
 };
 

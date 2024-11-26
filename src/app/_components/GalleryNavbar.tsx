@@ -60,7 +60,7 @@ import AddFileButton from "./AddFileButton";
 import DeleteButton from "./DeleteButton";
 import ToAlbumButton from "./ToAlbumButton";
 import ChooseFilesModal from "./ChooseFilesModal";
-import { isURLActive } from "~/utils/utils";
+import { getInitials, isURLActive } from "~/utils/utils";
 
 const GalleryNavbar = () => {
   const router = useRouter();
@@ -285,10 +285,7 @@ const GalleryNavbar = () => {
                           alt={user?.name ?? "Avatar"}
                         />
                         <AvatarFallback>
-                          {user?.name
-                            ?.split(" ")
-                            .map((part) => part[0]?.toUpperCase())
-                            .join("") ?? ""}
+                          {getInitials(user?.firstName ?? "", user?.lastName ?? "")}
                         </AvatarFallback>
                       </Avatar>
                     </Button>
@@ -301,7 +298,7 @@ const GalleryNavbar = () => {
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="cursor-pointer">
-                <Link href={"/profile"}>
+                <Link href={`/${user?.name}`}>
                   Profile
                 </Link>
               </DropdownMenuItem>

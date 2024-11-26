@@ -33,7 +33,7 @@ const Showcase: React.FC<{ file: Showcase, user: User | undefined | null }> = ({
             <div className="flex self-start gap-2">
                 <Avatar>
                     <AvatarImage src={file.user?.image ?? ""} />
-                    <AvatarFallback>{getInitials(file.user?.name ?? "")}</AvatarFallback>
+                    <AvatarFallback>{getInitials(file.user?.firstName ?? "", file.user?.lastName ?? "")}</AvatarFallback>
                 </Avatar>
                 <HoverCard>
                     <HoverCardTrigger asChild>
@@ -47,7 +47,7 @@ const Showcase: React.FC<{ file: Showcase, user: User | undefined | null }> = ({
                         <div className="flex items-center justify-start space-x-4">
                             <Avatar>
                                 <AvatarImage src={file.user?.image ?? ""} />
-                                <AvatarFallback>{getInitials(file.user?.name ?? "")}</AvatarFallback>
+                                <AvatarFallback>{getInitials(file.user?.firstName ?? "", file.user?.lastName ?? "")}</AvatarFallback>
                             </Avatar>
                             <div className="space-y-1">
                                 <h4 className="text-sm font-semibold">@{file.user?.name}</h4>
@@ -147,7 +147,7 @@ const Showcase: React.FC<{ file: Showcase, user: User | undefined | null }> = ({
                                     <div className="flex self-start items-center gap-2">
                                         <Avatar className="h-8 w-8" >
                                             <AvatarImage src={comment.user?.image ?? ""} />
-                                            <AvatarFallback>{getInitials(comment.user?.name ?? "")}</AvatarFallback>
+                                            <AvatarFallback>{getInitials(comment.user?.firstName ?? "", comment.user?.lastName ?? "")}</AvatarFallback>
                                         </Avatar>
                                         <HoverCard>
                                             <HoverCardTrigger asChild>
@@ -162,7 +162,7 @@ const Showcase: React.FC<{ file: Showcase, user: User | undefined | null }> = ({
                                                 <div className="flex items-center justify-start space-x-4">
                                                     <Avatar>
                                                         <AvatarImage src={comment.user?.image ?? ""} />
-                                                        <AvatarFallback>{getInitials(comment.user?.name ?? "")}</AvatarFallback>
+                                                        <AvatarFallback>{getInitials(comment.user?.firstName ?? "", comment.user?.lastName ?? "")}</AvatarFallback>
                                                     </Avatar>
                                                     <div className="space-y-1">
                                                         <h4 className="text-sm font-semibold">@{comment.user?.name}</h4>

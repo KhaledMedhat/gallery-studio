@@ -76,25 +76,27 @@ const SignIn = () => {
           </p>
         </div>
       </div>
-      <div className="relative flex w-full flex-col items-center justify-around bg-[#171717] p-8 lg:w-3/4">
-        <div className="absolute left-10 top-10 text-center">
-          <Button className="border border-solid border-gray-100 bg-transparent hover:bg-transparent">
+      <div className="relative flex w-full flex-col items-center justify-center bg-[#171717] p-8 lg:w-3/4">
+        <div className="absolute top-10 px-10 flex w-full items-center justify-between">
+          <div className="text-center">
+            <Button className="border border-solid border-gray-100 bg-transparent hover:bg-transparent">
+              <Link
+                href="/"
+                className="flex items-center gap-2 font-medium text-gray-100"
+              >
+                <ArrowLeft size={16} />
+                Home
+              </Link>
+            </Button>
+          </div>
+          <div className="text-center">
             <Link
-              href="/"
-              className="flex items-center gap-2 font-medium text-gray-100"
+              href="/sign-up"
+              className="font-medium text-gray-100 hover:underline"
             >
-              <ArrowLeft size={16} />
-              Home
+              Create an account
             </Link>
-          </Button>
-        </div>
-        <div className="absolute right-10 top-10 text-center">
-          <Link
-            href="/sign-up"
-            className="font-medium text-gray-100 hover:underline"
-          >
-            Create an account
-          </Link>
+          </div>
         </div>
         {isPasswordReset
           ?

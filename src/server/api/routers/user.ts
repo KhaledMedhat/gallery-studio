@@ -16,7 +16,6 @@ import { cookies } from "next/headers";
 import { Send, SendResetPasswordLink } from "~/app/api/send/route";
 import { hashPassword, generateOTP } from "~/utils/utils";
 import CryptoJS from "crypto-js";
-
 export const userRouter = createTRPCRouter({
   resetPassword: publicProcedure
     .input(z.object({ id: z.string().min(1), password: z.string().min(1) }))
@@ -57,7 +56,8 @@ export const userRouter = createTRPCRouter({
         user.id,
         process.env.NEXT_PUBLIC_ENCRYPTION_SECRET_KEY!,
       ).toString();
-      await SendResetPasswordLink(user.name!, encryptedId, input.email);
+      const fullName = user.firstName + " " + user.lastName;
+      await SendResetPasswordLink(fullName, encryptedId, input.email);
     }),
   deleteOtp: publicProcedure
     .input(z.object({ email: z.string().min(1) }))
@@ -68,16 +68,26 @@ export const userRouter = createTRPCRouter({
     .input(
       z.object({
         email: z.string().min(1).toLowerCase(),
+        username: z.string().min(1),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const existedEmail = await ctx.db.query.users.findFirst({
         where: eq(users.email, input.email),
       });
+      const existedUsername = await ctx.db.query.users.findFirst({
+        where: eq(users.name, input.username),
+      });
       if (existedEmail) {
         throw new TRPCError({
           code: "CONFLICT",
           message: "Email already exists",
+        });
+      }
+      if (existedUsername) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "Username already exists",
         });
       }
       return true;
@@ -102,9 +112,11 @@ export const userRouter = createTRPCRouter({
   create: publicProcedure
     .input(
       z.object({
-        name: z.string().min(1),
+        firstName: z.string().min(1),
+        lastName: z.string().min(1),
         email: z.string().min(1).toLowerCase(),
         password: z.string().min(1),
+        username: z.string().min(1),
         otp: z.string().length(6),
         image: z.string().optional(),
       }),
@@ -133,9 +145,11 @@ export const userRouter = createTRPCRouter({
             .values({
               email: input.email.toLocaleLowerCase(),
               password: hashedPassword,
+              name: input.username,
               provider: "email",
               image: input.image,
-              name: input.name,
+              firstName: input.firstName,
+              lastName: input.lastName,
               createdAt: new Date(),
             })
             .returning();
@@ -158,7 +172,12 @@ export const userRouter = createTRPCRouter({
     }),
 
   login: publicProcedure
-    .input(z.object({ email: z.string().min(1).toLowerCase(), password: z.string().min(1) }))
+    .input(
+      z.object({
+        email: z.string().min(1).toLowerCase(),
+        password: z.string().min(1),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const hashedPassword = hashPassword(input.password);
       const cookieStore = cookies();
@@ -194,7 +213,13 @@ export const userRouter = createTRPCRouter({
         expires,
       });
       const session = {
-        user: { id: user.id, name: user.name, email: user.email },
+        user: {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          name: user.name,
+          email: user.email,
+        },
         expires: expires.toISOString(),
       };
 

@@ -11,7 +11,9 @@ export const useUserStore = create<Store>()(
   persist(
     (set, get) => ({
       userRegistrationInfo: {
-        fullName: "",
+        firstName: "",
+        lastName: "",
+        username: "",
         email: "",
         password: "",
         image: "",

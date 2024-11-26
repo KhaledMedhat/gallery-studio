@@ -71,12 +71,10 @@ export const comments = createTable("comments", {
     .notNull()
     .references(() => users.id), // Link to the user who commented
   content: text("content").notNull(), // Comment text
-  // parentId: varchar("parent_id", { length: 255 }).references(() => comments.id), // Self-reference for nested replies
   createdAt: timestamp("created_at", { withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
 });
-
 
 export const albumFiles = createTable(
   "album_files",
@@ -124,7 +122,9 @@ export const users = createTable("user", {
     .notNull()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  name: varchar("name", { length: 255 }),
+  firstName: varchar("first_name", { length: 255 }),
+  lastName: varchar("last_name", { length: 255 }),
+  name: varchar("name", { length: 255 }).notNull().unique(),
   bio: varchar("bio", { length: 255 }).default(""),
   password: varchar("password", { length: 255 }),
   provider: varchar("provider", { length: 255 }),

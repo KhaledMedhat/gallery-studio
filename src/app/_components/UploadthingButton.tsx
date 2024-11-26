@@ -78,7 +78,7 @@ const UploadthingButton: React.FC<{
             <span className="font-semibold">Click to upload</span> or drag and
             drop
           </p>
-          <p className={`${!isImageComponent && "text-gray-100"} text-xs text-center`}>
+          <p className={`${!isImageComponent && "text-gray-100"} text-xs text-center w-3/4`}>
             Image, Video or GIF (MAX. 32MB|Image/GIF) (MAX. 256MB|Video)
           </p>
         </div>

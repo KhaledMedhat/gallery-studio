@@ -24,7 +24,7 @@ dayjs.extend(relativeTime);
 const FileFullView: React.FC<{ user: User | undefined | null, file: Showcase, gallerySlug?: string }> = ({ user, file, gallerySlug }) => {
     const router = useRouter()
     const { isUpdating } = useFileStore();
-    const initials = getInitials(file.user?.name ?? "");
+    const initials = getInitials(file.user?.firstName ?? "", file.user?.lastName ?? "");
     return (
         <section className="container mx-auto flex flex-col items-start gap-4 justify-around p-4">
             <Button variant='link' className="p-0" onClick={() => {
@@ -140,7 +140,7 @@ const FileFullView: React.FC<{ user: User | undefined | null, file: Showcase, ga
                                         <div className="flex self-start items-center gap-2">
                                             <Avatar className="h-8 w-8" >
                                                 <AvatarImage src={comment.user?.image ?? ""} />
-                                                <AvatarFallback>{getInitials(comment.user?.name ?? "")}</AvatarFallback>
+                                                <AvatarFallback>{getInitials(comment.user?.firstName ?? "", comment.user?.lastName ?? "")}</AvatarFallback>
                                             </Avatar>
                                             <HoverCard>
                                                 <HoverCardTrigger asChild>
@@ -152,7 +152,7 @@ const FileFullView: React.FC<{ user: User | undefined | null, file: Showcase, ga
                                                     <div className="flex items-center justify-start space-x-4">
                                                         <Avatar>
                                                             <AvatarImage src={comment.user?.image ?? ""} />
-                                                            <AvatarFallback>{getInitials(comment.user?.name ?? "")}</AvatarFallback>
+                                                            <AvatarFallback>{getInitials(comment.user?.firstName ?? "", comment.user?.lastName ?? "")}</AvatarFallback>
                                                         </Avatar>
                                                         <div className="space-y-1">
                                                             <h4 className="text-sm font-semibold">@{comment.user?.name}</h4>

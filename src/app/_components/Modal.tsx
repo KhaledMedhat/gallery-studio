@@ -41,7 +41,7 @@ export function Modal({
     setIsCommenting(false)
     router.back();
   };
-  const initials = getInitials(file?.user.name ?? "");
+  const initials = getInitials(file?.user.firstName ?? "", file?.user.lastName ?? "");
   return (
     <Dialog defaultOpen={true} open={true} onOpenChange={handleOpenModalChange}>
       <DialogOverlay >
@@ -96,6 +96,3 @@ export function Modal({
     </Dialog>
   );
 }
-
-// make view count in the dialog description in the image when u finish user profile to other users.
-// make likes count in the dialog description in the image when u finish user profile to other users with a button that has icon love.
