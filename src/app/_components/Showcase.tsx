@@ -42,7 +42,7 @@ const Showcase: React.FC<{ file: Showcase, user: User | undefined | null }> = ({
                 <HoverCard>
                     <HoverCardTrigger asChild>
                         <Button variant="link" className="p-0 font-bold">
-                            <Link href={`/${file?.user?.id}`} >
+                            <Link href={`/${file?.user?.name}`} >
                                 @{file.user?.name}
                             </Link>
                         </Button>
@@ -156,7 +156,7 @@ const Showcase: React.FC<{ file: Showcase, user: User | undefined | null }> = ({
                                         <HoverCard>
                                             <HoverCardTrigger asChild>
                                                 <Button variant="link" className="p-0 font-bold">
-                                                    <Link href={`/${comment?.user?.id}`} >
+                                                    <Link href={`/${comment?.user?.name}`} >
                                                         @{comment.user?.name}
                                                     </Link>
 

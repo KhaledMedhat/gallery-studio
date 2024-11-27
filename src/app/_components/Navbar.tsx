@@ -18,15 +18,16 @@ import { api } from "~/trpc/react";
 import UserAvatarProfile from "./UserAvatarProfile";
 import { isURLActive } from "~/utils/utils";
 import ModeToggle from "./ModeToggle";
+import { User } from "~/types/types";
 
-const Navbar = () => {
+const Navbar:React.FC<{currentUser: User | null | undefined}> = ({currentUser}) => {
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const theme = useTheme();
   const pathname = usePathname();
 
-  const { data: user } = api.user.getUser.useQuery();
+  // const { data: user } = api.user.getUser.useQuery();
   return (
     <header className="container px-2 sticky top-0 z-40 m-auto mt-1 w-full border-b bg-background/95 pt-1 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-14 items-center">
@@ -123,8 +124,8 @@ const Navbar = () => {
             </div>
           </motion.div> */}
 
-          {user ? (
-            <UserAvatarProfile user={user} />
+          {currentUser ? (
+            <UserAvatarProfile user={currentUser} />
           ) : (
             <Button variant="default" className="m-0 px-4 py-0">
               <Link href="/sign-in">Login</Link>

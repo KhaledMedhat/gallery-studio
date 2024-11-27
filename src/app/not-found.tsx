@@ -4,14 +4,16 @@ import Link from 'next/link'
 import BlurFade from '~/components/ui/blur-fade'
 import { Button } from '~/components/ui/button'
 import Navbar from './_components/Navbar'
+import { api } from '~/trpc/server'
 
 export default async function NotFound() {
     const headersList = headers()
     const url = headersList.get('referer')
+    const currentUser = await api.user.getUser();
     return (
-        <BlurFade delay={0.6} inView>
-            <Navbar />
-            <div className='flex items-center justify-center h-screen'>
+        <BlurFade delay={0.6} inView className='flex flex-col gap-40 md:gap-96'>
+            <Navbar currentUser={currentUser}/>
+            <div className='flex items-center justify-center'>
                 <div className='flex flex-col items-center gap-6'>
                     <div className="flex items-center justify-center w-16 h-16 rounded-full bg-yellow-100 mx-auto mb-4">
                         <AlertCircle size={40} color="brown" />

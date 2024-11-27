@@ -31,8 +31,6 @@ const fsfs = {
 
 const UserProfile: React.FC<{ user: User | null, files: showcaseType[], currentUser: User | null | undefined }> = ({ user, files, currentUser }) => {
     const sameUser = currentUser?.id === user?.id
-    console.log('user',user)
-    console.log('currentUser',currentUser)
 
     return (
         <div className="min-h-screen bg-background">
@@ -46,14 +44,14 @@ const UserProfile: React.FC<{ user: User | null, files: showcaseType[], currentU
                 />
             </div>
 
-            <div className="container relative z-50 mx-auto px-4 py-8">
+            <div className="container relative z-20 mx-auto px-4 py-8">
                 {/* Profile Info */}
                 <Card className="mt-[-64px] z-50">
                     <CardContent className="pt-16 pb-8">
                         <div className="flex mt-12 md:mt-0 flex-col md:flex-row items-center md:items-start gap-6">
                             <Avatar className="w-[10rem] h-[10rem] border-4 rounded-full border-background absolute top-0 left-1/2 md:left-8 transform -translate-x-1/2 md:translate-x-0 -translate-y-1/2">
                                 <AvatarImage src={user?.image ?? ''} alt={user?.name} className='rounded-full w-full h-full' />
-                                <AvatarFallback>{getInitials(user?.firstName ?? "", user?.lastName ?? "")}</AvatarFallback>
+                                <AvatarFallback className='text-3xl font-bold bg-slate-500 w-full h-full rounded-full flex items-center justify-center'>{getInitials(user?.firstName ?? "", user?.lastName ?? "")}</AvatarFallback>
                             </Avatar>
                             <div className="flex-1 text-center md:text-left md:ml-40">
                                 <h1 className="text-2xl font-bold">{user?.firstName} {user?.lastName}</h1>
@@ -94,8 +92,8 @@ const UserProfile: React.FC<{ user: User | null, files: showcaseType[], currentU
                     <TabsContent value="showcases">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Photos</CardTitle>
-                                <CardDescription>View {user?.name}&apos;s latest photographs.</CardDescription>
+                                <CardTitle>Showcases</CardTitle>
+                                <CardDescription>View {user?.name}&apos;s latest showcases.</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 {/* Add photo grid here */}

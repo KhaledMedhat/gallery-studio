@@ -104,18 +104,13 @@ export const fileRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      // if (!ctx.user) {
-      //   throw new TRPCError({
-      //     code: "UNAUTHORIZED",
-      //     message: "You need to be logged in to access this.",
-      //   });
-      // }
       const showcaseFiles = await ctx.db.query.files.findMany({
         where: and(
           eq(files.createdById, input.id),
           eq(files.filePrivacy, "public"),
         ),
         with: {
+          user: true,
           commentsInfo: {
             with: {
               user: true,
