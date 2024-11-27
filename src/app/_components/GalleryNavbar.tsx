@@ -61,14 +61,15 @@ import DeleteButton from "./DeleteButton";
 import ToAlbumButton from "./ToAlbumButton";
 import ChooseFilesModal from "./ChooseFilesModal";
 import { getInitials, isURLActive } from "~/utils/utils";
+import { User, fileType } from "~/types/types";
 
-const GalleryNavbar = () => {
+const GalleryNavbar:React.FC<{ user: User | null | undefined, files: fileType[] | undefined }> = ({ user, files }) => {
   const router = useRouter();
   const pathname = usePathname();
   const utils = api.useUtils();
-  const { data: user } = api.user.getUser.useQuery();
-  const { data: files } = api.file.getFiles.useQuery();
-  const { data: albums } = api.album.getAlbums.useQuery({ id: user?.gallery.slug ?? "" });
+  // const { data: user } = api.user.getUser.useQuery();
+  // const { data: files } = api.file.getFiles.useQuery();
+  const { data: albums } = api.album.getAlbums.useQuery({ id: user?.gallery?.slug ?? "" });
   const { selectedFiles, setSelectedFilesToEmpty } = useFileStore();
   const isAlbum = pathname.includes("albums");
   const isInsideAlbum = pathname.includes("albums/");
@@ -104,7 +105,7 @@ const GalleryNavbar = () => {
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     addAlbum({
       title: data.albumTitle,
-      id: user?.gallery.slug ?? "",
+      id: user?.gallery?.slug ?? "",
     });
   };
 
@@ -138,8 +139,8 @@ const GalleryNavbar = () => {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" className={`${isURLActive(pathname, `/galleries/${user?.gallery.slug}`) && 'bg-accent text-accent-foreground'}`}>
-                  <Link href={`/galleries/${user?.gallery.slug}`}>
+                <Button variant="ghost" className={`${isURLActive(pathname, `/galleries/${user?.gallery?.slug}`) && 'bg-accent text-accent-foreground'}`}>
+                  <Link href={`/galleries/${user?.gallery?.slug}`}>
                     <Images size={20} />
                   </Link>
                 </Button>
@@ -152,8 +153,8 @@ const GalleryNavbar = () => {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" className={`${isURLActive(pathname, `/galleries/${user?.gallery.slug}/albums`) && 'bg-accent text-accent-foreground'}`}>
-                  <Link href={`/galleries/${user?.gallery.slug}/albums`}>
+                <Button variant="ghost" className={`${isURLActive(pathname, `/galleries/${user?.gallery?.slug}/albums`) && 'bg-accent text-accent-foreground'}`}>
+                  <Link href={`/galleries/${user?.gallery?.slug}/albums`}>
                     <FolderOpen size={20} />
                   </Link>
                 </Button>
@@ -226,7 +227,7 @@ const GalleryNavbar = () => {
             </Dialog>
           )}
           {isInsideAlbum && <ChooseFilesModal />}
-          {!isAlbum && !isInsideAlbum && <AddFileButton gallerySlug={user?.gallery.slug ?? ""} files={files} isEmptyPage={false} />}
+          {!isAlbum && !isInsideAlbum && <AddFileButton gallerySlug={user?.gallery?.slug ?? ""} files={files} isEmptyPage={false} />}
         </DockIcon>
         {selectedFiles.length > 0 && (
           <DockIcon className="hidden xl:flex">
@@ -235,7 +236,7 @@ const GalleryNavbar = () => {
         )}
         {selectedFiles.length > 0 && !isInsideAlbum && (
           <DockIcon className="hidden xl:flex">
-            <ToAlbumButton gallerySlug={user?.gallery.slug ?? ""} />
+            <ToAlbumButton gallerySlug={user?.gallery?.slug ?? ""} />
           </DockIcon>
         )}
         {selectedFiles.length > 0 && (

@@ -7,7 +7,7 @@ import {
 } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { z } from "zod";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const fileRouter = createTRPCRouter({
@@ -30,7 +30,6 @@ export const fileRouter = createTRPCRouter({
             likesInfo: foundedFile.likesInfo?.filter(
               (like) => like.userId !== ctx.user?.id,
             ),
-            likes: foundedFile.likes - 1,
           })
           .where(eq(files.id, input.id));
       }
@@ -58,7 +57,6 @@ export const fileRouter = createTRPCRouter({
           .update(files)
           .set({
             likesInfo: updatedLikesInfo,
-            likes: foundedFile.likes + 1,
           })
           .where(eq(files.id, input.id));
       }
@@ -99,6 +97,49 @@ export const fileRouter = createTRPCRouter({
 
     return filesWithLikedUsers;
   }),
+  getUserFiles: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      // if (!ctx.user) {
+      //   throw new TRPCError({
+      //     code: "UNAUTHORIZED",
+      //     message: "You need to be logged in to access this.",
+      //   });
+      // }
+      const showcaseFiles = await ctx.db.query.files.findMany({
+        where: and(
+          eq(files.createdById, input.id),
+          eq(files.filePrivacy, "public"),
+        ),
+        with: {
+          commentsInfo: {
+            with: {
+              user: true,
+            },
+          },
+        },
+      });
+      const filesWithLikedUsers = await Promise.all(
+        showcaseFiles.map(async (file) => {
+          const userIds = file?.likesInfo?.map((like) => like.userId) ?? [];
+
+          const likedUsers = await ctx.db.query.users.findMany({
+            where: inArray(users.id, userIds),
+          });
+
+          return {
+            ...file,
+            likedUsers,
+          };
+        }),
+      );
+
+      return filesWithLikedUsers;
+    }),
 
   getFiles: protectedProcedure.query(async ({ ctx }) => {
     if (!ctx.user) {

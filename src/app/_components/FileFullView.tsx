@@ -112,7 +112,7 @@ const FileFullView: React.FC<{ user: User | undefined | null, file: Showcase, ga
                                 {file.filePrivacy === 'private' ? <LockKeyhole size={16} className="text-accent-foreground" /> : <Earth size={16} className="text-accent-foreground" />}
                             </div>
                             <div className="flex items-center gap-2">
-                                <LikeButton fileId={file.id} fileLikes={file.likes} userId={user?.id} fileLikesInfo={file.likesInfo} />
+                                <LikeButton fileId={file.id} fileLikes={file.likesInfo?.length} userId={user?.id} fileLikesInfo={file.likesInfo} />
                                 <div className="flex items-center gap-1">
                                     <Button variant='ghost' className="p-0 hover:bg-transparent" >
                                         <MessageCircle size={22} />

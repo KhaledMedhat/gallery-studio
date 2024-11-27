@@ -46,7 +46,6 @@ export const files = createTable("image", {
   fileKey: varchar("image_key", { length: 255 }),
   fileType: varchar("file_type", { length: 255 }),
   filePrivacy: privacyEnum("privacy").default("private"),
-  likes: integer("file_likes").notNull().default(0),
   comments: integer("file_comments").notNull().default(0),
   likesInfo: json("likes_info")
     .$type<{ liked: boolean; userId: string }[]>()
@@ -133,7 +132,11 @@ export const users = createTable("user", {
     mode: "date",
     withTimezone: true,
   }).default(sql`CURRENT_TIMESTAMP`),
+  followers: json("followers")
+    .$type<{ followed: boolean; userId: string }[]>()
+    .default([]),
   image: varchar("image", { length: 255 }).default(""),
+  coverImage: varchar("cover_image", { length: 255 }).default(""),
   createdAt: timestamp("created_at", { withTimezone: true }),
   updatedAt: timestamp("updated_at", { withTimezone: true }),
 });
@@ -220,6 +223,7 @@ export const verificationTokens = createTable(
 );
 
 export const usersRelations = relations(users, ({ many, one }) => ({
+  files: many(files),
   feedbacks: many(feedbacks),
   accounts: many(accounts),
   comments: many(comments),

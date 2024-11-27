@@ -249,6 +249,36 @@ export const userRouter = createTRPCRouter({
     });
     return existedUser;
   }),
+  getUserByUsername: protectedProcedure
+    .input(
+      z.object({
+        username: z.string().min(1),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const existedUser = await ctx.db.query.users.findFirst({
+        where: eq(users.name, input.username),
+        with: {
+          files: {
+            with: {
+              user: true,
+              commentsInfo: {
+                with: {
+                  user: true,
+                },
+              },
+            },
+          },
+        },
+      });
+      if (!existedUser) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "user not found",
+        });
+      }
+      return existedUser;
+    }),
 
   getProvidedUserRoute: protectedProcedure.query(async ({ ctx }) => {
     const existedUserAccount = await ctx.db.query.accounts.findFirst({

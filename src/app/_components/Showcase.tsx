@@ -14,6 +14,10 @@ import Image from "next/legacy/image"
 import Link from "next/link"
 import { useFileStore } from "~/store"
 import CommentInput from "./CommentInput"
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+dayjs.extend(relativeTime);
+
 const Showcase: React.FC<{ file: Showcase, user: User | undefined | null }> = ({ file, user }) => {
     const { setIsCommenting } = useFileStore()
     const theme = useTheme()
@@ -123,7 +127,7 @@ const Showcase: React.FC<{ file: Showcase, user: User | undefined | null }> = ({
                         </HoverCard>
 
                         <p>
-                            {formatNumber(file.likes)}
+                            {formatNumber(file.likedUsers.length)}
                         </p>
                     </div>
                     <div className="flex items-center gap-1">

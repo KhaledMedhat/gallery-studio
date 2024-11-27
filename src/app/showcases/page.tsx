@@ -4,9 +4,10 @@ import GalleryNavbar from "../_components/GalleryNavbar"
 
 export default async function ShowCasesPage() {
     const user = await api.user.getUser()
+    const files = await api.file.getFiles()
     return (
         <>
-            {user && <GalleryNavbar />}
+            {user && <GalleryNavbar user={user} files={files} />}
             <Showcases user={user} />
         </>
     )

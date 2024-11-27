@@ -15,7 +15,7 @@ import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Input } from "~/components/ui/input";
 import { api } from "~/trpc/react";
-import UserProfile from "./UserProfile";
+import UserAvatarProfile from "./UserAvatarProfile";
 import { isURLActive } from "~/utils/utils";
 import ModeToggle from "./ModeToggle";
 
@@ -124,7 +124,7 @@ const Navbar = () => {
           </motion.div> */}
 
           {user ? (
-            <UserProfile user={user} />
+            <UserAvatarProfile user={user} />
           ) : (
             <Button variant="default" className="m-0 px-4 py-0">
               <Link href="/sign-in">Login</Link>

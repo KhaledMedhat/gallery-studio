@@ -13,11 +13,10 @@ export interface Showcase {
   fileType: string | null;
   filePrivacy: "public" | "private" | null;
   galleryId: number;
-  likes: number;
   comments: number;
   likesInfo: LikesInfo[] | null;
   likedUsers: User[];
-  user: User | null | undefined;
+  user?: User | null | undefined;
   commentsInfo: Comment[] | null;
 }
 export interface Feedback {
@@ -44,6 +43,17 @@ export interface LikesInfo {
   liked: boolean;
   userId: string;
 }
+
+export interface Follower {
+  followed: boolean;
+  userId: string;
+}
+
+export interface UserProfileType {
+  user: User;
+  followers: Follower[] | null;
+  files?: Showcase[];
+}
 export interface User {
   email: string;
   name: string;
@@ -51,6 +61,8 @@ export interface User {
   lastName: string | null;
   createdAt: Date | null;
   image: string | null;
+  coverImage: string | null;
+  followers: Follower[] | null;
   id: string;
   bio: string | null;
   password: string | null;

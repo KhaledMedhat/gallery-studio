@@ -4,7 +4,7 @@ import { Button } from "~/components/ui/button"
 import { api } from "~/trpc/react";
 import { formatNumber } from "~/utils/utils";
 
-const LikeButton: React.FC<{ fileId: string, userId: string | undefined, fileLikes: number, fileLikesInfo: { liked: boolean, userId: string }[] | null }> = ({ fileId, userId, fileLikes, fileLikesInfo }) => {
+const LikeButton: React.FC<{ fileId: string, userId: string | undefined, fileLikes: number | undefined, fileLikesInfo: { liked: boolean, userId: string }[] | null }> = ({ fileId, userId, fileLikes, fileLikesInfo }) => {
     const theme = useTheme()
     const utils = api.useUtils();
     const { mutate: likeFile } = api.file.likeFile.useMutation({
@@ -33,7 +33,7 @@ const LikeButton: React.FC<{ fileId: string, userId: string | undefined, fileLik
                 <Heart size={22} fill={findUserLikedFile ? "#FF0000" : theme.resolvedTheme === 'dark' ? "#171717" : "#FFFFFF"} color={findUserLikedFile && "#FF0000"} />
             </Button>
             <p>
-                {formatNumber(fileLikes)}
+                {formatNumber(fileLikes!)}
             </p>
         </div>
     )
