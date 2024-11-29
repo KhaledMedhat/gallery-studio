@@ -46,7 +46,7 @@ const Navbar:React.FC<{currentUser: User | null | undefined}> = ({currentUser}) 
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
             <Link
-              href="#"
+              href="/"
               className={` ${isURLActive(pathname, "/") ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
             >
               Home

@@ -15,21 +15,23 @@ import Link from "next/link"
 import { useFileStore } from "~/store"
 import CommentInput from "./CommentInput"
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { useRouter } from "next/navigation"
 
 dayjs.extend(relativeTime);
 
 const Showcase: React.FC<{ file: Showcase, user: User | undefined | null }> = ({ file, user }) => {
+    const router = useRouter()
     const { setIsCommenting } = useFileStore()
     const theme = useTheme()
-    const utils = api.useUtils();
     const { mutate: likeFile } = api.file.likeFile.useMutation({
         onSuccess: () => {
-            void utils.file.getShowcaseFiles.invalidate();
+            router.refresh()
+            
         },
     })
     const { mutate: unlikeFile } = api.file.unlikeFile.useMutation({
         onSuccess: () => {
-            void utils.file.getShowcaseFiles.invalidate();
+            router.refresh()
         },
     })
     return (

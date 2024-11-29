@@ -10,8 +10,10 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { useTheme } from "next-themes";
 import Picker from '@emoji-mart/react'
+import { useRouter } from "next/navigation";
 
 const CommentInput: React.FC<{ fileId: string }> = ({ fileId }) => {
+    const router = useRouter()
     const theme = useTheme()
     const formSchema = z.object({
         comment: z.string()
@@ -28,6 +30,7 @@ const CommentInput: React.FC<{ fileId: string }> = ({ fileId }) => {
         onSuccess: () => {
             void utils.file.getFileById.invalidate();
             void utils.file.getShowcaseFiles.invalidate();
+            router.refresh()
             form.reset()
         },
     })
