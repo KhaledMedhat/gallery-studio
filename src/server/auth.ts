@@ -43,22 +43,31 @@ declare module "next-auth" {
 export const authOptions: NextAuthOptions = {
   callbacks: {
     session: async ({ session, user }) => {
-      const dbSession = await db.query.sessions.findFirst({
-        where: eq(sessions.userId, user.id),
-      });
-      if (!dbSession) {
-        await db.insert(sessions).values({
-          sessionToken: crypto.randomUUID(),
-          userId: user.id,
-          expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+      try {
+        const existingSession = await db.query.sessions.findFirst({
+          where: eq(sessions.userId, user.id),
         });
+
+        if (!existingSession) {
+          await db.insert(sessions).values({
+            sessionToken: crypto.randomUUID(),
+            userId: user.id,
+            expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+          });
+        }
+
+        return {
+          ...session,
+          user: {
+            ...session.user,
+            id: user.id,
+          },
+        };
+      } catch (error) {
+        console.error("Error creating session:", error);
+        // Handle the error appropriately, e.g., return a default session
+        return session; // Or return a custom error session
       }
-      return {
-        ...session,
-        user: {
-          ...session.user,
-          id: user.id,
-        },
       };
     },
     async signIn({ user }) {
