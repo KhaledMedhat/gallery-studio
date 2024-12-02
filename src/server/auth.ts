@@ -77,6 +77,14 @@ export const authOptions: NextAuthOptions = {
     },
   },
   events: {
+        signIn: async ({ user, account }) => {
+      if (account) {
+        await db
+          .update(users)
+          .set({ provider: account.provider })
+          .where(eq(users.id, user.id));
+      }
+    },
     createUser: async ({ user }) => {
       const username = user?.email
         ? user.email.split("@")[0]
