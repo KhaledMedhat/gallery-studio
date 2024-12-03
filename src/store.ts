@@ -18,6 +18,8 @@ export const useUserStore = create<Store>()(
         password: "",
         image: "",
       },
+      isUserUpdating: false,
+      setIsUserUpdating: (isUpdating: boolean) => set(() => ({ isUserUpdating: isUpdating })),
       setUserRegistry: (user: UserRegistry) =>
         set(() => ({ userRegistrationInfo: user })),
       setUserImage: (image: string) =>

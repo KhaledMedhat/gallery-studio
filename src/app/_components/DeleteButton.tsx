@@ -8,7 +8,7 @@ import { deleteFileOnServer } from "../actions";
 import { useState } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip";
 import BlurFade from "~/components/ui/blur-fade";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 const DeleteButton: React.FC<{
     fileId?: string | null,
@@ -21,6 +21,7 @@ const DeleteButton: React.FC<{
 }> = ({ fileId, fileKey, isFileModal, handleOpenModalChange, fileType, isAlbum, albumId }) => {
     const { selectedFiles, setSelectedFilesToEmpty } = useFileStore();
     const utils = api.useUtils();
+    const router = useRouter()
     const param = useParams()
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const { mutate: deleteFileFromAlbum, isPending: isDeletingFromAlbum } = api.album.deleteFileFromAlbum.useMutation({
@@ -56,6 +57,8 @@ const DeleteButton: React.FC<{
                     description: `${fileType?.includes('image') ? fileType.includes("gif") ? "GIF" : "Image" : "Video"} has been deleted successfully.`,
                 });
                 setIsDialogOpen(false)
+                if (param.id) router.push(`/galleries/${param.id as string}`)
+                router.back()
                 if (handleOpenModalChange) handleOpenModalChange()
                 void utils.file.getFiles.invalidate();
                 if (param.albumId) void utils.file.getAlbumFiles.invalidate();

@@ -43,6 +43,7 @@ import type { fileType } from "~/types/types";
 import Video from "./Video";
 import { Switch } from "~/components/ui/switch";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
+import { useRouter } from "next/navigation";
 
 const AddFileButton: React.FC<{
   files?: fileType[] | undefined;
@@ -54,6 +55,7 @@ const AddFileButton: React.FC<{
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [file, setFile] = useState<File | undefined>(undefined);
   const [isFileError, setIsFileError] = useState<boolean>(false);
+  const router = useRouter()
   const theme = useTheme();
   const {
     fileUrl,
@@ -120,7 +122,7 @@ const AddFileButton: React.FC<{
       setFileKey("");
       setIsDialogOpen(false);
       form.reset();
-      void utils.file.getFiles.invalidate();
+      router.refresh()
       toast({
         description: <span>Your {data?.fileType?.includes('image') ? data.fileType.includes("gif") ? "GIF" : "Image" : "Video"} has been added successfully</span>,
       });

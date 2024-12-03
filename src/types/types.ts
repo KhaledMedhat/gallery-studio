@@ -63,6 +63,7 @@ export interface User {
   image: string | null;
   coverImage: string | null;
   followers: Follower[] | null;
+  followings: Follower[] | null;
   id: string;
   bio: string | null;
   password: string | null;
@@ -115,6 +116,8 @@ export interface UserRegistry {
 
 export interface Store {
   userRegistrationInfo: UserRegistry;
+  isUserUpdating: boolean;
+  setIsUserUpdating: (isUpdating: boolean) => void;
   setUserRegistry: (user: UserRegistry) => void;
   setUserImage: (image: string) => void;
 }

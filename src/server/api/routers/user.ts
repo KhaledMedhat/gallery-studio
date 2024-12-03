@@ -307,4 +307,35 @@ export const userRouter = createTRPCRouter({
       });
       return user;
     }),
+
+  updateUserProfile: protectedProcedure
+    .input(
+      z.object({
+        image: z.string().optional(),
+        username: z.string().min(1).optional(),
+        coverImage: z.string().optional(),
+        firstName: z.string().min(1).optional(),
+        lastName: z.string().min(1).optional(),
+        bio: z.string().min(1).optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      if(!ctx.user){
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "You are not authorized to perform this action",
+        });
+      }
+      await ctx.db
+        .update(users)
+        .set({
+          image: input.image,
+          name: input.username,
+          coverImage: input.coverImage,
+          firstName: input.firstName,
+          lastName: input.lastName,
+          bio: input.bio,
+        })
+        .where(eq(users.id, ctx.user?.id));
+    }),
 });

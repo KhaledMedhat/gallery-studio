@@ -28,7 +28,6 @@ export default async function UserPage({
             </main>
         );
     } catch (error: any) {
-        console.log(error)
         if (error.code === "NOT_FOUND") {
             return (
                 <BlurFade delay={0.6} inView className="flex flex-col gap-40 md:gap-96">

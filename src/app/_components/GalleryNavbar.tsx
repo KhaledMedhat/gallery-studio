@@ -284,6 +284,7 @@ const GalleryNavbar:React.FC<{ user: User | null | undefined, files: fileType[] 
                         <AvatarImage
                           src={user?.image ?? ""}
                           alt={user?.name ?? "Avatar"}
+                          className="object-cover"
                         />
                         <AvatarFallback>
                           {getInitials(user?.firstName ?? "", user?.lastName ?? "")}

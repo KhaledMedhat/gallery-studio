@@ -65,7 +65,7 @@ export const comments = createTable("comments", {
     .$defaultFn(() => crypto.randomUUID()),
   fileId: varchar("file_id", { length: 255 })
     .notNull()
-    .references(() => files.id), // Link to the file
+    .references(() => files.id , { onDelete: "cascade" }), // Link to the file
   userId: varchar("user_id", { length: 255 })
     .notNull()
     .references(() => users.id), // Link to the user who commented
@@ -133,6 +133,9 @@ export const users = createTable("user", {
     withTimezone: true,
   }).default(sql`CURRENT_TIMESTAMP`),
   followers: json("followers")
+    .$type<{ followed: boolean; userId: string }[]>()
+    .default([]),
+  followings: json("followings")
     .$type<{ followed: boolean; userId: string }[]>()
     .default([]),
   image: varchar("image", { length: 255 }).default(""),
