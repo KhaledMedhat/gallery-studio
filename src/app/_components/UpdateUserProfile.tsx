@@ -90,7 +90,7 @@ export const UpdateUserCoverImage: React.FC<{ coverImage: string }> = ({ coverIm
                     </div>
                 </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="h-fit max-h-full overflow-y-auto max-w-2xl xl:max-w-4xl">
                 <DialogHeader>
                     <DialogTitle>Upload Cover Image</DialogTitle>
                     <DialogDescription>
@@ -168,7 +168,7 @@ export const UpdateUserCoverImage: React.FC<{ coverImage: string }> = ({ coverIm
 
                 <DialogFooter>
                     <Button
-                        disabled={isUpdatingUserCoverImagePending}
+                        disabled={isUpdatingUserCoverImagePending || !fileUrl || !checkedFile}
                         onClick={handleUpdateCoverImage}>
                         {isUpdatingUserCoverImagePending ? <LoaderCircle size={20} className="animate-spin" /> : '  Save changes'}
                     </Button>

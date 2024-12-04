@@ -61,14 +61,13 @@ import DeleteButton from "./DeleteButton";
 import ToAlbumButton from "./ToAlbumButton";
 import ChooseFilesModal from "./ChooseFilesModal";
 import { getInitials, isURLActive } from "~/utils/utils";
-import { User, fileType } from "~/types/types";
+import type { User, fileType } from "~/types/types";
 
 const GalleryNavbar:React.FC<{ user: User | null | undefined, files: fileType[] | undefined }> = ({ user, files }) => {
   const router = useRouter();
   const pathname = usePathname();
   const utils = api.useUtils();
-  // const { data: user } = api.user.getUser.useQuery();
-  // const { data: files } = api.file.getFiles.useQuery();
+
   const { data: albums } = api.album.getAlbums.useQuery({ id: user?.gallery?.slug ?? "" });
   const { selectedFiles, setSelectedFilesToEmpty } = useFileStore();
   const isAlbum = pathname.includes("albums");
