@@ -67,7 +67,7 @@ const UserProfile: React.FC<{
         <DropdownMenuGroup>
           <DropdownMenuItem className="cursor-pointer">
             <User size={16} className="mr-2" />
-            <span>Profile</span>
+            <Link href={`/${user.name}`}>Profile</Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <GalleryHorizontalEnd size={16} className="mr-2" />

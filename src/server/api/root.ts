@@ -1,6 +1,5 @@
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { userRouter } from "~/server/api/routers/user";
-import { galleryRouter } from "~/server/api/routers/gallery";
 import { fileRouter } from "~/server/api/routers/file";
 import { albumRouter } from "~/server/api/routers/album";
 import { commentRouter } from "~/server/api/routers/comment";
@@ -13,7 +12,6 @@ import { feedbackRouter } from "~/server/api/routers/feedback";
  */
 export const appRouter = createTRPCRouter({
   user: userRouter,
-  gallery: galleryRouter,
   file: fileRouter,
   album: albumRouter,
   comment: commentRouter,

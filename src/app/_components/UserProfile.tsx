@@ -38,7 +38,7 @@ const UserProfile: React.FC<{ user: User | null, files: showcaseType[], currentU
                     <CardContent className="pt-16 pb-8">
                         {isUserUpdating ? <UpdateUserInfo image={user?.image} bio={user?.bio} name={user?.name} firstName={user?.firstName} lastName={user?.lastName} /> : <div className="flex mt-12 md:mt-0 flex-col md:flex-row items-center md:items-start gap-6">
                             <Avatar className="w-[10rem] h-[10rem] flex items-center justify-center border-4 rounded-full border-background absolute top-0 left-1/2 md:left-8 transform -translate-x-1/2 md:translate-x-0 -translate-y-1/2">
-                                <AvatarImage src={user?.image ?? ''} alt={user?.name} className='rounded-full w-full h-full object-cover object-center' />
+                                <AvatarImage src={user?.image ?? ''} alt={user?.name} className='rounded-full w-full h-full object-cover' />
                                 <AvatarFallback className='text-3xl font-bold bg-slate-500 w-full h-full rounded-full flex items-center justify-center'>{getInitials(user?.firstName ?? "", user?.lastName ?? "")}</AvatarFallback>
                             </Avatar>
                             <div className="flex-1 text-center md:text-left md:ml-40">
@@ -100,7 +100,7 @@ const UserProfile: React.FC<{ user: User | null, files: showcaseType[], currentU
                                     <BlurFade key={file.id} delay={0.25 + Number(idx) * 0.05} inView>
                                         <Link href={`/showcases/${file.id}`}>
                                             {file.fileType?.includes('image') ?
-                                                <div className="h-[300px] max-w-[300px] relative">
+                                                <div className="h-[300px] max-w-full relative">
                                                     <Image
                                                         priority
                                                         src={file.url}

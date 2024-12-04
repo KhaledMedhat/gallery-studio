@@ -63,7 +63,7 @@ import ChooseFilesModal from "./ChooseFilesModal";
 import { getInitials, isURLActive } from "~/utils/utils";
 import type { User, fileType } from "~/types/types";
 
-const GalleryNavbar:React.FC<{ user: User | null | undefined, files: fileType[] | undefined }> = ({ user, files }) => {
+const GalleryNavbar: React.FC<{ user: User | null | undefined, files: fileType[] | undefined }> = ({ user, files }) => {
   const router = useRouter();
   const pathname = usePathname();
   const utils = api.useUtils();
@@ -112,6 +112,7 @@ const GalleryNavbar:React.FC<{ user: User | null | undefined, files: fileType[] 
     router.push("/");
     await signOut({ callbackUrl: "/" });
     await deleteCookie();
+    router.refresh();
   };
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 mx-auto mb-4 flex origin-bottom h-full max-h-14">

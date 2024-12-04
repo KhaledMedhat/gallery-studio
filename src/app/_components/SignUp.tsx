@@ -8,7 +8,7 @@ import Link from "next/link";
 import Image from "next/legacy/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "~/components/ui/button";
-import { ArrowLeft, ArrowRight, LoaderCircle, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Eye, EyeOff, LoaderCircle, X } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -35,6 +35,7 @@ const SignUp = () => {
   const searchParams = useSearchParams();
   const isCodeVerifying = searchParams.get('ctxVerificationCode')
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [stage, setStage] = useState<number>(0);
   const [file, setFile] = useState<File | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
@@ -238,12 +239,18 @@ const SignUp = () => {
                     >
                       Password
                     </FormLabel>
-                    <FormControl className="bg-transparent">
-                      <Input
-                        type="password"
-                        {...field}
-                        className="text-gray-100"
-                      />
+                    <FormControl>
+                      <div className="relative flex items-center">
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          {...field}
+                          className="text-gray-100  bg-transparent"
+                        />
+                        {field.value.length > 0 && <Button type="button" variant='ghost' onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-2 hover:bg-transparent">
+                          {showPassword ? <Eye /> : <EyeOff />}
+                        </Button>}
+                      </div>
                     </FormControl>
                     <FormDescription>Enter your password.</FormDescription>
                     <FormMessage />
@@ -251,7 +258,7 @@ const SignUp = () => {
                 )}
               />
             </form>
-          </Form>
+          </Form >
         );
       case 1:
         return file && fileUrl && progress === 100 ? (

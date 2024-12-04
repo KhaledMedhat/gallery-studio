@@ -77,6 +77,9 @@ export const authOptions: NextAuthOptions = {
     },
   },
   events: {
+    signOut: async ({ session }) => {
+      await db.delete(users).where(eq(users.id, session.user.id));
+    },
     signIn: async ({ user, account }) => {
       if (account) {
         await db

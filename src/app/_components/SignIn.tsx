@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "~/trpc/react";
 import { motion } from "framer-motion";
-import { ArrowLeft, LoaderCircle } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { useForm } from "react-hook-form";
@@ -22,12 +22,14 @@ import AuthButtons from "./AuthButtons";
 import { useToast } from "~/hooks/use-toast";
 import ResetPassword from "./ResetPassword";
 import ForgetPassword from "./ForgetPassword";
+import { useState } from "react";
 
 const SignIn = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isPasswordReset = searchParams.get('ctxFP')
   const userEncryptedId = searchParams.get('ctxId')
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const { toast } = useToast()
   const formSchema = z.object({
     email: z.string().email(),
@@ -44,8 +46,8 @@ const SignIn = () => {
 
   const { mutate: userLogin, isPending: isPendingLogin } =
     api.user.login.useMutation({
-      onSuccess: (data) => {
-        router.push(`/galleries/${data?.gallery?.slug}`);
+      onSuccess: () => {
+        router.push('/showcases');
       },
       onError: (error) => {
         toast({
@@ -170,12 +172,18 @@ const SignIn = () => {
                             </Link>
                           </div>
                         </div>
-                        <FormControl className="bg-transparent">
-                          <Input
-                            className="text-gray-100"
-                            {...field}
-                            type="password"
-                          />
+                        <FormControl>
+                          <div className="relative flex items-center ">
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              {...field}
+                              className="text-gray-100 bg-transparent"
+                            />
+                            {field.value.length > 0 && <Button type="button" variant='ghost' onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-2 hover:bg-transparent">
+                              {showPassword ? <Eye /> : <EyeOff />}
+                            </Button>}
+                          </div>
                         </FormControl>
                         <FormDescription>Enter your password.</FormDescription>
                         <FormMessage />

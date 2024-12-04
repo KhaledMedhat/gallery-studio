@@ -229,8 +229,8 @@ export const UpdateUserInfo: React.FC<{ image: string | undefined | null, name: 
 
     return (
         <div className="flex mt-12 md:mt-0 flex-col md:flex-row items-center md:items-start gap-6">
-            <Avatar className="w-[10rem] h-[10rem] border-4 rounded-full border-background absolute top-0 left-1/2 md:left-8 transform -translate-x-1/2 md:translate-x-0 -translate-y-1/2">
-                <AvatarImage src={image ?? ''} alt={name ?? ''} className='rounded-full w-full h-full' />
+            <Avatar className="w-[10rem] h-[10rem] flex items-center justify-center border-4 rounded-full border-background absolute top-0 left-1/2 md:left-8 transform -translate-x-1/2 md:translate-x-0 -translate-y-1/2">
+                <AvatarImage src={image ?? ''} alt={name ?? ''} className='rounded-full w-full h-full object-cover' />
                 <div className="flex h-full w-full items-center absolute cursor-pointer justify-center z-10 bg-background/60">
                     <Dialog>
                         <DialogTrigger asChild>
@@ -328,74 +328,3 @@ export const UpdateUserInfo: React.FC<{ image: string | undefined | null, name: 
         </div>
     )
 }
-
-
-
-
-
-// const UpdateUserProfile = () => {
-//     const { setIsUserUpdating, isUserUpdating } = useUserStore()
-
-//     return (
-
-//         <div className="min-h-screen">
-//             {/* Cover Photo */}
-//             <div className="relative h-[20rem] md:h-64 lg:h-96">
-//                 <Image
-//                     src={user?.coverImage ? user.coverImage : '/image-3@2x.jpg'}
-//                     alt={`${user?.coverImage ? `${user?.name}'s cover photo` : `${user?.name}'s default cover photo`}`}
-//                     fill
-//                     className="object-cover"
-//                 />
-//             </div>
-
-//             <div className="container relative z-20 mx-auto px-4 py-8">
-//                 {/* Profile Info */}
-//                 <Card className="mt-[-64px] z-50">
-//                     <CardContent className="pt-16 pb-8">
-//                         <div className="flex mt-12 md:mt-0 flex-col md:flex-row items-center md:items-start gap-6">
-//                             <Avatar className="w-[10rem] h-[10rem] border-4 rounded-full border-background absolute top-0 left-1/2 md:left-8 transform -translate-x-1/2 md:translate-x-0 -translate-y-1/2">
-//                                 <AvatarImage src={user?.image ?? ''} alt={user?.name} className='rounded-full w-full h-full' />
-//                                 <AvatarFallback className='text-3xl font-bold bg-slate-500 w-full h-full rounded-full flex items-center justify-center'>{getInitials(user?.firstName ?? "", user?.lastName ?? "")}</AvatarFallback>
-//                             </Avatar>
-//                             <div className="flex-1 text-center md:text-left md:ml-40">
-//                                 <h1 className="text-2xl font-bold">{user?.firstName} {user?.lastName}</h1>
-//                                 <p className="text-muted-foreground">@{user?.name}</p>
-//                                 <p className="mt-2">{user?.bio}</p>
-//                                 <div className="mt-4 flex flex-wrap justify-center md:justify-start gap-2">
-//                                     <Badge variant="secondary">
-//                                         <Camera className="w-4 h-4 mr-1" />
-//                                         Photographer
-//                                     </Badge>
-//                                     <Badge variant="secondary">
-//                                         <ImageIcon className="w-4 h-4 mr-1" />
-//                                         Digital Artist
-//                                     </Badge>
-//                                 </div>
-//                             </div>
-//                             <Button onClick={() => setIsUserUpdating(false)} className="md:self-start">Cancel</Button>
-//                         </div>
-
-//                         {/* User Stats */}
-//                         <div className="mt-8 grid grid-cols-3 gap-4 text-center">
-//                             <div>
-//                                 <p className="text-2xl font-bold"> {Number(files.length)}</p>
-//                                 <p className="text-muted-foreground capitalize">Showcases</p>
-//                             </div>
-//                             <div>
-//                                 <p className="text-2xl font-bold"> {Number(user?.followers?.length)}</p>
-//                                 <p className="text-muted-foreground capitalize">Followers</p>
-//                             </div>
-//                             <div>
-//                                 <p className="text-2xl font-bold">{Number(user?.followings?.length)}</p>
-//                                 <p className="text-muted-foreground capitalize">Following</p>
-//                             </div>
-//                         </div>
-//                     </CardContent>
-//                 </Card>
-//             </div>
-//         </div>
-//     )
-// }
-
-// export default UpdateUserProfile
