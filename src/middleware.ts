@@ -9,8 +9,8 @@ export function middleware(request: NextRequest) {
   console.log('ana', isFromSubmitButton)
 
   const hasSessionToken = request.cookies.get("sessionToken");
-  const hasNextAuthToken = request.cookies.get("next-auth.session-token");
-  const hasProdNextAuthToken = request.cookies.get("_Secure-next-auth.session-token");
+  const hasNextAuthToken = request.cookies.get("next-auth.session-token"); // development
+  const hasProdNextAuthToken = request.cookies.get("__Secure-next-auth.session-token"); // production
 
 
   if (!hasSessionToken && !hasNextAuthToken && !hasProdNextAuthToken) {
