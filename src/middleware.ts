@@ -10,8 +10,10 @@ export function middleware(request: NextRequest) {
 
   const hasSessionToken = request.cookies.get("sessionToken");
   const hasNextAuthToken = request.cookies.get("next-auth.session-token");
+  const hasProdNextAuthToken = request.cookies.get("_Secure-next-auth.session-token");
 
-  if (!hasSessionToken && !hasNextAuthToken) {
+
+  if (!hasSessionToken && !hasNextAuthToken && !hasProdNextAuthToken) {
     const authRequiredUrl = new URL("/auth-require", request.url);
     return NextResponse.redirect(authRequiredUrl);
   }
