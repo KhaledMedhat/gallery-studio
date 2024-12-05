@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { AlertCircle, Home, Telescope } from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";
@@ -21,8 +22,8 @@ export default async function ShowCasesFilePage({
         return (
             <FileFullView user={currentUser} file={file} />
         )
-    } catch (error: any) {
-        if (error.code === "NOT_FOUND") {
+    } catch (error) {
+        if (error instanceof TRPCError && error.code === "NOT_FOUND") {
             return (
                 <BlurFade delay={0.6} inView className="flex flex-col gap-40 md:gap-96">
                     <Navbar currentUser={currentUser} />

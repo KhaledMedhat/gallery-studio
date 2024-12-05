@@ -157,7 +157,7 @@ const Showcase: React.FC<{ file: Showcase, user: User | undefined | null }> = ({
                                         </Avatar>
                                         <HoverCard>
                                             <HoverCardTrigger asChild>
-                                                <Button variant="link" className="p-0 font-bold">
+                                                <Button variant="link" className="p-0 font-bold h-fit">
                                                     <Link href={`/${comment?.user?.name}`} >
                                                         @{comment.user?.name}
                                                     </Link>

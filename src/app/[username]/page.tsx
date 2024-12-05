@@ -8,6 +8,7 @@ import Link from "next/link";
 import { AlertCircle, Home, Telescope } from "lucide-react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { TRPCError } from "@trpc/server";
 
 export default async function UserPage({
     params: { username: username },
@@ -27,8 +28,8 @@ export default async function UserPage({
                 <UserProfile user={user} files={files} currentUser={currentUser} />
             </main>
         );
-    } catch (error: any) {
-        if (error.code === "NOT_FOUND") {
+    } catch (error) {
+        if (error instanceof TRPCError && error.code === "NOT_FOUND") {
             return (
                 <BlurFade delay={0.6} inView className="flex flex-col gap-40 md:gap-96">
                     <Navbar currentUser={currentUser} />
@@ -61,7 +62,7 @@ export default async function UserPage({
                 </BlurFade>
             )
         }
-        if (error.code === 'UNAUTHORIZED') {
+        if (error instanceof TRPCError && error.code === 'UNAUTHORIZED') {
             redirect('/auth-require')
         }
     }
