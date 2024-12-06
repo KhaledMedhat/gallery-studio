@@ -27,13 +27,7 @@ const FileFullView: React.FC<{ user: User | undefined | null, file: Showcase, ga
     const initials = getInitials(file.user?.firstName ?? "", file.user?.lastName ?? "");
     return (
         <section className="container mx-auto flex flex-col items-start gap-4 justify-around p-4">
-            <Button variant='link' className="p-0" onClick={() => {
-                if (gallerySlug) {
-                    router.push(`/galleries/${gallerySlug}`)
-                } else {
-                    router.push('/showcases')
-                }
-            }}>
+            <Button variant='link' className="p-0" onClick={() => router.back()}>
                 <ChevronLeft size={20} className="mr-2" /> {gallerySlug ? "Back to Gallery" : "Back"}
             </Button>
             <div className="flex flex-col gap-4 w-full">

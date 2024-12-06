@@ -320,7 +320,7 @@ export const userRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      if(!ctx.user){
+      if (!ctx.user) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "You are not authorized to perform this action",
@@ -337,5 +337,66 @@ export const userRouter = createTRPCRouter({
           bio: input.bio,
         })
         .where(eq(users.id, ctx.user?.id));
+    }),
+
+  followUser: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      if (!ctx.user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Unauthorized",
+        });
+      }
+      const foundedUser = await ctx.db.query.users.findFirst({
+        where: eq(users.id, input.id),
+      });
+
+      if (!foundedUser) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User not found.",
+        });
+      }
+      const updateFollowingUsers = [
+        ...(foundedUser?.followings ?? []),
+        { followed: true, userId: foundedUser.id },
+      ];
+      await ctx.db
+        .update(users)
+        .set({
+          followings: updateFollowingUsers,
+        })
+        .where(eq(users.id, ctx.user.id));
+    }),
+  unfollowUser: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      if (!ctx.user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Unauthorized",
+        });
+      }
+      const currentUser = await ctx.db.query.users.findFirst({
+        where: eq(users.id, ctx.user.id),
+      });
+      const foundedUser = await ctx.db.query.users.findFirst({
+        where: eq(users.id, input.id),
+      });
+      if (!foundedUser) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User not found.",
+        });
+      }
+      await ctx.db
+        .update(users)
+        .set({
+          followings: currentUser?.followings?.filter(
+            (follow) => follow.userId !== foundedUser.id,
+          ),
+        })
+        .where(eq(users.id, ctx.user.id));
     }),
 });

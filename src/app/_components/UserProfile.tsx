@@ -1,7 +1,7 @@
 "use client"
 import React from 'react'
 import Image from 'next/image'
-import { Camera, ImageIcon } from 'lucide-react'
+import { Camera, ImageIcon, LoaderCircle } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar'
 import { Badge } from '~/components/ui/badge'
@@ -14,11 +14,24 @@ import Link from 'next/link'
 import Video from './Video'
 import { useUserStore } from '~/store'
 import { UpdateUserCoverImage, UpdateUserInfo } from './UpdateUserProfile'
-// import UpdateUserProfile from './UpdateUserProfile'
+import { api } from '~/trpc/react'
+import { useRouter } from 'next/navigation'
 
 const UserProfile: React.FC<{ user: User | null, files: showcaseType[], currentUser: User | null | undefined }> = ({ user, files, currentUser }) => {
+    const router = useRouter()
     const sameUser = currentUser?.id === user?.id
+    const isInFollowing = currentUser?.followings?.find(following => following.userId === user?.id)
     const { setIsUserUpdating, isUserUpdating } = useUserStore()
+    const { mutate: followUser, isPending: isFollowing } = api.user.followUser.useMutation({
+        onSuccess: () => {
+            router.refresh()
+        }
+    })
+    const { mutate: unfollowUser, isPending: isUnfollowing } = api.user.unfollowUser.useMutation({
+        onSuccess: () => {
+            router.refresh()
+        }
+    })
     return (
 
         <div className="min-h-screen">
@@ -56,13 +69,18 @@ const UserProfile: React.FC<{ user: User | null, files: showcaseType[], currentU
                                     </Badge>
                                 </div>
                             </div>
-                            <Button onClick={() => {
-                                if (sameUser) {
-                                    setIsUserUpdating(true)
-                                } else {
-                                    console.log('follow')
-                                }
-                            }} className="md:self-start">{sameUser ? 'Edit Profile' : 'Follow'}</Button>
+                            <Button
+                                disabled={isFollowing || isUnfollowing}
+                                onClick={() => {
+                                    if (sameUser) {
+                                        setIsUserUpdating(true)
+                                    } else if (isInFollowing) {
+                                        unfollowUser({ id: user?.id ?? "" })
+                                    } else {
+                                        followUser({ id: user?.id ?? "" })
+
+                                    }
+                                }} className="md:self-start">{isFollowing || isUnfollowing ? <LoaderCircle size={20} className="animate-spin" /> : sameUser ? 'Edit Profile' : isInFollowing ? 'Unfollow' : 'Follow'}</Button>
                         </div>}
 
                         {/* User Stats */}
