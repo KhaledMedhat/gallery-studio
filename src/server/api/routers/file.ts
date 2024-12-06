@@ -75,7 +75,10 @@ export const fileRouter = createTRPCRouter({
     const showcaseFiles = await ctx.db.query.files.findMany({
       where: and(
         eq(files.filePrivacy, "public"),
-        inArray(files.createdById, currentUser?.followings?.map((following) => following.userId) ?? [])
+        inArray(
+          files.createdById,
+          currentUser?.followings?.map((following) => following.userId) ?? [],
+        ),
       ),
       with: {
         user: true,

@@ -11,7 +11,7 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { randomBytes } from "crypto";
 import { db } from "~/server/db";
 import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { eq, like } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { Send, SendResetPasswordLink } from "~/app/api/send/route";
 import { hashPassword, generateOTP } from "~/utils/utils";
@@ -398,5 +398,38 @@ export const userRouter = createTRPCRouter({
           ),
         })
         .where(eq(users.id, ctx.user.id));
+    }),
+
+  usersSearch: protectedProcedure
+    .input(z.object({ search: z.string().trim() }))
+    .mutation(async ({ ctx, input }) => {
+      if (!ctx.user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Unauthorized",
+        });
+      }
+      const foundedUsers = await ctx.db.query.users.findMany({
+        where: like(users.name, `${input.search}%`),
+        with: {
+          files: {
+            with: {
+              user: true,
+              commentsInfo: {
+                with: {
+                  user: true,
+                },
+              },
+            },
+          },
+        },
+      });
+      if (!foundedUsers) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User not found",
+        });
+      }
+      return foundedUsers;
     }),
 });
