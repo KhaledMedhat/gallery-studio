@@ -103,7 +103,7 @@ export const UpdateUserCoverImage: React.FC<{ coverImage: string }> = ({ coverIm
                         <TabsTrigger value="add-default">Add from our default</TabsTrigger>
                     </TabsList>
                     <TabsContent value="upload-new-cover-image">
-                        {file && fileUrl && progress === 100 ? <div className="relative flex flex-col items-center justify-center gap-6">
+                        {file && fileUrl && progress === 100 ? <div className="relative p-10 flex flex-col items-center justify-center gap-6">
 
                             <AspectRatio ratio={16 / 9}>
                                 <Image
@@ -115,7 +115,7 @@ export const UpdateUserCoverImage: React.FC<{ coverImage: string }> = ({ coverIm
                             </AspectRatio>
 
                             <Button
-                                className="absolute right-0 top-0"
+                                className="absolute right-0 top-0 hover:bg-transparent"
                                 type="button"
                                 variant="ghost"
                                 onClick={async () => {
@@ -168,9 +168,9 @@ export const UpdateUserCoverImage: React.FC<{ coverImage: string }> = ({ coverIm
 
                 <DialogFooter>
                     <Button
-                        disabled={isUpdatingUserCoverImagePending || !fileUrl || !checkedFile}
+                        disabled={isUpdatingUserCoverImagePending || !fileUrl && !checkedFile}
                         onClick={handleUpdateCoverImage}>
-                        {isUpdatingUserCoverImagePending ? <LoaderCircle size={20} className="animate-spin" /> : '  Save changes'}
+                        {isUpdatingUserCoverImagePending ? <LoaderCircle size={20} className="animate-spin" /> : 'Save changes'}
                     </Button>
                 </DialogFooter>
             </DialogContent>
@@ -306,9 +306,9 @@ export const UpdateUserInfo: React.FC<{ image: string | undefined | null, name: 
             <div className="flex-1 text-center md:text-left md:ml-40">
                 <h1 className="text-2xl font-bold">{firstName} {lastName}</h1>
                 <p className="text-muted-foreground">@{name}</p>
-                <div className="flex items-center gap-2 w-full">
-                    <Input placeholder='About you' value={updatedBio!} onChange={(e) => setUpdatedBio(e.target.value)} className="mt-2" />
-                    <Button variant='ghost' className="hover:bg-transparent" onClick={handleBioChange}>
+                <div className="flex items-center mt-2 gap-4 w-full">
+                    <Input placeholder='About you' value={updatedBio!} onChange={(e) => setUpdatedBio(e.target.value)} />
+                    <Button variant='ghost' className="p-0 hover:bg-transparent" onClick={handleBioChange}>
                         <Check size={20} />
                     </Button>
                 </div>

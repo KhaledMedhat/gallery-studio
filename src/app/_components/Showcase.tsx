@@ -1,5 +1,5 @@
 import dayjs from "dayjs"
-import { CalendarIcon, Earth, Heart, MessageCircle } from "lucide-react"
+import { CalendarIcon, Earth, MessageCircle } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import { Card, CardContent } from "~/components/ui/card"
 import type { User, Showcase } from "~/types/types"
@@ -8,32 +8,17 @@ import Video from "./Video"
 import { AspectRatio } from "~/components/ui/aspect-ratio"
 import { Button } from "~/components/ui/button"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/hover-card"
-import { api } from "~/trpc/react"
-import { useTheme } from "next-themes"
 import Image from "next/legacy/image"
 import Link from "next/link"
 import { useFileStore } from "~/store"
 import CommentInput from "./CommentInput"
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { useRouter } from "next/navigation"
+import LikeButton from "./LikeButton"
 
 dayjs.extend(relativeTime);
 
 const Showcase: React.FC<{ file: Showcase, user: User | undefined | null }> = ({ file, user }) => {
-    const router = useRouter()
     const { setIsCommenting } = useFileStore()
-    const theme = useTheme()
-    const { mutate: likeFile } = api.file.likeFile.useMutation({
-        onSuccess: () => {
-            router.refresh()
-            
-        },
-    })
-    const { mutate: unlikeFile } = api.file.unlikeFile.useMutation({
-        onSuccess: () => {
-            router.refresh()
-        },
-    })
     return (
         <div key={file.id} className="flex flex-col items-center gap-2">
             <div className="flex self-start gap-2">
@@ -103,35 +88,7 @@ const Showcase: React.FC<{ file: Showcase, user: User | undefined | null }> = ({
                     <Earth size={16} className="text-accent-foreground" />
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1">
-                        <HoverCard>
-                            <HoverCardTrigger asChild>
-                                <Button variant='ghost' onClick={() => {
-                                    if (file?.likesInfo?.find(like => like.userId === user?.id)) {
-                                        unlikeFile({ id: file.id })
-                                    } else {
-                                        likeFile({ id: file.id })
-
-                                    }
-                                }}
-                                    className="p-0 hover:bg-transparent"
-                                >
-                                    <Heart size={22} fill={file?.likesInfo?.find(like => like.userId === user?.id) ? "#FF0000" : theme.resolvedTheme === 'dark' ? "#171717" : "#FFFFFF"} color={file?.likesInfo?.find(like => like.userId === user?.id) && "#FF0000"} />
-                                </Button>
-                            </HoverCardTrigger>
-                            {file.likedUsers?.length > 0 &&
-                                <HoverCardContent className="w-fit p-3">
-                                    {file.likedUsers?.map((liker) => (
-                                        <p className="text-xs" key={liker.id}>{liker.name}</p>
-                                    ))}
-                                </HoverCardContent>
-                            }
-                        </HoverCard>
-
-                        <p>
-                            {formatNumber(file.likedUsers.length)}
-                        </p>
-                    </div>
+                    <LikeButton fileId={file.id} userId={user?.id} fileLikes={file.likesInfo?.length} fileLikesInfo={file.likesInfo} likedUsers={file.likedUsers} />
                     <div className="flex items-center gap-1">
                         <Button variant='ghost' className="p-0 hover:bg-transparent" onClick={() => setIsCommenting(true)}>
                             <Link href={`/showcases/${file.id}`} >
