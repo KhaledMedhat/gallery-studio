@@ -9,13 +9,13 @@ import { formatNumber } from "~/utils/utils";
 const LikeButton: React.FC<{ likedUsers: User[] | undefined, fileId: string, userId: string | undefined, fileLikes: number | undefined, fileLikesInfo: { liked: boolean, userId: string }[] | null }> = ({ likedUsers, fileId, userId, fileLikes, fileLikesInfo }) => {
     const theme = useTheme()
     const utils = api.useUtils();
-    const { mutate: likeFile } = api.file.likeFile.useMutation({
+    const { mutate: likeFile, isPending: isLikePending } = api.file.likeFile.useMutation({
         onSuccess: () => {
             void utils.file.getFileById.invalidate();
             void utils.file.getShowcaseFiles.invalidate();
         },
     })
-    const { mutate: unlikeFile } = api.file.unlikeFile.useMutation({
+    const { mutate: unlikeFile, isPending: isUnlikePending } = api.file.unlikeFile.useMutation({
         onSuccess: () => {
             void utils.file.getFileById.invalidate();
             void utils.file.getShowcaseFiles.invalidate();
@@ -26,7 +26,7 @@ const LikeButton: React.FC<{ likedUsers: User[] | undefined, fileId: string, use
         <div className="flex items-center gap-1">
             <HoverCard>
                 <HoverCardTrigger asChild>
-                    <Button variant='ghost' onClick={() => {
+                    <Button disabled={isLikePending || isUnlikePending} variant='ghost' onClick={() => {
                         if (findUserLikedFile) {
                             unlikeFile({ id: fileId })
                         } else {

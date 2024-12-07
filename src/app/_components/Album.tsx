@@ -15,6 +15,7 @@ import EmptyPage from "./EmptyPage";
 import { Button } from "~/components/ui/button";
 import DeleteButton from "./DeleteButton";
 import { useParams } from "next/navigation";
+import FromAlbumToAlbum from "./FromAlbumToAlbum";
 
 const Album: React.FC<{ id: string }> = ({ id }) => {
     const param = useParams()
@@ -39,6 +40,7 @@ const Album: React.FC<{ id: string }> = ({ id }) => {
                 {selectedFiles.length > 0 &&
                     <div className="flex gap-2 items-center xl:hidden">
                         <DeleteButton />
+                        <FromAlbumToAlbum gallerySlug={param.id as string} />
                     </div>}
                 <Button onClick={() => {
                     if (isSelecting) {

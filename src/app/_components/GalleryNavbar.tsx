@@ -62,12 +62,14 @@ import ToAlbumButton from "./ToAlbumButton";
 import ChooseFilesModal from "./ChooseFilesModal";
 import { getInitials, isURLActive } from "~/utils/utils";
 import type { User, fileType } from "~/types/types";
+import FromAlbumToAlbum from "./FromAlbumToAlbum";
+import { useState } from "react";
 
 const GalleryNavbar: React.FC<{ user: User | null | undefined, files: fileType[] | undefined }> = ({ user, files }) => {
   const router = useRouter();
   const pathname = usePathname();
   const utils = api.useUtils();
-
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const { data: albums } = api.album.getAlbums.useQuery({ id: user?.gallery?.slug ?? "" });
   const { selectedFiles, setSelectedFilesToEmpty } = useFileStore();
   const isAlbum = pathname.includes("albums");
@@ -91,6 +93,7 @@ const GalleryNavbar: React.FC<{ user: User | null | undefined, files: fileType[]
           description: `Album has been created successfully.`,
         });
         void utils.album.getAlbums.invalidate();
+        setIsDialogOpen(false)
       },
       onError: () => {
         toast({
@@ -166,7 +169,7 @@ const GalleryNavbar: React.FC<{ user: User | null | undefined, files: fileType[]
 
         <DockIcon>
           {isAlbum && !isInsideAlbum && (
-            <Dialog>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -237,6 +240,11 @@ const GalleryNavbar: React.FC<{ user: User | null | undefined, files: fileType[]
         {selectedFiles.length > 0 && !isInsideAlbum && (
           <DockIcon className="hidden xl:flex">
             <ToAlbumButton gallerySlug={user?.gallery?.slug ?? ""} />
+          </DockIcon>
+        )}
+        {selectedFiles.length > 0 && (
+          <DockIcon className="hidden xl:flex">
+            <FromAlbumToAlbum gallerySlug={user?.gallery?.slug ?? ""} />
           </DockIcon>
         )}
         {selectedFiles.length > 0 && (

@@ -2,6 +2,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { FolderInput, LoaderCircle } from "lucide-react"
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import BlurFade from "~/components/ui/blur-fade"
@@ -18,6 +19,7 @@ import { useFileStore } from "~/store";
 import { api } from "~/trpc/react";
 
 const ToAlbumButton: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
+    const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
     const { selectedFiles } = useFileStore();
     const { data: albums } = api.album.getAlbums.useQuery({ id: gallerySlug });
     const albumsFormSchema = z.object({
@@ -52,6 +54,7 @@ const ToAlbumButton: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                 title: "Created And Added Successfully.",
                 description: `Images has been added to ${createAlbumForm.getValues("album")} album successfully.`,
             });
+            setIsDialogOpen(false)
         },
         onError: (e) => {
             toast({
@@ -68,6 +71,8 @@ const ToAlbumButton: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                     title: "Added Successfully.",
                     description: `Images has been added to ${albumForm.getValues("album")} album successfully.`,
                 });
+                setIsDialogOpen(false)
+
             },
             onError: () => {
                 toast({
@@ -79,7 +84,6 @@ const ToAlbumButton: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
         });
     const onChooseAlbumSubmit = (albumData: z.infer<typeof albumsFormSchema>) => {
         const filesIds = selectedFiles.map((file) => file.id);
-
         addToExistedAlbum({
             id: filesIds,
             albumTitle: albumData.album,
@@ -97,7 +101,7 @@ const ToAlbumButton: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
         });
     };
     return (
-        <Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>

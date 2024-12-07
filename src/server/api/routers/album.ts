@@ -5,7 +5,7 @@ import { eq, inArray } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const albumRouter = createTRPCRouter({
- getAlbums: protectedProcedure
+  getAlbums: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       const gallery = await ctx.db.query.galleries.findFirst({
@@ -159,18 +159,56 @@ export const albumRouter = createTRPCRouter({
         .where(inArray(albumFiles.fileId, input.id));
     }),
 
-    getAlbumById: protectedProcedure
-      .input(z.object({ id: z.number() }))
-      .query(async ({ ctx, input }) => {
-        const existingAlbum = await ctx.db.query.albums.findFirst({
-          where: eq(albums.id, input.id),
+  getAlbumById: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const existingAlbum = await ctx.db.query.albums.findFirst({
+        where: eq(albums.id, input.id),
+      });
+      if (!existingAlbum) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Album not found",
         });
-        if (!existingAlbum) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Album not found",
-          });
-        }
-        return existingAlbum;
+      }
+      return existingAlbum;
+    }),
+
+  moveFromAlbumToAlbum: protectedProcedure
+    .input(
+      z.object({
+        id: z.array(z.string()),
+        toAlbumTitle: z.string(),
       }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (!ctx.user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Unauthorized",
+        });
+      }
+      const movedToAlbum = await ctx.db.query.albums.findFirst({
+        where: eq(albums.name, input.toAlbumTitle),
+      });
+      if (!movedToAlbum) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Album not found",
+        });
+      }
+      const movedFiles = await ctx.db
+        .update(albumFiles)
+        .set({
+          albumId: movedToAlbum.id,
+        })
+        .where(
+          inArray(
+            albumFiles.fileId,
+            input.id.map((id) => id),
+          ),
+        );
+
+      return movedFiles;
+    }),
 });

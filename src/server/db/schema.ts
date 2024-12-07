@@ -65,7 +65,7 @@ export const comments = createTable("comments", {
     .$defaultFn(() => crypto.randomUUID()),
   fileId: varchar("file_id", { length: 255 })
     .notNull()
-    .references(() => files.id , { onDelete: "cascade" }), // Link to the file
+    .references(() => files.id, { onDelete: "cascade" }), // Link to the file
   userId: varchar("user_id", { length: 255 })
     .notNull()
     .references(() => users.id), // Link to the user who commented
