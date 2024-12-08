@@ -43,10 +43,5 @@
 3. **Set Privacy**: Choose to make your images private or public.
 4. **Explore Showcases**: View public images on the showcases page by following other users.
 
-## License
-This project is licensed under the MIT License .
-
-## Contact
-For any questions or suggestions, please contact us at khaledmedhat.dev@gmail.com .
 
 ---
