@@ -9,12 +9,10 @@ export default function ShowcasesPageLayout({
     showcasemodal: React.ReactNode;
 }>) {
     return (
-        <div className="flex min-h-screen w-full flex-col">
-            <main>
-                {children}
-                {showcasemodal}
+        <main className="flex min-h-screen w-full flex-col">
+            {children}
+            {showcasemodal}
 
-            </main>
-        </div>
+        </main>
     );
 }

@@ -11,6 +11,8 @@ import {
   varchar,
   json,
   pgEnum,
+  boolean,
+  type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
@@ -65,14 +67,21 @@ export const comments = createTable("comments", {
     .$defaultFn(() => crypto.randomUUID()),
   fileId: varchar("file_id", { length: 255 })
     .notNull()
-    .references(() => files.id, { onDelete: "cascade" }), // Link to the file
+    .references(() => files.id, { onDelete: "cascade" }),
   userId: varchar("user_id", { length: 255 })
     .notNull()
-    .references(() => users.id), // Link to the user who commented
-  content: text("content").notNull(), // Comment text
+    .references(() => users.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
+  parentId: varchar("parent_id").references((): AnyPgColumn => comments.id, {
+    onDelete: "cascade",
+  }),
+  isReply: boolean("is_reply").default(false),
+  likesInfo: json("likes_info")
+    .$type<{ liked: boolean; userId: string }[]>()
+    .default([]),
 });
 
 export const albumFiles = createTable(
@@ -262,7 +271,8 @@ export const albumFilesRelations = relations(albumFiles, ({ one }) => ({
   album: one(albums), // Direct relation to albums
 }));
 
-export const commentsRelations = relations(comments, ({ one }) => ({
+export const commentsRelations = relations(comments, ({ one, many }) => ({
   file: one(files, { fields: [comments.fileId], references: [files.id] }),
   user: one(users, { fields: [comments.userId], references: [users.id] }),
+  replies: many(comments),
 }));

@@ -17,11 +17,12 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { Button } from "~/components/ui/button";
 import DeleteButton from "./DeleteButton";
 import ToAlbumButton from "./ToAlbumButton";
+import { typeOfFile } from "~/utils/utils";
 
 const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
   const { data: files, isLoading } = api.file.getFiles.useQuery();
   const [filter, setFilter] = useState<string>('');
-  const { setSelectedFiles, removeSelectedFiles, selectedFiles, isSelecting, setIsSelecting, setSelectedFilesToEmpty } =
+  const { setSelectedFiles, removeSelectedFiles, selectedFiles, isSelecting, setIsSelecting, setSelectedFilesToEmpty, fileType } =
     useFileStore();
   function foundedFileInSelectedFiles(id: string) {
     const isFoundedFile = selectedFiles.find((file) => file.id === id);
@@ -52,7 +53,7 @@ const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
       <div className="flex items-center gap-2">
         {selectedFiles.length > 0 ?
           <div className="flex gap-2 items-center xl:hidden">
-            <DeleteButton />
+            <DeleteButton fileType={fileType} />
             <ToAlbumButton gallerySlug={gallerySlug} />
           </div>
           : <Select value={filter} onValueChange={(value) => setFilter(value)}>
@@ -108,7 +109,7 @@ const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                   <div className="relative h-full w-full">
                     <div className="h-full w-[300px]">
 
-                      {file.fileType?.includes('image') ?
+                      {typeOfFile(file.fileType) === 'Image' ?
                         <AspectRatio ratio={1 / 1}>
                           <Image
                             priority

@@ -3,10 +3,10 @@ import { useTheme } from "next-themes";
 import { Button } from "~/components/ui/button"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/hover-card";
 import { api } from "~/trpc/react";
-import { type User } from "~/types/types";
+import { LikesInfo, type User } from "~/types/types";
 import { formatNumber } from "~/utils/utils";
 
-const LikeButton: React.FC<{ likedUsers: User[] | undefined, fileId: string, userId: string | undefined, fileLikes: number | undefined, fileLikesInfo: { liked: boolean, userId: string }[] | null }> = ({ likedUsers, fileId, userId, fileLikes, fileLikesInfo }) => {
+const LikeButton: React.FC<{ commentId?: string, commentLikesInfo?: LikesInfo[] | null, likedUsers: User[] | undefined, fileId?: string, userId: string | undefined, likesCount: number | undefined, fileLikesInfo?: LikesInfo[] | null }> = ({ likedUsers, fileId, userId, likesCount, fileLikesInfo, commentLikesInfo, commentId }) => {
     const theme = useTheme()
     const utils = api.useUtils();
     const { mutate: likeFile, isPending: isLikePending } = api.file.likeFile.useMutation({
@@ -21,22 +21,47 @@ const LikeButton: React.FC<{ likedUsers: User[] | undefined, fileId: string, use
             void utils.file.getShowcaseFiles.invalidate();
         },
     })
+
+    const { mutate: likeComment, isPending: isCommentLikePending } = api.comment.likeComment.useMutation({
+        onSuccess: () => {
+            void utils.comment.getAllComments.invalidate();
+
+        },
+    })
+    const { mutate: unlikeComment, isPending: isCommentUnlikePending } = api.comment.unlikeComment.useMutation({
+        onSuccess: () => {
+            void utils.comment.getAllComments.invalidate();
+        },
+    })
     const findUserLikedFile = fileLikesInfo?.find(like => like.userId === userId)
+    const findUserLikedComment = commentLikesInfo && commentLikesInfo.find(like => like.userId === userId)
+    const findUsersLiked = findUserLikedComment || findUserLikedFile
     return (
         <div className="flex items-center gap-1">
-            <HoverCard>
+            <HoverCard >
                 <HoverCardTrigger asChild>
-                    <Button disabled={isLikePending || isUnlikePending} variant='ghost' onClick={() => {
-                        if (findUserLikedFile) {
-                            unlikeFile({ id: fileId })
-                        } else {
-                            likeFile({ id: fileId })
+                    <Button disabled={isLikePending || isUnlikePending || isCommentLikePending || isCommentUnlikePending} variant='ghost' onClick={() => {
+                        if (fileId) {
+                            if (findUserLikedFile) {
+                                unlikeFile({ id: fileId })
+                            } else {
+                                likeFile({ id: fileId })
 
+                            }
+                        } else {
+                            if (commentId) {
+                                if (findUserLikedComment) {
+                                    unlikeComment({ id: commentId })
+                                } else {
+                                    likeComment({ id: commentId })
+
+                                }
+                            }
                         }
                     }}
-                        className="p-0 hover:bg-transparent"
+                        className="p-0 hover:bg-transparent h-fit"
                     >
-                        <Heart size={22} fill={findUserLikedFile ? "#FF0000" : theme.resolvedTheme === 'dark' ? "#171717" : "#FFFFFF"} color={findUserLikedFile && "#FF0000"} />
+                        <Heart size={22} fill={findUsersLiked ? "#FF0000" : theme.resolvedTheme === 'dark' ? "#171717" : "#FFFFFF"} color={findUsersLiked && "#FF0000"} />
                     </Button>
                 </HoverCardTrigger>
                 {likedUsers && likedUsers?.length > 0 &&
@@ -46,9 +71,10 @@ const LikeButton: React.FC<{ likedUsers: User[] | undefined, fileId: string, use
                         ))}
                     </HoverCardContent>
                 }
+
             </HoverCard>
-            <p>
-                {formatNumber(fileLikes!)}
+            <p className="h-fit">
+                {formatNumber(likesCount!)}
             </p>
         </div>
     )

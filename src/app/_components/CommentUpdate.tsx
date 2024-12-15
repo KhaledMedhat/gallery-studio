@@ -1,24 +1,20 @@
+import { api } from "~/trpc/react";
+import Picker from '@emoji-mart/react'
+import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
+import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Smile, SendHorizontal } from "lucide-react";
 import { useForm } from "react-hook-form";
-import data, { type Emoji } from '@emoji-mart/data'
 import { z } from "zod";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form"
-import { api } from "~/trpc/react";
-import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
+import data, { type Emoji } from '@emoji-mart/data'
+import { useTheme } from "next-themes";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { useTheme } from "next-themes";
-import Picker from '@emoji-mart/react'
-import { useRouter } from "next/navigation";
-import { useFileStore } from "~/store";
-import { useEffect } from "react";
 
-const CommentInput: React.FC<{ fileId: string, originalComment?: string | undefined }> = ({ fileId, originalComment }) => {
-    const { setCommentIsUpdating, isReplying, setIsReplying, commentInfo, setCommentInfo } = useFileStore()
-    // console.log(commentInfo)
-    const router = useRouter()
+
+const CommentUpdate: React.FC<{ commentId: string, originalComment: string, setCommentIsUpdating: (arg: boolean) => void }> = ({ commentId, originalComment, setCommentIsUpdating }) => {
     const theme = useTheme()
+    const utils = api.useUtils();
     const formSchema = z.object({
         comment: z.string()
     })
@@ -28,35 +24,10 @@ const CommentInput: React.FC<{ fileId: string, originalComment?: string | undefi
             comment: originalComment ?? "",
         },
     });
-    useEffect(() => {
-        if (commentInfo.commentUsername) {
-            form.setValue("comment", `@${commentInfo.commentUsername} `)
-        }
-    }, [commentInfo.commentUsername, form, setCommentInfo])
-    const utils = api.useUtils();
     const { mutate: updateComment, isPending: isUpdatingComment } = api.comment.updateComment.useMutation({
         onSuccess: () => {
             setCommentIsUpdating(false)
-            void utils.file.getFileById.invalidate();
-            void utils.file.getShowcaseFiles.invalidate();
-        },
-    })
-
-    const { mutate: postComment, isPending: isPostingComment } = api.comment.postComment.useMutation({
-        onSuccess: () => {
-            void utils.file.getFileById.invalidate();
-            void utils.file.getShowcaseFiles.invalidate();
-            router.refresh()
-            form.reset()
-        },
-    })
-    const { mutate: postReply, isPending: isPostingReply } = api.comment.postReply.useMutation({
-        onSuccess: () => {
-            void utils.file.getFileById.invalidate();
-            void utils.file.getShowcaseFiles.invalidate();
-            router.refresh()
-            form.reset()
-            setIsReplying(false)
+            void utils.comment.getAllComments.invalidate();
         },
     })
     const onEmojiSelect = (emoji: Emoji) => {
@@ -69,15 +40,10 @@ const CommentInput: React.FC<{ fileId: string, originalComment?: string | undefi
             setCommentIsUpdating(false)
             return
         }
-        if (commentInfo?.commentId) {
-            if (isReplying) {
-                postReply({ id: commentInfo.commentId, content: data.comment })
-            } else {
-                updateComment({ id: commentInfo.commentId, content: data.comment })
-            }
-        } else {
-            postComment({ id: fileId, content: data.comment })
-        }
+
+        updateComment({ id: commentId, content: data.comment })
+
+
     };
     return (
         <Form {...form}>
@@ -102,7 +68,7 @@ const CommentInput: React.FC<{ fileId: string, originalComment?: string | undefi
                         <Picker data={data} onEmojiSelect={onEmojiSelect} theme={theme.resolvedTheme} />
                     </PopoverContent>
                 </Popover>
-                <Button className='hover:bg-none' variant='ghost' disabled={form.getValues("comment").trim().length === 0 || isPostingComment || isUpdatingComment || isPostingReply}>
+                <Button className='hover:bg-none' variant='ghost' disabled={form.getValues("comment").trim().length === 0 ||  isUpdatingComment}>
                     <SendHorizontal size={20} />
                 </Button>
             </form>
@@ -110,4 +76,4 @@ const CommentInput: React.FC<{ fileId: string, originalComment?: string | undefi
     )
 }
 
-export default CommentInput
+export default CommentUpdate

@@ -5,6 +5,7 @@ import {
   generateClientDropzoneAccept,
   generatePermittedFileTypes,
 } from "uploadthing/client";
+import { type UploadThingError } from "uploadthing/server";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { useToast } from "~/hooks/use-toast";
@@ -15,8 +16,9 @@ const UploadthingButton: React.FC<{
   isImageComponent?: boolean;
   setFile: (args: File | undefined) => void;
   label: string;
+  isProfile: boolean;
   isFileError?: boolean;
-}> = ({ isImageComponent, setFile, label, isFileError }) => {
+}> = ({ isImageComponent, setFile, label, isFileError, isProfile }) => {
   const { setIsUploading, setProgress, setFileUrl, setFileKey, setFileType } =
     useFileStore();
   const { toast } = useToast();
@@ -42,12 +44,15 @@ const UploadthingButton: React.FC<{
             ? "You can't upload more than 1 file at a time"
             : e.message,
       });
+      setIsUploading(false);
     },
   });
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
-      startUpload(acceptedFiles).catch((e) => console.log(e));
+      startUpload(acceptedFiles).catch((e: UploadThingError) => {
+        return e
+      });
       setFile(acceptedFiles[0]);
     },
     [setFile, startUpload],
@@ -79,7 +84,8 @@ const UploadthingButton: React.FC<{
             drop
           </p>
           <p className={`${!isImageComponent && "text-gray-100"} text-xs text-center w-3/4`}>
-            Image, Video or GIF (MAX. 32MB|Image/GIF) (MAX. 256MB|Video)
+            {isProfile ? ' Images type allowed are .png, .jpg, .jpeg (MAX. 32MB|Image)' : ' Image, Video or GIF (MAX. 32MB|Image/GIF) (MAX. 256MB|Video)'}
+
           </p>
         </div>
         <Input
@@ -87,7 +93,7 @@ const UploadthingButton: React.FC<{
           id="profileImage"
           name="profileImage"
           type="file"
-          accept="image/*, video/*"
+          accept={isProfile ? ".png, .jpg, .jpeg" : "image/*, video/*"}
           className="hidden"
         />
       </div>

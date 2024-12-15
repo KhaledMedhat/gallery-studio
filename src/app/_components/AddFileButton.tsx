@@ -44,6 +44,7 @@ import Video from "./Video";
 import { Switch } from "~/components/ui/switch";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
 import { useRouter } from "next/navigation";
+import { typeOfFile } from "~/utils/utils";
 
 const AddFileButton: React.FC<{
   files?: fileType[] | undefined;
@@ -123,8 +124,10 @@ const AddFileButton: React.FC<{
       setIsDialogOpen(false);
       form.reset();
       router.refresh()
+      void utils.file.getFiles.invalidate();
+      if(data?.filePrivacy === 'public') void utils.file.getShowcaseFiles.invalidate();
       toast({
-        description: <span>Your {data?.fileType?.includes('image') ? data.fileType.includes("gif") ? "GIF" : "Image" : "Video"} has been added successfully</span>,
+        description: <span>Your {typeOfFile(data?.fileType)} has been added successfully</span>,
       });
       if (isTabs && data) {
         addToExistedAlbum({ id: [data.id], albumId: Number(albumId) })
@@ -154,8 +157,6 @@ const AddFileButton: React.FC<{
       });
     }
   };
-
-
   if (isTabs) {
     return (
       <Card>
@@ -176,7 +177,7 @@ const AddFileButton: React.FC<{
               <div className="flex flex-col gap-6">
                 {file && fileUrl && progress === 100 ? (
                   <div className="relative flex flex-col items-center justify-center gap-6">
-                    {fileType.includes("video") ? (
+                    {typeOfFile(fileType) === 'Video' ? (
                       <Video url={fileUrl} />
                     ) : (
                       <AspectRatio ratio={1 / 1}>
@@ -189,7 +190,7 @@ const AddFileButton: React.FC<{
                       </AspectRatio>
                     )}
                     <Button
-                      className="absolute right-0 top-0"
+                      className="absolute right-0 top-0 hover:bg-transparent"
                       type="button"
                       variant="ghost"
                       onClick={async () => {
@@ -200,7 +201,7 @@ const AddFileButton: React.FC<{
                         }
                       }}
                     >
-                      <X size={20} />
+                      <X size={20} className={`${typeOfFile(fileType) === 'Video' ? "text-accent" : "text-foreground-accent"}`} />
                     </Button>
                   </div>
                 ) : isUploading && progress !== 0 ? (
@@ -222,6 +223,7 @@ const AddFileButton: React.FC<{
                     setFile={setFile}
                     label={"Image"}
                     isFileError={isFileError}
+                    isProfile={false}
                   />
                 )}
 
@@ -249,20 +251,20 @@ const AddFileButton: React.FC<{
                         <Input placeholder="#tags" {...field} />
                       </FormControl>
                       <FormDescription>
-                        Enter image tags if you want to add them.
+                        Enter showcase tags to be searched by it.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                {file &&
+                {file && progress === 100 &&
                   <FormField
                     control={form.control}
                     name="privacy"
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center gap-1 justify-between rounded-lg border p-3 shadow-sm">
                         <div className="space-y-0.5">
-                          <FormLabel>{fileType.includes('image') ? "Image Privacy" : "Video Privacy"}</FormLabel>
+                          <FormLabel>Showcase Privacy</FormLabel>
                           <FormDescription>
                             By default it sets to private but you can change it to public.
                           </FormDescription>
@@ -338,7 +340,7 @@ const AddFileButton: React.FC<{
             <div className="flex flex-col gap-6">
               {file && fileUrl && progress === 100 ? (
                 <div className="relative flex flex-col items-center justify-center gap-6">
-                  {fileType.includes("video") ? (
+                  {typeOfFile(fileType) === 'Video' ? (
                     <Video url={fileUrl} />
                   ) : (
                     <AspectRatio ratio={1 / 1}>
@@ -351,7 +353,7 @@ const AddFileButton: React.FC<{
                     </AspectRatio>
                   )}
                   <Button
-                    className="absolute right-0 top-0"
+                    className="absolute right-0 top-0 hover:bg-transparent"
                     type="button"
                     variant="ghost"
                     onClick={async () => {
@@ -362,7 +364,7 @@ const AddFileButton: React.FC<{
                       }
                     }}
                   >
-                    <X size={20} />
+                    <X size={20} className={`${typeOfFile(fileType) === 'Video' ? "text-accent" : "text-foreground-accent"}`} />
                   </Button>
                 </div>
               ) : isUploading && progress !== 0 ? (
@@ -384,6 +386,7 @@ const AddFileButton: React.FC<{
                   setFile={setFile}
                   label={"Image"}
                   isFileError={isFileError}
+                  isProfile={false}
                 />
               )}
 
@@ -411,7 +414,7 @@ const AddFileButton: React.FC<{
                       <Input placeholder="#tags" {...field} />
                     </FormControl>
                     <FormDescription>
-                      Enter image tags if you want to add them.
+                      Enter showcase tags to be searched by it.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -424,7 +427,7 @@ const AddFileButton: React.FC<{
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center gap-1 justify-between rounded-lg border p-3 shadow-sm">
                       <div className="space-y-0.5">
-                        <FormLabel>{fileType.includes('image') ? "Image Privacy" : "Video Privacy"}</FormLabel>
+                        <FormLabel>Showcase Privacy</FormLabel>
                         <FormDescription>
                           By default it sets to private but you can change it to public.
                         </FormDescription>

@@ -8,7 +8,7 @@ import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import { type Showcase as showcaseType, type User } from '~/types/types'
-import { getInitials } from '~/utils/utils'
+import { getInitials, typeOfFile } from '~/utils/utils'
 import BlurFade from '~/components/ui/blur-fade'
 import Link from 'next/link'
 import Video from './Video'
@@ -22,14 +22,17 @@ const UserProfile: React.FC<{ user: User | null, files: showcaseType[], currentU
     const sameUser = currentUser?.id === user?.id
     const isInFollowing = currentUser?.followings?.find(following => following.userId === user?.id)
     const { setIsUserUpdating, isUserUpdating } = useUserStore()
+    const utils = api.useUtils()
     const { mutate: followUser, isPending: isFollowing } = api.user.followUser.useMutation({
         onSuccess: () => {
             router.refresh()
+            void utils.file.getShowcaseFiles.invalidate()
         }
     })
     const { mutate: unfollowUser, isPending: isUnfollowing } = api.user.unfollowUser.useMutation({
         onSuccess: () => {
             router.refresh()
+            void utils.file.getShowcaseFiles.invalidate()
         }
     })
     return (
@@ -117,7 +120,7 @@ const UserProfile: React.FC<{ user: User | null, files: showcaseType[], currentU
                                 {files.length > 0 ? files?.map((file, idx) => (
                                     <BlurFade key={file.id} delay={0.25 + Number(idx) * 0.05} inView>
                                         <Link href={`/showcases/${file.id}`}>
-                                            {file.fileType?.includes('image') ?
+                                            {typeOfFile(file.fileType) === 'Image' ?
                                                 <div className="h-[300px] max-w-full relative">
                                                     <Image
                                                         priority

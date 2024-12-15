@@ -35,8 +35,13 @@ export interface Comment {
   fileId: string;
   userId: string;
   content: string;
+  parentId: string | null;
+  isReply: boolean | null;
   createdAt: Date;
   user: User;
+  replies?: Comment[];
+  likedUsers?: User[];
+  likesInfo: LikesInfo[] | null;
 }
 
 export interface LikesInfo {
@@ -126,18 +131,28 @@ export interface selectedFiles {
   id: string;
   fileKey: string;
 }
-
+export interface CommentInfo {
+  commentId: string | undefined;
+  commentUsername: string | undefined;
+}
 export interface FileStore {
+  commentOwnerName: undefined | string;
+  commentInfo: CommentInfo;
+  isReplying: boolean;
   fileUrl: string;
   fileKey: string;
   fileType: string;
   isUploading: boolean;
   isUpdating: boolean;
+  isCommentUpdating: boolean;
   isUpdatingPending: boolean;
   isSelecting: boolean;
   isCommenting: boolean;
   progress: number;
   selectedFiles: selectedFiles[];
+  setCommentInfo: (commentInfo: CommentInfo) => void;
+  setIsReplying: (isReplying: boolean) => void;
+  setCommentOwnerName: (commentOwnerName: string | undefined) => void;
   setIsSelecting: () => void;
   setIsCommenting: (isCommenting: boolean) => void;
   setSelectedFilesToEmpty: () => void;
@@ -149,5 +164,6 @@ export interface FileStore {
   setIsUploading: (isUploading: boolean) => void;
   setProgress: (progress: number) => void;
   setIsUpdating: (isUpdating: boolean) => void;
+  setCommentIsUpdating: (isCommentUpdating: boolean) => void;
   setIsUpdatingPending: (isUpdatingPending: boolean) => void;
 }

@@ -15,6 +15,7 @@ import { toast } from "~/hooks/use-toast"
 import { useParams } from "next/navigation"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import AddFileButton from "./AddFileButton";
+import { typeOfFile } from "~/utils/utils";
 
 const ChooseFilesModal: React.FC<{ isInsideAlbum?: boolean }> = ({ isInsideAlbum }) => {
     const param = useParams()
@@ -89,7 +90,7 @@ const ChooseFilesModal: React.FC<{ isInsideAlbum?: boolean }> = ({ isInsideAlbum
                                             <div className="relative h-full w-full">
                                                 <div className="w-[240px] h-[300px]">
 
-                                                    {file.fileType?.includes('image') ?
+                                                    {typeOfFile(file.fileType) === 'Image' ?
                                                         <Image
                                                             priority
                                                             src={file.url}

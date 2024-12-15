@@ -7,7 +7,7 @@ import {
 } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { z } from "zod";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, or } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const fileRouter = createTRPCRouter({
@@ -75,9 +75,12 @@ export const fileRouter = createTRPCRouter({
     const showcaseFiles = await ctx.db.query.files.findMany({
       where: and(
         eq(files.filePrivacy, "public"),
-        inArray(
-          files.createdById,
-          currentUser?.followings?.map((following) => following.userId) ?? [],
+        or(
+          inArray(
+            files.createdById,
+            currentUser?.followings?.map((following) => following.userId) ?? [],
+          ),
+          eq(files.createdById, ctx.user.id),
         ),
       ),
       with: {

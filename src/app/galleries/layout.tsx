@@ -8,11 +8,9 @@ export default function GalleryPageLayout({
   modal: React.ReactNode;
 }>) {
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <main>
-        {children}
-        {modal}
-      </main>
-    </div>
+    <main className="flex min-h-screen w-full flex-col">
+      {children}
+      {modal}
+    </main>
   );
 }

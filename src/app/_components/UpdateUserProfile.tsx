@@ -146,6 +146,8 @@ export const UpdateUserCoverImage: React.FC<{ coverImage: string }> = ({ coverIm
                                 <UploadthingButton
                                     setFile={setFile}
                                     label={"Cover Image"}
+                                    isImageComponent={true}
+                                    isProfile={true}
                                 />)
 
                         }
@@ -287,6 +289,8 @@ export const UpdateUserInfo: React.FC<{ image: string | undefined | null, name: 
                                     <UploadthingButton
                                         setFile={setFile}
                                         label={"Cover Image"}
+                                        isImageComponent={true}
+                                        isProfile={true}
                                     />)
 
                             }

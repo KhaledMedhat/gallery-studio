@@ -22,6 +22,7 @@ import { toast } from "~/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 import { useState } from "react";
+import { typeOfFile } from "~/utils/utils";
 
 const UpdateFileView: React.FC<{
   file: fileType;
@@ -89,6 +90,7 @@ const UpdateFileView: React.FC<{
           description: `Images has been Updated successfully.`,
         });
         void utils.file.getFileById.invalidate({ id: file.id });
+        void utils.file.getFiles.invalidate();
         if (!imageWanted) router.refresh()
       },
       onError: () => {
@@ -168,7 +170,7 @@ const UpdateFileView: React.FC<{
         </Form>
       </div>
       {imageWanted && <div className="relative mx-auto flex w-full max-w-full flex-col gap-4">
-        {file.fileType?.includes("video") ? (
+        {typeOfFile(file.fileType) === 'Video' ? (
           <Video url={file.url} className="rounded-lg" />
         ) : (
           <div className="aspect-w-16 aspect-h-9 relative h-auto w-full">

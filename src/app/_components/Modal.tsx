@@ -23,6 +23,7 @@ import FileOptions from "./FileOptions";
 import { api } from "~/trpc/react";
 import { useFileStore } from "~/store";
 import { type User } from "~/types/types";
+import Link from "next/link";
 
 dayjs.extend(relativeTime);
 export function Modal({
@@ -55,10 +56,12 @@ export function Modal({
               <HoverCard openDelay={100} closeDelay={100}>
                 <HoverCardTrigger asChild>
                   <Button variant="link" className="p-0 font-bold" tabIndex={-1}>
-                    @{file?.user.name}
+                    <Link href={`/${file?.user.name}`} >
+                      @{file?.user.name}
+                    </Link>
                   </Button>
                 </HoverCardTrigger>
-                <HoverCardContent className="w-80">
+                <HoverCardContent className="w-80 fixed">
                   <div className="flex items-center justify-start space-x-4">
                     <Avatar>
                       <AvatarImage src={file?.user.image ?? ""} />

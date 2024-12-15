@@ -40,7 +40,9 @@ const FileFullView: React.FC<{ user: User | undefined | null, file: Showcase, ga
                         <HoverCard>
                             <HoverCardTrigger asChild>
                                 <Button variant="link" className="p-0 font-bold">
-                                    @{file.user?.name}
+                                    <Link href={`/${file.user?.name}`} >
+                                        @{file.user?.name}
+                                    </Link>
                                 </Button>
                             </HoverCardTrigger>
                             <HoverCardContent className="w-80">
@@ -97,7 +99,7 @@ const FileFullView: React.FC<{ user: User | undefined | null, file: Showcase, ga
                                 ))}
                             </div>
                         </div>}
-                        <div className="flex items-center justify-between">
+                        {!isUpdating && <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <p className="text-sm text-accent-foreground">
                                     {dayjs(file.createdAt).fromNow()}
@@ -116,7 +118,8 @@ const FileFullView: React.FC<{ user: User | undefined | null, file: Showcase, ga
                                     </p>
                                 </div>
                             </div>
-                        </div>
+                        </div>}
+
 
 
                     </div>
@@ -139,7 +142,9 @@ const FileFullView: React.FC<{ user: User | undefined | null, file: Showcase, ga
                                             <HoverCard>
                                                 <HoverCardTrigger asChild>
                                                     <Button variant="link" className="p-0 font-bold">
-                                                        @{comment.user?.name}
+                                                        <Link href={`/${comment.user?.name}`} >
+                                                            @{comment.user?.name}
+                                                        </Link>
                                                     </Button>
                                                 </HoverCardTrigger>
                                                 <HoverCardContent className="w-80">
@@ -183,7 +188,7 @@ const FileFullView: React.FC<{ user: User | undefined | null, file: Showcase, ga
                     </div>
                 </div>
             }
-            {file.filePrivacy === 'public' &&
+            {file.filePrivacy === 'public' && !isUpdating &&
                 <Card className="sticky bottom-4 w-full">
                     <CardContent className="p-2">
                         <CommentInput fileId={file.id} />

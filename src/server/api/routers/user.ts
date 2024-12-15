@@ -362,12 +362,24 @@ export const userRouter = createTRPCRouter({
         ...(foundedUser?.followings ?? []),
         { followed: true, userId: foundedUser.id },
       ];
+
+      const updateFollowersForTheFolloweduser = [
+        ...(foundedUser.followers ?? []),
+        { followed: true, userId: ctx.user.id },
+      ];
       await ctx.db
         .update(users)
         .set({
           followings: updateFollowingUsers,
         })
         .where(eq(users.id, ctx.user.id));
+
+      await ctx.db
+        .update(users)
+        .set({
+          followers: updateFollowersForTheFolloweduser,
+        })
+        .where(eq(users.id, foundedUser.id));
     }),
   unfollowUser: protectedProcedure
     .input(z.object({ id: z.string() }))
@@ -398,6 +410,14 @@ export const userRouter = createTRPCRouter({
           ),
         })
         .where(eq(users.id, ctx.user.id));
+      await ctx.db
+        .update(users)
+        .set({
+          followers: foundedUser?.followers?.filter(
+            (follow) => follow.userId !== ctx.user.id,
+          ),
+        })
+        .where(eq(users.id, foundedUser.id));
     }),
 
   usersSearch: protectedProcedure

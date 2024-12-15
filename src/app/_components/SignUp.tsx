@@ -59,9 +59,10 @@ const SignUp = () => {
   const userInfo = useUserStore((state) => state.userRegistrationInfo);
   const userImage = useUserStore((state) => state.setUserImage);
   const formSchema = z.object({
-    firstName: z.string().min(1, "First name is required"),
-    lastName: z.string().min(1, "Last name is required"),
-    username: z.string().min(1, "Email is required"),
+    firstName: z.string().min(1, "First name is required").regex(/^[A-Za-z]+$/, "First name can only contain alphabets"),
+    lastName: z.string().min(1, "Last name is required").regex(/^[A-Za-z]+$/, "Last name can only contain alphabets"),
+    username: z.string().min(1, "Email is required").regex(/^[A-Za-z0-9][A-Za-z0-9_]*$/, "Username cannot start with special characters and can only contain letters, numbers, and underscores")
+      .refine((value) => !value.includes("@"), "Username cannot contain '@'"),
     email: z.string().email().min(1, "Email is required"),
     password: z.string().min(1, "Password is required")
       .min(8, "Password cannot be less than 8 characters"),
@@ -299,6 +300,7 @@ const SignUp = () => {
           <UploadthingButton
             setFile={setFile}
             label="Profile Image"
+            isProfile={true}
           />
         );
       default:
@@ -367,7 +369,7 @@ const SignUp = () => {
                   {stages[stage]?.subtitle}
                 </p>
                 {renderStageContent()}
-                <div className="flex justify-between">
+                <div className="flex gap-2 items-center justify-between">
                   {stage > 0 && (
                     <Button
                       type="button"
@@ -382,19 +384,20 @@ const SignUp = () => {
                     form={stage === 0 ? "sign-up-form" : undefined}
                     type={stage === 0 ? "submit" : "button"}
                     className={`${stage === 0 ? "w-full" : "ml-auto"
-                      } transform rounded-md border border-solid border-white bg-gradient-to-r from-gray-700 to-gray-900 px-4 py-2 font-bold text-white transition duration-300 ease-in-out hover:scale-105 hover:from-gray-800 hover:to-black focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50`}
+                      } ${progress !== 100 && isUploading && "hidden"} transform rounded-md border border-solid border-white bg-gradient-to-r from-gray-700 to-gray-900 px-4 py-2 font-bold text-white transition duration-300 ease-in-out hover:scale-105 hover:from-gray-800 hover:to-black focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50`}
                     disabled={isLoading || isVerifyEmailPending}
                     onClick={
                       stage === stages.length - 1 ? onFinishRegistry : undefined
                     }
                   >
+                    {/* FIXME: Make the 'continue without profile picture' hidden in the last second of the upload */}
                     {isLoading || isVerifyEmailPending ? (
                       <div className="flex items-center ">
                         <LoaderCircle size={16} className="mr-2 animate-spin" />
                         Processing...
                       </div>
                     ) : stage === stages.length - 1 ? (
-                      fileUrl && progress === 100 ? (
+                      fileUrl && progress === 100 && !isUploading ? (
                         "Submit"
                       ) : (
                         "Continue Without Profile Picture"

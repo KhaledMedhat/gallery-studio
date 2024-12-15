@@ -9,6 +9,7 @@ import { useState } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip";
 import BlurFade from "~/components/ui/blur-fade";
 import { useParams, useRouter } from "next/navigation";
+import { typeOfFile } from "~/utils/utils";
 
 const DeleteButton: React.FC<{
     fileId?: string | null,
@@ -32,7 +33,7 @@ const DeleteButton: React.FC<{
             setSelectedFilesToEmpty()
             toast({
                 title: "Deleted Successfully.",
-                description: `${fileType?.includes('image') ? fileType.includes("gif") ? "GIF" : "Image" : "Video"} has been deleted from the album successfully.`,
+                description: `${selectedFiles.length > 0 && selectedFiles.length < 2 ? typeOfFile(fileType) : "Showcases"} has been deleted from the album successfully.`,
             });
             setIsDialogOpen(false)
             void utils.file.getAlbumFiles.invalidate();
@@ -54,13 +55,13 @@ const DeleteButton: React.FC<{
                 setSelectedFilesToEmpty();
                 toast({
                     title: "Deleted Successfully.",
-                    description: `${fileType?.includes('image') ? fileType.includes("gif") ? "GIF" : "Image" : "Video"} has been deleted successfully.`,
+                    description: `${selectedFiles.length > 0 && selectedFiles.length < 2 ? typeOfFile(fileType) : "Showcases"} has been deleted successfully.`,
                 });
                 setIsDialogOpen(false)
                 if (param.id) router.push(`/galleries/${param.id as string}`)
-                router.back()
-                if (handleOpenModalChange) handleOpenModalChange()
+                if (handleOpenModalChange) handleOpenModalChange();
                 void utils.file.getFiles.invalidate();
+                void utils.file.getShowcaseFiles.invalidate();
                 if (param.albumId) void utils.file.getAlbumFiles.invalidate();
 
             },

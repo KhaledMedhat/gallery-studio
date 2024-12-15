@@ -16,6 +16,7 @@ import { Button } from "~/components/ui/button";
 import DeleteButton from "./DeleteButton";
 import { useParams } from "next/navigation";
 import FromAlbumToAlbum from "./FromAlbumToAlbum";
+import { typeOfFile } from "~/utils/utils";
 
 const Album: React.FC<{ id: string }> = ({ id }) => {
     const param = useParams()
@@ -82,7 +83,7 @@ const Album: React.FC<{ id: string }> = ({ id }) => {
                                 <div className="relative h-full w-full">
                                     <div className="h-full w-[300px]">
 
-                                        {file.fileType?.includes('image') ?
+                                        {typeOfFile(file.fileType) === 'Image' ?
                                             <AspectRatio ratio={1 / 1}>
                                                 <Image
                                                     priority

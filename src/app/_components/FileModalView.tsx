@@ -16,6 +16,7 @@ import { type User } from "~/types/types";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/hover-card";
 import CommentInput from "./CommentInput";
 import LikeButton from "./LikeButton";
+import Link from "next/link";
 
 dayjs.extend(relativeTime);
 const FileModalView: React.FC<{
@@ -62,7 +63,7 @@ const FileModalView: React.FC<{
           {file.filePrivacy === 'private' ? <LockKeyhole size={16} className="text-accent-foreground" /> : <Earth size={16} className="text-accent-foreground" />}
         </div>
         <div className="flex items-center gap-2">
-        <LikeButton fileId={file.id} userId={user?.id} fileLikes={file.likesInfo?.length} fileLikesInfo={file.likesInfo} likedUsers={file.likedUsers} />
+          <LikeButton fileId={file.id} userId={user?.id} fileLikes={file.likesInfo?.length} fileLikesInfo={file.likesInfo} likedUsers={file.likedUsers} />
           <div className="flex items-center gap-1">
             <Button variant='ghost' className="p-0 hover:bg-transparent" >
               <MessageCircle size={22} />
@@ -89,10 +90,12 @@ const FileModalView: React.FC<{
                       <HoverCard>
                         <HoverCardTrigger asChild>
                           <Button variant="link" className="p-0 font-bold">
-                            @{comment.user?.name}
+                            <Link href={`/${comment.user?.name}`} >
+                              @{comment.user?.name}
+                            </Link>
                           </Button>
                         </HoverCardTrigger>
-                        <HoverCardContent className="w-80">
+                        <HoverCardContent className="w-80 fixed">
                           <div className="flex items-center justify-start space-x-4">
                             <Avatar>
                               <AvatarImage src={comment.user?.image ?? ""} />

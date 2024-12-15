@@ -71,7 +71,7 @@ const GalleryNavbar: React.FC<{ user: User | null | undefined, files: fileType[]
   const utils = api.useUtils();
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const { data: albums } = api.album.getAlbums.useQuery({ id: user?.gallery?.slug ?? "" });
-  const { selectedFiles, setSelectedFilesToEmpty } = useFileStore();
+  const { selectedFiles, setSelectedFilesToEmpty, fileType } = useFileStore();
   const isAlbum = pathname.includes("albums");
   const isInsideAlbum = pathname.includes("albums/");
   const formSchema = z.object({
@@ -234,7 +234,7 @@ const GalleryNavbar: React.FC<{ user: User | null | undefined, files: fileType[]
         </DockIcon>
         {selectedFiles.length > 0 && (
           <DockIcon className="hidden xl:flex">
-            <DeleteButton />
+            <DeleteButton fileType={fileType} />
           </DockIcon>
         )}
         {selectedFiles.length > 0 && !isInsideAlbum && (
@@ -242,7 +242,7 @@ const GalleryNavbar: React.FC<{ user: User | null | undefined, files: fileType[]
             <ToAlbumButton gallerySlug={user?.gallery?.slug ?? ""} />
           </DockIcon>
         )}
-        {selectedFiles.length > 0 && (
+        {selectedFiles.length > 0 && isInsideAlbum && (
           <DockIcon className="hidden xl:flex">
             <FromAlbumToAlbum gallerySlug={user?.gallery?.slug ?? ""} />
           </DockIcon>

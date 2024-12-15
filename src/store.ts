@@ -5,6 +5,7 @@ import type {
   UserRegistry,
   FileStore,
   selectedFiles,
+  CommentInfo,
 } from "./types/types";
 
 export const useUserStore = create<Store>()(
@@ -19,7 +20,8 @@ export const useUserStore = create<Store>()(
         image: "",
       },
       isUserUpdating: false,
-      setIsUserUpdating: (isUpdating: boolean) => set(() => ({ isUserUpdating: isUpdating })),
+      setIsUserUpdating: (isUpdating: boolean) =>
+        set(() => ({ isUserUpdating: isUpdating })),
       setUserRegistry: (user: UserRegistry) =>
         set(() => ({ userRegistrationInfo: user })),
       setUserImage: (image: string) =>
@@ -35,16 +37,29 @@ export const useUserStore = create<Store>()(
 );
 
 export const useFileStore = create<FileStore>()((set, get) => ({
+  commentOwnerName: undefined,
+  commentInfo: {
+    commentId: undefined,
+    commentUsername: undefined,
+  },
+  isReplying: false,
   fileUrl: "",
   fileKey: "",
   fileType: "",
   isUploading: false,
   isUpdating: false,
+  isCommentUpdating: false,
   isUpdatingPending: false,
   isSelecting: false,
   isCommenting: false,
   progress: 0,
   selectedFiles: [],
+  setCommentInfo: (commentInfo: CommentInfo) =>
+    set(() => ({ commentInfo: commentInfo })),
+  setIsReplying: (isReplying: boolean) =>
+    set(() => ({ isReplying: isReplying })),
+  setCommentOwnerName: (commentOwnerName: string | undefined) =>
+    set(() => ({ commentOwnerName: commentOwnerName })),
   setIsCommenting: (isCommenting: boolean) =>
     set(() => ({ isCommenting: isCommenting })),
   setIsSelecting: () => set((state) => ({ isSelecting: !state.isSelecting })),
@@ -66,7 +81,8 @@ export const useFileStore = create<FileStore>()((set, get) => ({
     set(() => ({ isUploading: isUploading })),
   setIsUpdating: (isUpdating: boolean) =>
     set(() => ({ isUpdating: isUpdating })),
-
+  setCommentIsUpdating: (isCommentUpdating: boolean) =>
+    set(() => ({ isCommentUpdating: isCommentUpdating })),
   setProgress: (progress: number) => set(() => ({ progress: progress })),
   setIsUpdatingPending: (isUpdatingPending: boolean) =>
     set(() => ({ isUpdatingPending: isUpdatingPending })),

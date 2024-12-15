@@ -1,9 +1,9 @@
 import dayjs from "dayjs"
-import { CalendarIcon, Earth, MessageCircle } from "lucide-react"
+import { CalendarIcon, Earth, Ellipsis, MessageCircle, X } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import { Card, CardContent } from "~/components/ui/card"
-import type { User, Showcase } from "~/types/types"
-import { formatNumber, getInitials } from "~/utils/utils"
+import type { User, Showcase, Comment } from "~/types/types"
+import { extractComment, extractUsername, extractUsernameWithoutAt, formatNumber, getInitials } from "~/utils/utils"
 import Video from "./Video"
 import { AspectRatio } from "~/components/ui/aspect-ratio"
 import { Button } from "~/components/ui/button"
@@ -14,46 +14,64 @@ import { useFileStore } from "~/store"
 import CommentInput from "./CommentInput"
 import relativeTime from 'dayjs/plugin/relativeTime';
 import LikeButton from "./LikeButton"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "~/components/ui/dropdown-menu"
+import { api } from "~/trpc/react"
+import { Separator } from "~/components/ui/separator"
+import Comments from "./Comments"
+import FileOptions from "./FileOptions"
 
 dayjs.extend(relativeTime);
 
-const Showcase: React.FC<{ file: Showcase, user: User | undefined | null }> = ({ file, user }) => {
-    const { setIsCommenting } = useFileStore()
+const Showcase: React.FC<{ file: Showcase, currentUser: User | undefined | null }> = ({ file, currentUser }) => {
+    const { setIsCommenting, setCommentIsUpdating, isCommentUpdating, setIsReplying, setCommentInfo } = useFileStore()
+    const { data: allComments } = api.comment.getAllComments.useQuery({ id: file.commentsInfo?.map((comment) => comment.id) ?? [] })
+    console.log(allComments)
+    const utils = api.useUtils();
+    const { mutate: deleteComment, isPending: isDeletingComment } = api.comment.deleteComment.useMutation({
+        onSuccess: () => {
+            void utils.file.getFileById.invalidate();
+            void utils.file.getShowcaseFiles.invalidate();
+        },
+    })
+    const sameUser = currentUser?.id === file.createdById
     return (
-        <div key={file.id} className="flex flex-col items-center gap-2">
-            <div className="flex self-start gap-2">
-                <Avatar>
-                    <AvatarImage src={file.user?.image ?? ""} />
-                    <AvatarFallback>{getInitials(file.user?.firstName ?? "", file.user?.lastName ?? "")}</AvatarFallback>
-                </Avatar>
-                <HoverCard>
-                    <HoverCardTrigger asChild>
-                        <Button variant="link" className="p-0 font-bold">
-                            <Link href={`/${file?.user?.name}`} >
-                                @{file.user?.name}
-                            </Link>
-                        </Button>
-                    </HoverCardTrigger>
-                    <HoverCardContent className="w-80">
-                        <div className="flex items-center justify-start space-x-4">
-                            <Avatar>
-                                <AvatarImage src={file.user?.image ?? ""} />
-                                <AvatarFallback>{getInitials(file.user?.firstName ?? "", file.user?.lastName ?? "")}</AvatarFallback>
-                            </Avatar>
-                            <div className="space-y-1">
-                                <h4 className="text-sm font-semibold">@{file.user?.name}</h4>
-                                <p className="text-sm">{file.user?.bio ? `${file.user?.bio}.` : ""}</p>
-                                <div className="flex items-center pt-2">
-                                    <CalendarIcon className="mr-2 h-4 w-4 opacity-70" />
-                                    <span className="text-xs text-muted-foreground">
-                                        Joined {dayjs(file.user?.createdAt).format("MMMM")}{" "}
-                                        {dayjs(file.user?.createdAt).format("YYYY")}
-                                    </span>
+        <div key={file.id} className="flex pt-2 flex-col items-center gap-2">
+            <div className="flex w-full items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <Avatar>
+                        <AvatarImage src={file.user?.image ?? ""} />
+                        <AvatarFallback>{getInitials(file.user?.firstName ?? "", file.user?.lastName ?? "")}</AvatarFallback>
+                    </Avatar>
+                    <HoverCard>
+                        <HoverCardTrigger asChild>
+                            <Button variant="link" className="p-0 font-bold">
+                                <Link href={`/${file?.user?.name}`} >
+                                    @{file.user?.name}
+                                </Link>
+                            </Button>
+                        </HoverCardTrigger>
+                        <HoverCardContent className="w-80">
+                            <div className="flex items-center justify-start space-x-4">
+                                <Avatar>
+                                    <AvatarImage src={file.user?.image ?? ""} />
+                                    <AvatarFallback>{getInitials(file.user?.firstName ?? "", file.user?.lastName ?? "")}</AvatarFallback>
+                                </Avatar>
+                                <div className="space-y-1">
+                                    <h4 className="text-sm font-semibold">@{file.user?.name}</h4>
+                                    <p className="text-sm">{file.user?.bio ? `${file.user?.bio}.` : ""}</p>
+                                    <div className="flex items-center pt-2">
+                                        <CalendarIcon className="mr-2 h-4 w-4 opacity-70" />
+                                        <span className="text-xs text-muted-foreground">
+                                            Joined {dayjs(file.user?.createdAt).format("MMMM")}{" "}
+                                            {dayjs(file.user?.createdAt).format("YYYY")}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </HoverCardContent>
-                </HoverCard>
+                        </HoverCardContent>
+                    </HoverCard>
+                </div>
+                {sameUser && <FileOptions fileId={file.id} fileKey={file.fileKey} fileType={file.fileType} />}
             </div>
 
             <div className="w-full flex flex-col gap-2">
@@ -88,7 +106,7 @@ const Showcase: React.FC<{ file: Showcase, user: User | undefined | null }> = ({
                     <Earth size={16} className="text-accent-foreground" />
                 </div>
                 <div className="flex items-center gap-2">
-                    <LikeButton fileId={file.id} userId={user?.id} fileLikes={file.likesInfo?.length} fileLikesInfo={file.likesInfo} likedUsers={file.likedUsers} />
+                    <LikeButton fileId={file.id} userId={currentUser?.id} likesCount={file.likesInfo?.length} fileLikesInfo={file.likesInfo} likedUsers={file.likedUsers} />
                     <div className="flex items-center gap-1">
                         <Button variant='ghost' className="p-0 hover:bg-transparent" onClick={() => setIsCommenting(true)}>
                             <Link href={`/showcases/${file.id}`} >
@@ -101,68 +119,14 @@ const Showcase: React.FC<{ file: Showcase, user: User | undefined | null }> = ({
                     </div>
                 </div>
             </div>
-            <Card className="w-full">
-                <CardContent className="p-2">
+            <Card className="p-2 w-full">
+                <CardContent className="p-0">
                     {file?.commentsInfo && file.commentsInfo.length > 0 &&
-                        <div className="p-2 flex flex-col gap-2">
-                            {file.commentsInfo.slice(0, 2).map((comment) => (
-                                <div key={comment.id} className="flex flex-col items-start">
-                                    <div className="flex self-start items-center gap-2">
-                                        <Avatar className="h-8 w-8" >
-                                            <AvatarImage src={comment.user?.image ?? ""} />
-                                            <AvatarFallback>{getInitials(comment.user?.firstName ?? "", comment.user?.lastName ?? "")}</AvatarFallback>
-                                        </Avatar>
-                                        <HoverCard>
-                                            <HoverCardTrigger asChild>
-                                                <Button variant="link" className="p-0 font-bold h-fit">
-                                                    <Link href={`/${comment?.user?.name}`} >
-                                                        @{comment.user?.name}
-                                                    </Link>
-
-                                                </Button>
-                                            </HoverCardTrigger>
-                                            <HoverCardContent className="w-80">
-                                                <div className="flex items-center justify-start space-x-4">
-                                                    <Avatar>
-                                                        <AvatarImage src={comment.user?.image ?? ""} />
-                                                        <AvatarFallback>{getInitials(comment.user?.firstName ?? "", comment.user?.lastName ?? "")}</AvatarFallback>
-                                                    </Avatar>
-                                                    <div className="space-y-1">
-                                                        <h4 className="text-sm font-semibold">@{comment.user?.name}</h4>
-                                                        <p className="text-sm">{comment.user?.bio ? `${comment.user?.bio}.` : ""}</p>
-                                                        <div className="flex items-center pt-2">
-                                                            <CalendarIcon className="mr-2 h-4 w-4 opacity-70" />
-                                                            <span className="text-xs text-muted-foreground">
-                                                                Joined {dayjs(comment.user?.createdAt).format("MMMM")}{" "}
-                                                                {dayjs(comment.user?.createdAt).format("YYYY")}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </HoverCardContent>
-                                        </HoverCard>
-                                    </div>
-                                    <div className="pl-12">
-                                        <p className="">{comment.content}</p>
-                                        <p className="text-xs">{dayjs(comment.createdAt).fromNow(true).replace("minutes", "m")
-                                            .replace("minute", "m")
-                                            .replace("hours", "h")
-                                            .replace("hour", "h")
-                                            .replace("days", "d")
-                                            .replace("day", "d")
-                                            .replace("seconds", "s")
-                                            .replace("second", "s")
-                                            .replace("a", "1")}</p>
-                                    </div>
-                                </div>
-
-                            ))}
-                        </div>
+                        <Comments fileId={file.id} currentUser={currentUser} slicedComments={allComments ?? []} />
                     }
                     <CommentInput fileId={file.id} />
                 </CardContent>
             </Card>
-
         </div>
     )
 }
