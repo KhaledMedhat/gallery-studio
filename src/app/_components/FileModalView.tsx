@@ -63,7 +63,7 @@ const FileModalView: React.FC<{
           {file.filePrivacy === 'private' ? <LockKeyhole size={16} className="text-accent-foreground" /> : <Earth size={16} className="text-accent-foreground" />}
         </div>
         <div className="flex items-center gap-2">
-          <LikeButton fileId={file.id} userId={user?.id} fileLikes={file.likesInfo?.length} fileLikesInfo={file.likesInfo} likedUsers={file.likedUsers} />
+          <LikeButton fileId={file.id} userId={user?.id} likesCount={file.likesInfo?.length} fileLikesInfo={file.likesInfo} likedUsers={file.likedUsers} />
           <div className="flex items-center gap-1">
             <Button variant='ghost' className="p-0 hover:bg-transparent" >
               <MessageCircle size={22} />

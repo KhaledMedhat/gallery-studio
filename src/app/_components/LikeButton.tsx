@@ -3,7 +3,7 @@ import { useTheme } from "next-themes";
 import { Button } from "~/components/ui/button"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/hover-card";
 import { api } from "~/trpc/react";
-import { LikesInfo, type User } from "~/types/types";
+import type { LikesInfo, User } from "~/types/types";
 import { formatNumber } from "~/utils/utils";
 
 const LikeButton: React.FC<{ commentId?: string, commentLikesInfo?: LikesInfo[] | null, likedUsers: User[] | undefined, fileId?: string, userId: string | undefined, likesCount: number | undefined, fileLikesInfo?: LikesInfo[] | null }> = ({ likedUsers, fileId, userId, likesCount, fileLikesInfo, commentLikesInfo, commentId }) => {
@@ -34,8 +34,8 @@ const LikeButton: React.FC<{ commentId?: string, commentLikesInfo?: LikesInfo[] 
         },
     })
     const findUserLikedFile = fileLikesInfo?.find(like => like.userId === userId)
-    const findUserLikedComment = commentLikesInfo && commentLikesInfo.find(like => like.userId === userId)
-    const findUsersLiked = findUserLikedComment || findUserLikedFile
+    const findUserLikedComment = commentLikesInfo?.find(like => like.userId === userId)
+    const findUsersLiked = findUserLikedComment ?? findUserLikedFile
     return (
         <div className="flex items-center gap-1">
             <HoverCard >

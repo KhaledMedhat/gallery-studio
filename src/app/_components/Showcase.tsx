@@ -1,9 +1,9 @@
 import dayjs from "dayjs"
-import { CalendarIcon, Earth, Ellipsis, MessageCircle, X } from "lucide-react"
+import { CalendarIcon, Earth, MessageCircle, X } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import { Card, CardContent } from "~/components/ui/card"
-import type { User, Showcase, Comment } from "~/types/types"
-import { extractComment, extractUsername, extractUsernameWithoutAt, formatNumber, getInitials } from "~/utils/utils"
+import type { User, Showcase } from "~/types/types"
+import { formatNumber, getInitials } from "~/utils/utils"
 import Video from "./Video"
 import { AspectRatio } from "~/components/ui/aspect-ratio"
 import { Button } from "~/components/ui/button"
@@ -14,9 +14,7 @@ import { useFileStore } from "~/store"
 import CommentInput from "./CommentInput"
 import relativeTime from 'dayjs/plugin/relativeTime';
 import LikeButton from "./LikeButton"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "~/components/ui/dropdown-menu"
 import { api } from "~/trpc/react"
-import { Separator } from "~/components/ui/separator"
 import Comments from "./Comments"
 import FileOptions from "./FileOptions"
 
@@ -35,7 +33,7 @@ const Showcase: React.FC<{ file: Showcase, currentUser: User | undefined | null 
     })
     const sameUser = currentUser?.id === file.createdById
     return (
-        <div key={file.id} className="flex pt-2 flex-col items-center gap-2">
+        <div key={file.id} className="flex pt-2 flex-col items-center gap-2 w-full">
             <div className="flex w-full items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Avatar>
@@ -77,7 +75,7 @@ const Showcase: React.FC<{ file: Showcase, currentUser: User | undefined | null 
             <div className="w-full flex flex-col gap-2">
                 <p>{file.caption}</p>
                 <p>{file.tags}</p>
-                <Link href={`/showcases/${file.id}`} onClick={() => setIsCommenting(true)}>
+                <Link href={`/showcases/${file.id}`}>
                     {file.fileType?.includes("video") ? (
                         <Video url={file.url} className="rounded-lg xl:h-[752px]" />
                     ) : (
@@ -108,10 +106,10 @@ const Showcase: React.FC<{ file: Showcase, currentUser: User | undefined | null 
                 <div className="flex items-center gap-2">
                     <LikeButton fileId={file.id} userId={currentUser?.id} likesCount={file.likesInfo?.length} fileLikesInfo={file.likesInfo} likedUsers={file.likedUsers} />
                     <div className="flex items-center gap-1">
-                        <Button variant='ghost' className="p-0 hover:bg-transparent" onClick={() => setIsCommenting(true)}>
-                            <Link href={`/showcases/${file.id}`} >
+                        <Button variant='ghost' className="p-0 hover:bg-transparent">
+                            {/* <Link href={`/showcases/${file.id}`} > */}
                                 <MessageCircle size={22} />
-                            </Link>
+                            {/* </Link> */}
                         </Button>
                         <p>
                             {formatNumber(file.comments)}
@@ -119,10 +117,10 @@ const Showcase: React.FC<{ file: Showcase, currentUser: User | undefined | null 
                     </div>
                 </div>
             </div>
-            <Card className="p-2 w-full">
-                <CardContent className="p-0">
+            <Card className="w-full">
+                <CardContent className="p-2 flex flex-col gap-2">
                     {file?.commentsInfo && file.commentsInfo.length > 0 &&
-                        <Comments fileId={file.id} currentUser={currentUser} slicedComments={allComments ?? []} />
+                        <Comments isFullView={false} file={file} currentUser={currentUser} slicedComments={allComments ?? []} />
                     }
                     <CommentInput fileId={file.id} />
                 </CardContent>

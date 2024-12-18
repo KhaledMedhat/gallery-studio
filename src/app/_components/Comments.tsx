@@ -1,4 +1,4 @@
-import { CalendarIcon, Ellipsis, Heart } from "lucide-react";
+import { CalendarIcon, Ellipsis } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -7,7 +7,7 @@ import {
     HoverCardContent,
     HoverCardTrigger,
 } from "~/components/ui/hover-card";
-import type { User, Comment } from "~/types/types";
+import type { User, Comment, Showcase } from "~/types/types";
 import {
     extractComment,
     extractUsername,
@@ -29,15 +29,15 @@ import {
     DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { api } from "~/trpc/react";
-import { boolean } from "drizzle-orm/mysql-core";
-import CommentUpdate from "./CommentUpdate";
 
 dayjs.extend(relativeTime);
+
 const Comments: React.FC<{
     slicedComments: Comment[];
     currentUser: User | undefined | null;
-    fileId: string;
-}> = ({ slicedComments, currentUser, fileId }) => {
+    isFullView: boolean;
+    file: Showcase
+}> = ({ slicedComments, currentUser, file, isFullView }) => {
     const { setIsCommenting, setIsReplying, setCommentInfo } = useFileStore();
     const [isCommentUpdating, setCommentIsUpdating] = useState<boolean>(false);
     const utils = api.useUtils();
@@ -50,140 +50,105 @@ const Comments: React.FC<{
     const theme = useTheme();
     const renderComments = (comments: Comment[], isReply = false) => {
         return comments.map((comment) => (
-            <div
-                key={comment.id}
-                className={`flex w-full flex-col gap-2 ${isReply && "ml-8"}`}
-            >
-                <div
-                    className={`flex w-full items-center justify-center ${isReply ? "max-w-[80%]" : "max-w-full justify-center"}`}
-                >
-                    <div className="flex w-full gap-1">
-                        <div className="relative">
-                            <Avatar className="h-8 w-8">
-                                <AvatarImage src={comment.user?.image ?? ""} />
-                                <AvatarFallback
-                                    className={`${theme.resolvedTheme === "dark" ? "border-2 border-solid border-white" : "border-2 border-solid border-black"} text-sm`}
-                                >
-                                    {getInitials(
-                                        comment.user?.firstName ?? "",
-                                        comment.user?.lastName ?? "",
-                                    )}
-                                </AvatarFallback>
-                            </Avatar>
-                            <Separator
-                                orientation="vertical"
-                                className={`h-[5.5rem] absolute left-4 top-10 ${theme.resolvedTheme === "dark" ? "bg-accent" : "bg-accent-foreground"}`}
-                            />
-                        </div>
-
-                        <div className="flex flex-col items-start gap-1">
-                            <div
-                                className={`${theme.resolvedTheme === "dark" ? "bg-accent" : "bg-gray-200"} ${!isReply && "max-w-[45%] md:max-w-[70%] xl:max-w-[90%]"} w-fit overflow-hidden rounded-md px-2 py-1`}
-                            >
-                                <HoverCard>
-                                    <HoverCardTrigger asChild>
-                                        <Button variant="link" className="h-fit p-0 font-bold">
-                                            <Link href={`/${comment?.user?.name}`}>
-                                                {comment.user?.name}
-                                            </Link>
-                                        </Button>
-                                    </HoverCardTrigger>
-                                    <HoverCardContent className="w-80">
-                                        <div className="flex items-center justify-start space-x-4">
-                                            <Avatar className="h-8 w-8">
-                                                <AvatarImage src={comment.user?.image ?? ""} />
-                                                <AvatarFallback>
-                                                    {getInitials(
-                                                        comment.user?.firstName ?? "",
-                                                        comment.user?.lastName ?? "",
-                                                    )}
-                                                </AvatarFallback>
-                                            </Avatar>
-                                            <div className="space-y-1">
-                                                <h4 className="text-sm font-semibold">
-                                                    @{comment.user?.name}
-                                                </h4>
-                                                <p className="text-sm">
-                                                    {comment.user?.bio ? `${comment.user?.bio}.` : ""}
-                                                </p>
-                                                <div className="flex items-center pt-2">
-                                                    <CalendarIcon className="mr-2 h-4 w-4 opacity-70" />
-                                                    <span className="text-xs text-muted-foreground">
-                                                        Joined{" "}
-                                                        {dayjs(comment.user?.createdAt).format("MMMM")}{" "}
-                                                        {dayjs(comment.user?.createdAt).format("YYYY")}
-                                                    </span>
+            <div key={comment.id} className={` w-full ${isReply && "ml-8"}`}>
+                <div className='max-w-full'>
+                    <div className='flex items-start justify-start gap-6'>
+                        <div className={`flex gap-1 items-start  ${isReply ? 'max-w-[60%] lg:max-w-[70%]' : 'max-w-[80%] lg:max-w-[90%]'}`}>
+                            <div className="relative">
+                                <Avatar className="h-8 w-8">
+                                    <AvatarImage src={comment.user?.image ?? ""} />
+                                    <AvatarFallback
+                                        className={`${theme.resolvedTheme === "dark" ? "border-2 border-solid border-white" : "border-2 border-solid border-black"} text-sm`}
+                                    >
+                                        {getInitials(
+                                            comment.user?.firstName ?? "",
+                                            comment.user?.lastName ?? "",
+                                        )}
+                                    </AvatarFallback>
+                                </Avatar>
+                                {comment.replies && comment.replies?.length > 0 && <Separator
+                                    orientation="vertical"
+                                    className={`h-[4.5rem] absolute left-4 top-10 ${theme.resolvedTheme === "dark" ? "bg-accent" : "bg-accent-foreground"}`}
+                                />}
+                            </div>
+                            <div className="flex flex-col gap-1 min-w-0 flex-1">
+                                <div className={`${theme.resolvedTheme === "dark" ? "bg-accent" : "bg-gray-200"} px-2 py-1 rounded-md `}>
+                                    <HoverCard>
+                                        <HoverCardTrigger asChild>
+                                            <Button variant="link" className="h-fit p-0 font-bold">
+                                                <Link href={`/${comment?.user?.name}`}>
+                                                    {comment.user?.name}
+                                                </Link>
+                                            </Button>
+                                        </HoverCardTrigger>
+                                        <HoverCardContent className="w-80">
+                                            <div className="flex items-center justify-start space-x-4">
+                                                <Avatar className="h-8 w-8">
+                                                    <AvatarImage src={comment.user?.image ?? ""} />
+                                                    <AvatarFallback>
+                                                        {getInitials(
+                                                            comment.user?.firstName ?? "",
+                                                            comment.user?.lastName ?? "",
+                                                        )}
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                                <div className="space-y-1">
+                                                    <h4 className="text-sm font-semibold">
+                                                        @{comment.user?.name}
+                                                    </h4>
+                                                    <p className="text-sm">
+                                                        {comment.user?.bio ? `${comment.user?.bio}.` : ""}
+                                                    </p>
+                                                    <div className="flex items-center pt-2">
+                                                        <CalendarIcon className="mr-2 h-4 w-4 opacity-70" />
+                                                        <span className="text-xs text-muted-foreground">
+                                                            Joined{" "}
+                                                            {dayjs(comment.user?.createdAt).format("MMMM")}{" "}
+                                                            {dayjs(comment.user?.createdAt).format("YYYY")}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </HoverCardContent>
-                                </HoverCard>
-                                <div className="flex items-center gap-1 flex-col md:flex-row">
-                                    {extractUsername(comment.content) && (
-                                        <Button variant="link" className="h-fit p-0 font-bold">
-                                            <Link
-                                                className="h-fit"
-                                                href={`/${extractUsernameWithoutAt(comment.content)}`}
-                                            >
-                                                {extractUsername(comment.content)}
-                                            </Link>
-                                        </Button>
-                                    )}
-                                    {isCommentUpdating ? (
-                                        <CommentUpdate
-                                            commentId={comment.id}
-                                            originalComment={comment.content}
-                                            setCommentIsUpdating={setCommentIsUpdating}
-                                        />
-                                    ) : (
-                                        <p className="h-fit overflow-hidden overflow-ellipsis whitespace-normal break-words">
-                                            {extractComment(comment.content)}
-                                        </p>
-                                    )}
+                                        </HoverCardContent>
+                                    </HoverCard>
+                                    <p className="break-words text-sm">
+                                        {extractUsername(comment.content) && (
+                                            <Button variant="link" className="h-fit p-0 font-bold">
+                                                <Link
+                                                    className="h-fit"
+                                                    href={`/${extractUsernameWithoutAt(comment.content)}`}
+                                                >
+                                                    {extractUsername(comment.content)}
+                                                </Link>
+                                            </Button>
+                                        )} {extractComment(comment.content)}
+                                    </p>
                                 </div>
-                            </div>
-                            <div className="flex h-fit items-center space-x-2 text-sm text-muted-foreground">
-                                <LikeButton
-                                    userId={currentUser?.id}
-                                    commentId={comment.id}
-                                    likesCount={comment.likesInfo?.length}
-                                    commentLikesInfo={comment.likesInfo}
-                                    likedUsers={comment.likedUsers}
-                                />
-                                {comment.userId === currentUser?.id ? null : (
-                                    <Button
-                                        className="h-fit p-0"
-                                        variant="link"
-                                        size="sm"
-                                        onClick={() => {
-                                            setIsReplying(true);
-                                            setCommentInfo({
-                                                commentId: comment.id,
-                                                commentUsername: comment.user.name,
-                                            });
-                                        }}
-                                    >
+                                <div className="flex gap-2 items-center">
+                                    <LikeButton
+                                        userId={currentUser?.id}
+                                        commentId={comment.id}
+                                        likesCount={comment.likesInfo?.length}
+                                        commentLikesInfo={comment.likesInfo}
+                                        likedUsers={comment.likedUsers}
+                                    />
+                                    <Button variant="link" className="h-fit p-0 font-bold">
                                         Reply
                                     </Button>
-                                )}
-                                <span className="h-fit">
-                                    {dayjs(comment.createdAt).fromNow()}
-                                </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="">
-                        {currentUser?.id === comment.userId && (
+                        {currentUser?.id === comment.user?.id && (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button
                                         variant="ghost"
-                                        className="h-fit p-0 hover:bg-transparent"
+                                        className="h-fit p-0 pr-2 hover:bg-transparent"
                                     >
                                         <Ellipsis size={30} />
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent>
+                                <DropdownMenuContent className="w-fit">
                                     <DropdownMenuGroup>
                                         <DropdownMenuItem className="p-0">
                                             <Button
@@ -218,138 +183,16 @@ const Comments: React.FC<{
         ));
     };
     return (
-        <div className="flex flex-col gap-2 px-2 py-1">
-            {renderComments(slicedComments.slice(0, 2))}
-            {/* <Button className="" variant="link">
-                <Link href={`/showcases/${fileId}`}>
+        <div className="flex flex-col gap-2">
+            {renderComments(isFullView ? slicedComments : slicedComments.slice(0, 2))}
+            {file.comments > 2 && <Button className="p-2 self-start" variant="link">
+                <Link href={`/showcases/${file.id}?comments=true`}>
                     Show all comments
                 </Link>
-            </Button> */}
+            </Button>}
         </div>
     );
 };
 
 export default Comments;
 
-// comments.map((comment) => (
-
-// <div key={comment.id} className={`relative w-full flex flex-col gap-2 ${isReply && 'ml-8'}`}>
-// {currentUser?.id === comment.userId && <div className="absolute right-0">
-//     <DropdownMenu>
-//         <DropdownMenuTrigger asChild>
-//             <Button variant="ghost" className="hover:bg-transparent h-fit p-0">
-//                 <Ellipsis size={30} />
-//             </Button>
-//         </DropdownMenuTrigger>
-//         <DropdownMenuContent>
-//             <DropdownMenuGroup>
-//                 <DropdownMenuItem className="p-0">
-//                     <Button
-//                         onClick={() => setCommentIsUpdating(true)}
-//                         variant="ghost"
-//                         className="p-0 hover:bg-transparent w-full cursor-pointer"
-//                     >
-//                         Edit
-//                     </Button>
-//                 </DropdownMenuItem>
-//                 <DropdownMenuItem className="w-full cursor-pointer p-0 text-destructive hover:bg-transparent hover:text-[#d33939]" asChild>
-//                     <Button
-//                         onClick={() => deleteComment({ id: comment.id })}
-//                         variant="ghost"
-//                         className="hover:bg-transparent"
-//                         disabled={isDeletingComment}
-//                     >
-//                         Delete
-//                     </Button>
-//                 </DropdownMenuItem>
-//             </DropdownMenuGroup>
-//         </DropdownMenuContent>
-//     </DropdownMenu>
-// </div>}
-//     <div className={`flex gap-1  `}>
-//         <div className="relative">
-// <Avatar className="h-8 w-8">
-//     <AvatarImage src={comment.user?.image ?? ""} />
-//     <AvatarFallback className={`${theme.resolvedTheme === 'dark' ? 'border-white border-2 border-solid' : 'border-black border-2 border-solid'} text-sm`}>{getInitials(comment.user?.firstName ?? "", comment.user?.lastName ?? "")}</AvatarFallback>
-// </Avatar>
-// {comment.replies && comment.replies.length > 0 && (
-//     <Separator
-//         orientation='vertical'
-//         className={`  ${isReply ? 'h-[2.5rem]' : 'h-[5.5rem]'} absolute left-4 top-10 ${theme.resolvedTheme === 'dark' ? 'bg-accent' : 'bg-accent-foreground'}`}
-//     />
-//             )}
-//         </div>
-//         <div className="max-w-[80%] w-fit">
-//             <div className={`${theme.resolvedTheme === 'dark' ? 'bg-accent' : 'bg-gray-200'} rounded-lg p-2`}>
-// <HoverCard>
-//     <HoverCardTrigger asChild>
-//         <Button variant="link" className="p-0 font-bold h-fit">
-//             <Link href={`/${comment?.user?.name}`}>
-//                 {comment.user?.name}
-//             </Link>
-//         </Button>
-//     </HoverCardTrigger>
-//     <HoverCardContent className="w-80">
-//         <div className="flex items-center justify-start space-x-4">
-//             <Avatar className="h-8 w-8">
-//                 <AvatarImage src={comment.user?.image ?? ""} />
-//                 <AvatarFallback>{getInitials(comment.user?.firstName ?? "", comment.user?.lastName ?? "")}</AvatarFallback>
-//             </Avatar>
-//             <div className="space-y-1">
-//                 <h4 className="text-sm font-semibold">@{comment.user?.name}</h4>
-//                 <p className="text-sm">{comment.user?.bio ? `${comment.user?.bio}.` : ""}</p>
-//                 <div className="flex items-center pt-2">
-//                     <CalendarIcon className="mr-2 h-4 w-4 opacity-70" />
-//                     <span className="text-xs text-muted-foreground">
-//                         Joined {dayjs(comment.user?.createdAt).format("MMMM")} {dayjs(comment.user?.createdAt).format("YYYY")}
-//                     </span>
-//                 </div>
-//             </div>
-//         </div>
-//     </HoverCardContent>
-// </HoverCard>
-//                 <div className="h-fit flex items-center gap-1">
-// {extractUsername(comment.content) && (
-//     <Button variant='link' className="p-0 h-fit font-bold">
-//         <Link className="h-fit" href={`/${extractUsernameWithoutAt(comment.content)}`}>
-//             {extractUsername(comment.content)}
-//         </Link>
-//     </Button>
-// )}
-// {isCommentUpdating ?
-//     <CommentUpdate commentId={comment.id} originalComment={comment.content} setCommentIsUpdating={setCommentIsUpdating} />
-//     : <p className="h-fit overflow-hidden overflow-ellipsis whitespace-normal break-words">{extractComment(comment.content)}</p>}
-
-//                 </div>
-//             </div>
-// <div className="flex items-center space-x-2 text-sm text-muted-foreground h-fit">
-//     <LikeButton
-//         userId={currentUser?.id}
-//         commentId={comment.id}
-//         likesCount={comment.likesInfo?.length}
-//         commentLikesInfo={comment.likesInfo}
-//         likedUsers={comment.likedUsers}
-//     />
-//     {comment.userId === currentUser?.id ? null : (
-//         <Button
-//             className="p-0 h-fit"
-//             variant="link"
-//             size="sm"
-//             onClick={() => {
-//                 setIsReplying(true);
-//                 setCommentInfo({ commentId: comment.id, commentUsername: comment.user.name });
-//             }}
-//         >
-//             Reply
-//         </Button>
-//     )}
-//     <span className="h-fit">{dayjs(comment.createdAt).fromNow()}</span>
-// </div>
-//         </div>
-//     </div>
-
-// {comment.replies &&
-//     renderComments(comment.replies.slice(0, 2), true)
-// }
-
-// </div >

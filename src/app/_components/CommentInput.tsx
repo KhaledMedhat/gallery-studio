@@ -16,7 +16,6 @@ import { useEffect } from "react";
 
 const CommentInput: React.FC<{ fileId: string, originalComment?: string | undefined }> = ({ fileId, originalComment }) => {
     const { setCommentIsUpdating, isReplying, setIsReplying, commentInfo, setCommentInfo } = useFileStore()
-    // console.log(commentInfo)
     const router = useRouter()
     const theme = useTheme()
     const formSchema = z.object({

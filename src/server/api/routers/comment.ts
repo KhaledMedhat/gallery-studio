@@ -71,6 +71,7 @@ export const commentRouter = createTRPCRouter({
         with: {
           user: true,
         },
+        orderBy: (comments, { desc }) => [desc(comments.createdAt)],
       });
       const commentsWithLikedUsers = await Promise.all(
         allComments.map(async (comment) => {
