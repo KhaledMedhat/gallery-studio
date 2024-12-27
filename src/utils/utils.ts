@@ -83,3 +83,51 @@ export function buildCommentHierarchy(
       replies: buildCommentHierarchy(comments, comment.id),
     }));
 }
+
+export default async function getCroppedImg(
+  imageSrc: string,
+  crop: { x: number; y: number; width: number; height: number }
+): Promise<string> {
+  const image = await createImage(imageSrc);
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  if (!ctx) {
+    throw new Error('Could not create canvas context');
+  }
+
+  const { width, height } = crop;
+  canvas.width = width;
+  canvas.height = height;
+
+  ctx.drawImage(
+    image,
+    crop.x,
+    crop.y,
+    width,
+    height,
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  return new Promise<string>((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        reject(new Error('Canvas is empty'));
+        return;
+      }
+      resolve(URL.createObjectURL(blob));
+    }, 'image/jpeg');
+  });
+}
+
+function createImage(url: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.addEventListener('load', () => resolve(img));
+    img.addEventListener('error', () => reject(new Error('Failed to load image')));
+    img.src = url;
+  });
+}

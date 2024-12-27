@@ -7,7 +7,7 @@ import { Camera, Check, ImageIcon, LoaderCircle, Plus, X } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog"
 import UploadthingButton from "./UploadthingButton"
 import { useState } from "react"
-import { getInitials } from "~/utils/utils"
+import getCroppedImg, { getInitials } from "~/utils/utils"
 import AnimatedCircularProgressBar from "~/components/ui/animated-circular-progress-bar"
 import { deleteFileOnServer } from "../actions"
 import { AspectRatio } from "~/components/ui/aspect-ratio"
@@ -19,9 +19,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs"
 import { featuredArtworks } from "~/constants/Images"
 import { Checkbox } from "~/components/ui/checkbox"
 import { Input } from "~/components/ui/input"
+import Cropper from 'react-easy-crop'
 
 export const UpdateUserCoverImage: React.FC<{ coverImage: string }> = ({ coverImage }) => {
     const [file, setFile] = useState<File | undefined>(undefined);
+    const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+    const [croppedImage, setCroppedImage] = useState<string | null>(null);
+    const [showCroppedImage, setShowCroppedImage] = useState<boolean>(false);
+    const [crop, setCrop] = useState({ x: 0, y: 0 })
+    const [zoom, setZoom] = useState(1)
     const [checkedFile, setCheckedFile] = useState<{ id: number, title: string, artist: string, imageUrl: string } | undefined>(undefined);
     const theme = useTheme()
     const {
@@ -73,6 +79,30 @@ export const UpdateUserCoverImage: React.FC<{ coverImage: string }> = ({ coverIm
         }
 
     }
+
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+
+    const handleUploadImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files?.[0]) {
+            const file = e.target.files[0];
+            setUploadedImage(URL.createObjectURL(file));
+        }
+    };
+
+    const onCropComplete = (_croppedArea: any, croppedAreaPixels: any) => {
+        setCroppedAreaPixels(croppedAreaPixels);
+    };
+
+    const handleCropImage = async () => {
+        if (!uploadedImage || !croppedAreaPixels) return;
+
+        try {
+            const cropped = await getCroppedImg(uploadedImage, croppedAreaPixels);
+            setCroppedImage(cropped);
+        } catch (err) {
+            console.error('Error cropping image', err);
+        }
+    };
     return (
         <Dialog>
             <DialogTrigger asChild>
@@ -103,8 +133,31 @@ export const UpdateUserCoverImage: React.FC<{ coverImage: string }> = ({ coverIm
                         <TabsTrigger value="add-default">Add from our default</TabsTrigger>
                     </TabsList>
                     <TabsContent value="upload-new-cover-image">
-                        {file && fileUrl && progress === 100 ? <div className="relative p-10 flex flex-col items-center justify-center gap-6">
+                        <div className="relative p-10 flex flex-col items-center justify-center gap-6">
+                        <button className="w-10 h-10 bg-red-500" type="button" onClick={handleCropImage}>Crop</button>
 
+                            {uploadedImage ? (
+                                <Cropper
+                                    image={uploadedImage}
+                                    crop={crop}
+                                    zoom={zoom}
+                                    aspect={16 / 9}
+                                    onCropChange={setCrop}
+                                    onZoomChange={setZoom}
+                                    onCropComplete={onCropComplete} />
+                            ) : (
+                                <input type="file" accept="image/*" onChange={handleUploadImage} />
+                            )}
+                            {croppedImage && showCroppedImage && (
+                                <div>
+                                    <h3>Cropped Image:</h3>
+                                    <img src={croppedImage} alt="Cropped" />
+                                </div>
+                            )}
+
+                        </div>
+
+                        {/* {file && fileUrl && progress === 100 ? <div className="relative p-10 flex flex-col items-center justify-center gap-6">
                             <AspectRatio ratio={16 / 9}>
                                 <Image
                                     src={fileUrl}
@@ -150,7 +203,7 @@ export const UpdateUserCoverImage: React.FC<{ coverImage: string }> = ({ coverIm
                                     isProfile={true}
                                 />)
 
-                        }
+                        } */}
                     </TabsContent>
                     <TabsContent value="add-default" >
                         <div className="flex items-center justify-center gap-4 flex-wrap">

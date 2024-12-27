@@ -11,7 +11,6 @@ dayjs.extend(relativeTime);
 
 const Showcases: React.FC<{ currentUser: User | undefined | null }> = ({ currentUser }) => {
     const { data: showcaseFiles } = api.file.getShowcaseFiles.useQuery()
-
     if (showcaseFiles?.length === 0) return <div className="flex flex-col items-center justify-center h-screen">
         <SearchBar />
         <h1 className="text-2xl">No showcases yet. look up from the search bar and follow people to have a feed of their work</h1>

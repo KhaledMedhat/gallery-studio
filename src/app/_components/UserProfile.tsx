@@ -40,12 +40,14 @@ const UserProfile: React.FC<{ user: User | null, files: showcaseType[], currentU
         <div className="min-h-screen">
             {/* Cover Photo */}
             <div className="relative h-[20rem] md:h-64 lg:h-96">
-                {isUserUpdating ? <UpdateUserCoverImage coverImage={user?.coverImage ? user.coverImage : '/image-3@2x.jpg'} /> : <Image
-                    src={user?.coverImage ? user.coverImage : '/image-3@2x.jpg'}
-                    alt={`${user?.coverImage ? `${user?.name}'s cover image` : `${user?.name}'s default cover photo`}`}
-                    fill
-                    className="object-cover"
-                />}
+                {isUserUpdating ? <UpdateUserCoverImage coverImage={user?.coverImage ? user.coverImage : '/image-3@2x.jpg'} /> :
+                    <Image
+                        src={user?.coverImage ? user.coverImage : '/image-3@2x.jpg'}
+                        alt={`${user?.coverImage ? `${user?.name}'s cover image` : `${user?.name}'s default cover photo`}`}
+                        fill
+                        style={{ objectFit: 'cover' }}
+                    />
+                }
             </div>
 
             <div className="container relative z-20 mx-auto px-4 py-8">

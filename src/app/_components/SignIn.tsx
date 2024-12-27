@@ -181,7 +181,7 @@ const SignIn = () => {
                             />
                             {field.value.length > 0 && <Button type="button" variant='ghost' onClick={() => setShowPassword(!showPassword)}
                               className="absolute right-2 hover:bg-transparent">
-                              {showPassword ? <Eye /> : <EyeOff />}
+                              {showPassword ? <Eye color="white" /> : <EyeOff color="white" />}
                             </Button>}
                           </div>
                         </FormControl>

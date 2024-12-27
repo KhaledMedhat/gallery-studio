@@ -119,7 +119,7 @@ const OTP = () => {
     <div className="flex flex-col items-center gap-6 w-full"
     >
       <div>
-        <h1 className="text-left text-3xl font-bold">OTP Verification</h1>
+        <h1 className="text-left text-3xl font-bold text-white">OTP Verification</h1>
       </div>
       <div>
         <Form {...form}>
@@ -131,8 +131,8 @@ const OTP = () => {
               control={form.control}
               name="otp"
               render={({ field }) => (
-                <FormItem className="flex items-center flex-col gap-6">
-                  <FormLabel>One-Time Password</FormLabel>
+                <FormItem className="flex items-center flex-col gap-6 text-white">
+                  <FormLabel >One-Time Password</FormLabel>
                   <FormControl>
                     <InputOTP maxLength={6} {...field}>
                       <InputOTPGroup>
@@ -175,6 +175,7 @@ const OTP = () => {
                       resendOtp({ name: fullName, email: userRegistryInfo.email })
                     }
                     }
+                    className="text-white"
                   >
                     Resend OTP
                   </Button>
@@ -183,7 +184,7 @@ const OTP = () => {
                 )}
               </div>
             </div>
-            {!isTimerFinished && <div className="w-full">
+            {!isTimerFinished && <div className="w-full text-white">
               <p>You will be able to resend OTP after 35 seconds.</p>
             </div>}
           </form>

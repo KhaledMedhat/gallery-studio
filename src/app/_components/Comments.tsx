@@ -29,6 +29,7 @@ import {
     DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { api } from "~/trpc/react";
+import { cookies } from "next/headers";
 
 dayjs.extend(relativeTime);
 
@@ -139,18 +140,18 @@ const Comments: React.FC<{
                             </div>
                         </div>
                         {currentUser?.id === comment.user?.id && (
-                            <DropdownMenu>
+                            <DropdownMenu modal={false}>
                                 <DropdownMenuTrigger asChild>
                                     <Button
                                         variant="ghost"
-                                        className="h-fit p-0 pr-2 hover:bg-transparent"
+                                        className="h-fit p-0 hover:bg-transparent"
                                     >
                                         <Ellipsis size={30} />
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent className="w-fit">
                                     <DropdownMenuGroup>
-                                        <DropdownMenuItem className="p-0">
+                                        <DropdownMenuItem className="p-0 hover:outline-none">
                                             <Button
                                                 onClick={() => setCommentIsUpdating(true)}
                                                 variant="ghost"
@@ -160,13 +161,12 @@ const Comments: React.FC<{
                                             </Button>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem
-                                            className="w-full cursor-pointer p-0 text-destructive hover:bg-transparent hover:text-[#d33939]"
-                                            asChild
+                                            className="hover:outline-none cursor-pointer p-0 text-destructive hover:bg-transparent"
                                         >
                                             <Button
                                                 onClick={() => deleteComment({ id: comment.id })}
                                                 variant="ghost"
-                                                className="hover:bg-transparent"
+                                                className="hover:text-[#d33939] w-full"
                                                 disabled={isDeletingComment}
                                             >
                                                 Delete
@@ -186,9 +186,11 @@ const Comments: React.FC<{
         <div className="flex flex-col gap-2">
             {renderComments(isFullView ? slicedComments : slicedComments.slice(0, 2))}
             {file.comments > 2 && <Button className="p-2 self-start" variant="link">
-                <Link href={`/showcases/${file.id}?comments=true`}>
-                    Show all comments
-                </Link>
+                <Button variant='link'>
+                    <Link href={`/showcases/${file.id}?comments=true`}>
+                        Show all comments
+                    </Link>
+                </Button>
             </Button>}
         </div>
     );

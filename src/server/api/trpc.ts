@@ -14,9 +14,8 @@ import { ZodError } from "zod";
 
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
-import { sessions } from "../db/schema";
+import { sessions, users } from "../db/schema";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 
 /**
  * 1. CONTEXT
@@ -38,24 +37,33 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   const sessionToken = cookieStore.get("sessionToken");
 
   if (session) {
-    user = session.user;
+    // Use the session user as a base
+    const userFromSession = session.user;
+
+    // Fetch full user data from the database
+    user = await db.query.users.findFirst({
+      where: eq(users.email, userFromSession.email ?? ""), // Assuming email is unique
+    });
   } else if (sessionToken) {
     // Fetch the session from the database using the session token
     const customSession = await db.query.sessions.findFirst({
       where: eq(sessions.sessionToken, sessionToken.value),
       with: {
-        user: true,
+        user: true, // Ensure to fetch the associated user
       },
     });
 
     if (customSession?.user) {
-      user = customSession.user;
+      // Fetch full user data from the database
+      user = await db.query.users.findFirst({
+        where: eq(users.id, customSession.user.id),
+      });
     }
   }
 
   return {
     db,
-    user,
+    user, // This will include the full user schema data
   };
 };
 
@@ -132,7 +140,6 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  * are logged in.
  */
 export const publicProcedure = t.procedure.use(timingMiddleware);
-
 
 /**
  * Protected (authenticated) procedure

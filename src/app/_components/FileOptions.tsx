@@ -18,26 +18,26 @@ const FileOptions: React.FC<{
 }> = ({ fileId, fileKey, handleOpenModalChange, fileType }) => {
   const { setIsUpdating, isUpdating, isUpdatingPending } = useFileStore();
   return !isUpdating ? (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="hover:bg-transparent">
           <Ellipsis size={30} />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent className="w-fit">
         <DropdownMenuGroup>
-          <DropdownMenuItem className="p-0">
+          <DropdownMenuItem className="p-0 w-full">
             <Button
               onClick={() => {
                 setIsUpdating(true);
               }}
               variant="ghost"
-              className="hover:bg-transparent"
+              className="hover:outline-none w-full cursor-pointer"
             >
               Edit
             </Button>
           </DropdownMenuItem>
-          <DropdownMenuItem className="p-0" asChild>
+          <DropdownMenuItem className="p-0 w-full" asChild>
             <DeleteButton fileType={fileType} fileId={fileId} fileKey={fileKey} isFileModal={true} handleOpenModalChange={handleOpenModalChange} />
           </DropdownMenuItem>
         </DropdownMenuGroup>

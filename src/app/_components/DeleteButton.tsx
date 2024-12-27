@@ -102,7 +102,7 @@ const DeleteButton: React.FC<{
                     <TooltipTrigger asChild>
                         <BlurFade delay={0} inView yOffset={0}>
                             <AlertDialogTrigger asChild >
-                                <Button variant="ghost" className="text-destructive hover:bg-transparent hover:text-[#d33939]">
+                                <Button variant="ghost" className="w-full rounded-sm text-destructive  hover:text-[#d33939]">
                                     {isFileModal || isAlbum && albumId ? 'Delete' : <Trash2 size={20} className="text-destructive" />
                                     }
                                 </Button>

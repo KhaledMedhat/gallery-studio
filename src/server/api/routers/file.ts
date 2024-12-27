@@ -69,17 +69,14 @@ export const fileRouter = createTRPCRouter({
         message: "You need to be logged in to access this.",
       });
     }
-    const currentUser = await ctx.db.query.users.findFirst({
-      where: eq(users.id, ctx.user.id),
-    });
+    const followedUserIds =
+      ctx.user?.followings?.map((following) => following.userId) ?? [];
+
     const showcaseFiles = await ctx.db.query.files.findMany({
       where: and(
         eq(files.filePrivacy, "public"),
         or(
-          inArray(
-            files.createdById,
-            currentUser?.followings?.map((following) => following.userId) ?? [],
-          ),
+          inArray(files.createdById, followedUserIds),
           eq(files.createdById, ctx.user.id),
         ),
       ),

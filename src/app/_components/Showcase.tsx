@@ -10,7 +10,6 @@ import { Button } from "~/components/ui/button"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/hover-card"
 import Image from "next/legacy/image"
 import Link from "next/link"
-import { useFileStore } from "~/store"
 import CommentInput from "./CommentInput"
 import relativeTime from 'dayjs/plugin/relativeTime';
 import LikeButton from "./LikeButton"
@@ -21,16 +20,7 @@ import FileOptions from "./FileOptions"
 dayjs.extend(relativeTime);
 
 const Showcase: React.FC<{ file: Showcase, currentUser: User | undefined | null }> = ({ file, currentUser }) => {
-    const { setIsCommenting, setCommentIsUpdating, isCommentUpdating, setIsReplying, setCommentInfo } = useFileStore()
     const { data: allComments } = api.comment.getAllComments.useQuery({ id: file.commentsInfo?.map((comment) => comment.id) ?? [] })
-    console.log(allComments)
-    const utils = api.useUtils();
-    const { mutate: deleteComment, isPending: isDeletingComment } = api.comment.deleteComment.useMutation({
-        onSuccess: () => {
-            void utils.file.getFileById.invalidate();
-            void utils.file.getShowcaseFiles.invalidate();
-        },
-    })
     const sameUser = currentUser?.id === file.createdById
     return (
         <div key={file.id} className="flex pt-2 flex-col items-center gap-2 w-full">
@@ -108,7 +98,7 @@ const Showcase: React.FC<{ file: Showcase, currentUser: User | undefined | null 
                     <div className="flex items-center gap-1">
                         <Button variant='ghost' className="p-0 hover:bg-transparent">
                             {/* <Link href={`/showcases/${file.id}`} > */}
-                                <MessageCircle size={22} />
+                            <MessageCircle size={22} />
                             {/* </Link> */}
                         </Button>
                         <p>

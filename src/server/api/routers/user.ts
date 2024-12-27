@@ -359,11 +359,11 @@ export const userRouter = createTRPCRouter({
         });
       }
       const updateFollowingUsers = [
-        ...(foundedUser?.followings ?? []),
+        ...(ctx.user?.followings ?? []),
         { followed: true, userId: foundedUser.id },
       ];
 
-      const updateFollowersForTheFolloweduser = [
+      const updateFollowersForTheFollowedUser = [
         ...(foundedUser.followers ?? []),
         { followed: true, userId: ctx.user.id },
       ];
@@ -377,7 +377,7 @@ export const userRouter = createTRPCRouter({
       await ctx.db
         .update(users)
         .set({
-          followers: updateFollowersForTheFolloweduser,
+          followers: updateFollowersForTheFollowedUser,
         })
         .where(eq(users.id, foundedUser.id));
     }),
@@ -390,9 +390,6 @@ export const userRouter = createTRPCRouter({
           message: "Unauthorized",
         });
       }
-      const currentUser = await ctx.db.query.users.findFirst({
-        where: eq(users.id, ctx.user.id),
-      });
       const foundedUser = await ctx.db.query.users.findFirst({
         where: eq(users.id, input.id),
       });
@@ -405,7 +402,7 @@ export const userRouter = createTRPCRouter({
       await ctx.db
         .update(users)
         .set({
-          followings: currentUser?.followings?.filter(
+          followings: ctx.user?.followings?.filter(
             (follow) => follow.userId !== foundedUser.id,
           ),
         })
