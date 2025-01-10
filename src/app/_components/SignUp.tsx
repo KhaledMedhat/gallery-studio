@@ -5,10 +5,9 @@ import { api } from "~/trpc/react";
 import { useFileStore, useUserStore } from "~/store";
 import { Input } from "~/components/ui/input";
 import Link from "next/link";
-import Image from "next/legacy/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "~/components/ui/button";
-import { ArrowLeft, ArrowRight, Eye, EyeOff, LoaderCircle, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -22,24 +21,22 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { stages } from "~/constants/Stages";
-import { deleteFileOnServer } from "../actions";
 import { useToast } from "~/hooks/use-toast";
 import AuthButtons from "./AuthButtons";
 import UploadthingButton from "./UploadthingButton";
-import { AspectRatio } from "~/components/ui/aspect-ratio";
-import AnimatedCircularProgressBar from "~/components/ui/animated-circular-progress-bar";
 import OTP from "./OTP";
+import { useUploader } from "~/hooks/useUploader";
+import { blobUrlToFile } from "~/utils/utils";
 
 const SignUp = () => {
   const { toast } = useToast();
   const searchParams = useSearchParams();
-  const isCodeVerifying = searchParams.get('ctxVerificationCode')
+  const isCodeVerifying = searchParams.get("ctxVerificationCode");
   const router = useRouter();
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [stage, setStage] = useState<number>(0);
-  const [file, setFile] = useState<File | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
-  const { fileUrl, fileKey, isUploading, progress, setFileUrl } =
+  const { fileUrl, fileKey, croppedImage, showcaseUrl, showcaseOriginalName } =
     useFileStore();
   const { mutate: sendingOTP, isPending: isSendingOTP } =
     api.user.sendingOTP.useMutation({
@@ -59,12 +56,26 @@ const SignUp = () => {
   const userInfo = useUserStore((state) => state.userRegistrationInfo);
   const userImage = useUserStore((state) => state.setUserImage);
   const formSchema = z.object({
-    firstName: z.string().min(1, "First name is required").regex(/^[A-Za-z]+$/, "First name can only contain alphabets"),
-    lastName: z.string().min(1, "Last name is required").regex(/^[A-Za-z]+$/, "Last name can only contain alphabets"),
-    username: z.string().min(1, "Email is required").regex(/^[A-Za-z0-9][A-Za-z0-9_]*$/, "Username cannot start with special characters and can only contain letters, numbers, and underscores")
+    firstName: z
+      .string()
+      .min(1, "First name is required")
+      .regex(/^[A-Za-z]+$/, "First name can only contain alphabets"),
+    lastName: z
+      .string()
+      .min(1, "Last name is required")
+      .regex(/^[A-Za-z]+$/, "Last name can only contain alphabets"),
+    username: z
+      .string()
+      .min(1, "Email is required")
+      .regex(
+        /^[A-Za-z0-9][A-Za-z0-9_]*$/,
+        "Username cannot start with special characters and can only contain letters, numbers, and underscores",
+      )
       .refine((value) => !value.includes("@"), "Username cannot contain '@'"),
     email: z.string().email().min(1, "Email is required"),
-    password: z.string().min(1, "Password is required")
+    password: z
+      .string()
+      .min(1, "Password is required")
       .min(8, "Password cannot be less than 8 characters"),
   });
 
@@ -72,48 +83,69 @@ const SignUp = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       firstName: "",
-      lastName: '',
+      lastName: "",
       username: "",
       email: "",
       password: "",
     },
   });
-  const { mutate: verifyEmail, isPending: isVerifyEmailPending } = api.user.verifyEmail.useMutation({
-    onSuccess: async () => {
-      setIsLoading(true);
-      userRegistryInfo({
-        firstName: form.getValues("firstName"),
-        lastName: form.getValues("lastName"),
-        username: form.getValues('username'),
-        email: form.getValues("email"),
-        password: form.getValues("password"),
-        image: "",
-      });
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setIsLoading(false);
-      if (stage < stages.length - 1) {
-        setStage((prev) => prev + 1);
-      }
-    },
-    onError: (e) => {
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: e.message,
-      });
-    },
-  });
+  const { mutate: verifyEmail, isPending: isVerifyEmailPending } =
+    api.user.verifyEmail.useMutation({
+      onSuccess: async () => {
+        setIsLoading(true);
+        userRegistryInfo({
+          firstName: form.getValues("firstName"),
+          lastName: form.getValues("lastName"),
+          username: form.getValues("username"),
+          email: form.getValues("email"),
+          password: form.getValues("password"),
+          image: { imageKey: "", imageUrl: "" },
+        });
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        setIsLoading(false);
+        if (stage < stages.length - 1) {
+          setStage((prev) => prev + 1);
+        }
+      },
+      onError: (e) => {
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: e.message,
+        });
+      },
+    });
   const onSubmitFirstStage = async (data: z.infer<typeof formSchema>) => {
     verifyEmail({ email: data.email, username: data.username });
   };
 
   const onFinishRegistry = () => {
     const fullName = userInfo.firstName + " " + userInfo.lastName;
-    if (fileUrl) {
-      userImage(fileUrl);
+    if (fileUrl && fileKey) {
+      userImage({ imageKey: fileKey, imageUrl: fileUrl });
       sendingOTP({ name: fullName, email: userInfo.email });
     }
     sendingOTP({ name: fullName, email: userInfo.email });
+  };
+  const { startUpload, getDropzoneProps } = useUploader(
+    true,
+    undefined,
+    undefined,
+    undefined,
+  );
+  const getCroppedImage = async () => {
+    if (showcaseUrl && croppedImage) {
+      const croppedImageFile = await blobUrlToFile(
+        croppedImage,
+        showcaseOriginalName,
+      );
+      await startUpload([croppedImageFile]);
+    }
+  };
+
+  const handleNextToOtp = async () => {
+    console.log("clicked");
+    await getCroppedImage();
   };
   const renderStageContent = () => {
     switch (stage) {
@@ -132,10 +164,11 @@ const SignUp = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel
-                        className={`${form.formState.errors.firstName
-                          ? "text-red-500"
-                          : "text-gray-100"
-                          }`}
+                        className={`${
+                          form.formState.errors.firstName
+                            ? "text-red-500"
+                            : "text-gray-100"
+                        }`}
                       >
                         First Name
                       </FormLabel>
@@ -157,10 +190,11 @@ const SignUp = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel
-                        className={`${form.formState.errors.lastName
-                          ? "text-red-500"
-                          : "text-gray-100"
-                          }`}
+                        className={`${
+                          form.formState.errors.lastName
+                            ? "text-red-500"
+                            : "text-gray-100"
+                        }`}
                       >
                         Last Name
                       </FormLabel>
@@ -183,10 +217,11 @@ const SignUp = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel
-                      className={`${form.formState.errors.username
-                        ? "text-red-500"
-                        : "text-gray-100"
-                        }`}
+                      className={`${
+                        form.formState.errors.username
+                          ? "text-red-500"
+                          : "text-gray-100"
+                      }`}
                     >
                       Username
                     </FormLabel>
@@ -197,7 +232,9 @@ const SignUp = () => {
                         className="text-gray-100"
                       />
                     </FormControl>
-                    <FormDescription>This username will be shown to other users.</FormDescription>
+                    <FormDescription>
+                      This username will be shown to other users.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -208,10 +245,11 @@ const SignUp = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel
-                      className={`${form.formState.errors.email
-                        ? "text-red-500"
-                        : "text-gray-100"
-                        }`}
+                      className={`${
+                        form.formState.errors.email
+                          ? "text-red-500"
+                          : "text-gray-100"
+                      }`}
                     >
                       Email
                     </FormLabel>
@@ -233,10 +271,11 @@ const SignUp = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel
-                      className={`${form.formState.errors.password
-                        ? "text-red-500"
-                        : "text-gray-100"
-                        }`}
+                      className={`${
+                        form.formState.errors.password
+                          ? "text-red-500"
+                          : "text-gray-100"
+                      }`}
                     >
                       Password
                     </FormLabel>
@@ -245,12 +284,22 @@ const SignUp = () => {
                         <Input
                           type={showPassword ? "text" : "password"}
                           {...field}
-                          className="text-gray-100  bg-transparent"
+                          className="bg-transparent text-gray-100"
                         />
-                        {field.value.length > 0 && <Button type="button" variant='ghost' onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-2 hover:bg-transparent">
-                          {showPassword ? <Eye color="white" /> : <EyeOff color="white" />}
-                        </Button>}
+                        {field.value.length > 0 && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-2 hover:bg-transparent"
+                          >
+                            {showPassword ? (
+                              <Eye color="white" />
+                            ) : (
+                              <EyeOff color="white" />
+                            )}
+                          </Button>
+                        )}
                       </div>
                     </FormControl>
                     <FormDescription>Enter your password.</FormDescription>
@@ -259,48 +308,15 @@ const SignUp = () => {
                 )}
               />
             </form>
-          </Form >
+          </Form>
         );
       case 1:
-        return file && fileUrl && progress === 100 ? (
-          <div className="relative">
-            <AspectRatio ratio={1 / 1}>
-              <Image
-                src={fileUrl}
-                alt="Profile Picture"
-                layout="fill"
-                className="h-full w-full cursor-pointer rounded-full object-cover"
-              />
-            </AspectRatio>
-            {fileUrl && (
-              <Button
-                variant="ghost"
-                className="absolute right-0 top-0 text-primary"
-                onClick={async () => {
-                  if (fileKey) {
-                    await deleteFileOnServer(fileKey);
-                    setFileUrl("");
-                  }
-                }}
-              >
-                <X size={25} />
-              </Button>
-            )}
-          </div>
-        ) : isUploading ? (
-          <AnimatedCircularProgressBar
-            className="m-auto"
-            max={100}
-            min={0}
-            value={progress}
-            gaugePrimaryColor="#d4d4d4"
-            gaugeSecondaryColor="#171717"
-          />
-        ) : (
+        return (
           <UploadthingButton
-            setFile={setFile}
+            getDropzoneProps={getDropzoneProps}
             label="Profile Image"
             isProfile={true}
+            isCircle={true}
           />
         );
       default:
@@ -322,7 +338,7 @@ const SignUp = () => {
         </div>
       </div>
       <div className="relative flex w-full flex-col items-center justify-center bg-[#171717] p-8 lg:w-3/4">
-        <div className="absolute top-6 sm:top-10 px-10 flex w-full items-center justify-between">
+        <div className="absolute top-6 flex w-full items-center justify-between px-10 sm:top-10">
           <div className="text-center">
             <Button className="border border-solid border-gray-100 bg-transparent hover:bg-transparent">
               <Link
@@ -347,12 +363,11 @@ const SignUp = () => {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="max-w-md flex items-center"
+          className="flex max-w-md items-center"
         >
-          {isCodeVerifying ?
+          {isCodeVerifying ? (
             <OTP />
-            :
-
+          ) : (
             <AnimatePresence mode="wait">
               <motion.div
                 key={stage}
@@ -369,7 +384,7 @@ const SignUp = () => {
                   {stages[stage]?.subtitle}
                 </p>
                 {renderStageContent()}
-                <div className="flex gap-2 items-center justify-between">
+                <div className="flex items-center justify-between gap-2">
                   {stage > 0 && (
                     <Button
                       type="button"
@@ -383,28 +398,30 @@ const SignUp = () => {
                   <Button
                     form={stage === 0 ? "sign-up-form" : undefined}
                     type={stage === 0 ? "submit" : "button"}
-                    className={`${stage === 0 ? "w-full" : "ml-auto"
-                      } ${progress !== 100 && isUploading && "hidden"} transform rounded-md border border-solid border-white bg-gradient-to-r from-gray-700 to-gray-900 px-4 py-2 font-bold text-white transition duration-300 ease-in-out hover:scale-105 hover:from-gray-800 hover:to-black focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50`}
+                    className={`${
+                      stage === 0 ? "w-full" : "ml-auto"
+                    } transform rounded-md border border-solid border-white bg-gradient-to-r from-gray-700 to-gray-900 px-4 py-2 font-bold text-white transition duration-300 ease-in-out hover:scale-105 hover:from-gray-800 hover:to-black focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50`}
                     disabled={isLoading || isVerifyEmailPending}
                     onClick={
-                      stage === stages.length - 1 ? onFinishRegistry : undefined
+                      stage === stages.length - 1
+                        ? onFinishRegistry
+                        : handleNextToOtp
                     }
                   >
-                    {/* FIXME: Make the 'continue without profile picture' hidden in the last second of the upload */}
                     {isLoading || isVerifyEmailPending ? (
-                      <div className="flex items-center ">
+                      <div className="flex items-center">
                         <LoaderCircle size={16} className="mr-2 animate-spin" />
                         Processing...
                       </div>
                     ) : stage === stages.length - 1 ? (
-                      fileUrl && progress === 100 && !isUploading ? (
+                      showcaseUrl ? (
                         "Submit"
                       ) : (
                         "Continue Without Profile Picture"
                       )
                     ) : (
                       <div className="flex items-center">
-                        Next < ArrowRight size={16} className="ml-2" />
+                        Next <ArrowRight size={16} className="ml-2" />
                       </div>
                     )}
                   </Button>
@@ -420,8 +437,7 @@ const SignUp = () => {
                 <AuthButtons />
               </motion.div>
             </AnimatePresence>
-          }
-
+          )}
         </motion.div>
       </div>
     </div>

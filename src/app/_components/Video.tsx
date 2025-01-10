@@ -8,10 +8,12 @@ import {
   VolumeX,
   Maximize,
   Minimize,
+  X,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { Slider } from "~/components/ui/slider";
+import { useFileStore } from "~/store";
 
 interface CustomVideoPlayerProps {
   url: string;
@@ -35,6 +37,7 @@ const CustomVideoPlayer: React.FC<CustomVideoPlayerProps> = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<HTMLDivElement>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout>();
+  const { setShowcaseUrl } = useFileStore();
 
   useEffect(() => {
     const video = videoRef.current;
@@ -138,13 +141,22 @@ const CustomVideoPlayer: React.FC<CustomVideoPlayerProps> = ({
     <div
       ref={playerRef}
       className={cn(
-        "relative aspect-video w-full h-[300px] overflow-hidden rounded-lg bg-current",
+        "relative aspect-video h-[300px] w-full overflow-hidden rounded-lg bg-current",
         className,
       )}
       onMouseEnter={showControls}
       onMouseMove={showControls}
       onMouseLeave={hideControls}
     >
+      <div className="absolute right-0 top-0 z-10">
+        <Button
+          type="button"
+          className="py-0 hover:bg-transparent"
+          onClick={() => setShowcaseUrl({ url: "", type: "" })}
+        >
+          <X size={30} />
+        </Button>
+      </div>
       <video
         ref={videoRef}
         src={url}

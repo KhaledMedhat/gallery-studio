@@ -6,6 +6,8 @@ import type {
   FileStore,
   selectedFiles,
   CommentInfo,
+  UserImage,
+  ShowcaseFormData,
 } from "./types/types";
 
 export const useUserStore = create<Store>()(
@@ -17,14 +19,14 @@ export const useUserStore = create<Store>()(
         username: "",
         email: "",
         password: "",
-        image: "",
+        image: { imageKey: "", imageUrl: "" },
       },
       isUserUpdating: false,
       setIsUserUpdating: (isUpdating: boolean) =>
         set(() => ({ isUserUpdating: isUpdating })),
       setUserRegistry: (user: UserRegistry) =>
         set(() => ({ userRegistrationInfo: user })),
-      setUserImage: (image: string) =>
+      setUserImage: (image: UserImage) =>
         set((state) => ({
           userRegistrationInfo: { ...state.userRegistrationInfo, image: image },
         })),
@@ -37,12 +39,32 @@ export const useUserStore = create<Store>()(
 );
 
 export const useFileStore = create<FileStore>()((set, get) => ({
+  formData: {
+    filePrivacy: false,
+    caption: "",
+    tags: undefined,
+    gallerySlug: "",
+  },
+  setFormData: (formData: ShowcaseFormData) =>
+    set(() => ({ formData: formData })),
   commentOwnerName: undefined,
   commentInfo: {
     commentId: undefined,
     commentUsername: undefined,
   },
   isReplying: false,
+  showcaseUrl: {
+    url: "",
+    type: "",
+  },
+  setShowcaseUrl: (showcaseUrl: { url: string; type: string }) =>
+    set(() => ({ showcaseUrl: showcaseUrl })),
+  croppedImage: "",
+  setCroppedImage: (croppedImage: string) =>
+    set(() => ({ croppedImage: croppedImage })),
+  showcaseOriginalName: "",
+  setShowcaseOriginalName: (showcaseOriginalName: string) =>
+    set(() => ({ showcaseOriginalName: showcaseOriginalName })),
   fileUrl: "",
   fileKey: "",
   fileType: "",

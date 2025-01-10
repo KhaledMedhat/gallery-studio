@@ -39,37 +39,46 @@ export function Modal({
   const { data: file } = api.file.getFileById.useQuery({ id: fileId });
   const { setIsCommenting } = useFileStore();
   const handleOpenModalChange = () => {
-    setIsCommenting(false)
+    setIsCommenting(false);
     router.back();
   };
-  const initials = getInitials(file?.user.firstName ?? "", file?.user.lastName ?? "");
+  const initials = getInitials(
+    file?.user.firstName ?? "",
+    file?.user.lastName ?? "",
+  );
   return (
     <Dialog defaultOpen={true} open={true} onOpenChange={handleOpenModalChange}>
-      <DialogOverlay >
+      <DialogOverlay>
         <DialogContent className="h-[80vh] overflow-y-auto">
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Avatar>
-                <AvatarImage src={file?.user.image ?? ""} />
+                <AvatarImage src={file?.user.image?.imageUrl ?? ""} />
                 <AvatarFallback>{initials}</AvatarFallback>
               </Avatar>
               <HoverCard openDelay={100} closeDelay={100}>
                 <HoverCardTrigger asChild>
-                  <Button variant="link" className="p-0 font-bold" tabIndex={-1}>
-                    <Link href={`/${file?.user.name}`} >
-                      @{file?.user.name}
-                    </Link>
+                  <Button
+                    variant="link"
+                    className="p-0 font-bold"
+                    tabIndex={-1}
+                  >
+                    <Link href={`/${file?.user.name}`}>@{file?.user.name}</Link>
                   </Button>
                 </HoverCardTrigger>
-                <HoverCardContent className="w-80 fixed">
+                <HoverCardContent className="fixed w-80">
                   <div className="flex items-center justify-start space-x-4">
                     <Avatar>
-                      <AvatarImage src={file?.user.image ?? ""} />
+                      <AvatarImage src={file?.user.image?.imageUrl ?? ""} />
                       <AvatarFallback>{initials}</AvatarFallback>
                     </Avatar>
                     <div className="space-y-1">
-                      <h4 className="text-sm font-semibold">@{file?.user.name}</h4>
-                      <p className="text-sm">{file?.user.bio ? `${file?.user.bio}.` : ""}</p>
+                      <h4 className="text-sm font-semibold">
+                        @{file?.user.name}
+                      </h4>
+                      <p className="text-sm">
+                        {file?.user.bio ? `${file?.user.bio}.` : ""}
+                      </p>
                       <div className="flex items-center pt-2">
                         <CalendarIcon className="mr-2 h-4 w-4 opacity-70" />
                         <span className="text-xs text-muted-foreground">
@@ -92,8 +101,7 @@ export function Modal({
             )}
           </DialogTitle>
           {children}
-          <DialogDescription>
-          </DialogDescription>
+          <DialogDescription></DialogDescription>
         </DialogContent>
       </DialogOverlay>
     </Dialog>

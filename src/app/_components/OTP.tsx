@@ -39,7 +39,7 @@ const OTP = () => {
   });
   const startTimer = () => {
     setIsTimerFinished(false);
-    setTimer(35); // Reset timer to 35 seconds 
+    setTimer(35); // Reset timer to 35 seconds
     const interval = setInterval(() => {
       setTimer((prev) => {
         if (prev <= 1) {
@@ -53,8 +53,7 @@ const OTP = () => {
     return () => clearInterval(interval); // Cleanup on unmount
   };
   useEffect(() => {
-    startTimer()
-
+    startTimer();
   }, []);
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -65,20 +64,22 @@ const OTP = () => {
   const { mutate: deleteOtp } = api.user.deleteOtp.useMutation();
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      deleteOtp({ email: userRegistryInfo.email });
-    }, 5 * 60 * 1000); // 5 minutes in milliseconds
+    const timeout = setTimeout(
+      () => {
+        deleteOtp({ email: userRegistryInfo.email });
+      },
+      5 * 60 * 1000,
+    ); // 5 minutes in milliseconds
 
     return () => clearTimeout(timeout); // Cleanup on unmount
-
   }, [deleteOtp, userRegistryInfo.email]);
 
   const { mutate: resendOtp } = api.user.sendingOTP.useMutation({
     onMutate: () => {
-      deleteOtp({ email: userRegistryInfo.email })
+      deleteOtp({ email: userRegistryInfo.email });
     },
     onSuccess: () => {
-      startTimer()
+      startTimer();
     },
     onError: (error) => {
       toast({
@@ -116,23 +117,24 @@ const OTP = () => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-6 w-full"
-    >
+    <div className="flex w-full flex-col items-center gap-6">
       <div>
-        <h1 className="text-left text-3xl font-bold text-white">OTP Verification</h1>
+        <h1 className="text-left text-3xl font-bold text-white">
+          OTP Verification
+        </h1>
       </div>
       <div>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex items-center flex-col gap-6 space-y-6"
+            className="flex flex-col items-center gap-6 space-y-6"
           >
             <FormField
               control={form.control}
               name="otp"
               render={({ field }) => (
-                <FormItem className="flex items-center flex-col gap-6 text-white">
-                  <FormLabel >One-Time Password</FormLabel>
+                <FormItem className="flex flex-col items-center gap-6 text-white">
+                  <FormLabel>One-Time Password</FormLabel>
                   <FormControl>
                     <InputOTP maxLength={6} {...field}>
                       <InputOTPGroup>
@@ -162,35 +164,41 @@ const OTP = () => {
                 className="transform rounded-md bg-gradient-to-r from-gray-700 to-gray-900 px-4 py-2 font-bold text-white transition duration-300 ease-in-out hover:scale-105 hover:from-gray-800 hover:to-black focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
                 type="submit"
               >
-                {isPending ? <LoaderCircle size={20} /> : 'Complete Sign Up'}
-
+                {isPending ? <LoaderCircle size={20} /> : "Complete Sign Up"}
               </Button>
 
               <div>
                 {isTimerFinished ? (
                   <Button
-                    variant='link'
+                    variant="link"
                     onClick={(e) => {
                       e.preventDefault();
-                      resendOtp({ name: fullName, email: userRegistryInfo.email })
-                    }
-                    }
+                      resendOtp({
+                        name: fullName,
+                        email: userRegistryInfo.email,
+                      });
+                    }}
                     className="text-white"
                   >
                     Resend OTP
                   </Button>
                 ) : (
-                  <div>{Math.floor(timer / 60)}:{(timer % 60).toString().padStart(2, '0')}</div>
+                  <div>
+                    {Math.floor(timer / 60)}:
+                    {(timer % 60).toString().padStart(2, "0")}
+                  </div>
                 )}
               </div>
             </div>
-            {!isTimerFinished && <div className="w-full text-white">
-              <p>You will be able to resend OTP after 35 seconds.</p>
-            </div>}
+            {!isTimerFinished && (
+              <div className="w-full text-white">
+                <p>You will be able to resend OTP after 35 seconds.</p>
+              </div>
+            )}
           </form>
         </Form>
       </div>
-    </div >
+    </div>
   );
 };
 

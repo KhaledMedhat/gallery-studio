@@ -31,12 +31,12 @@ import { Dot, EllipsisVertical, LoaderCircle } from "lucide-react";
 import { useParams } from "next/navigation";
 import DeleteButton from "./DeleteButton";
 
-const AlbumCoverImages: React.FC<{ album: Album }> = ({
-  album,
-}) => {
-  const param = useParams()
+const AlbumCoverImages: React.FC<{ album: Album }> = ({ album }) => {
+  const param = useParams();
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
-  const { data: albumFiles } = api.file.getAlbumFiles.useQuery({ id: album.id });
+  const { data: albumFiles } = api.file.getAlbumFiles.useQuery({
+    id: album.id,
+  });
   const displayFiles = [...(albumFiles ?? []), null, null, null, null].slice(
     0,
     4,
@@ -93,18 +93,19 @@ const AlbumCoverImages: React.FC<{ album: Album }> = ({
         });
       }
     }
-
-
   };
 
   return (
     <BlurFade delay={0.6} inView>
-      <div className="relative border w-[400px] h-[200px] xl:w-[500px] xl:h-[300px] rounded-lg">
-        <div className="absolute top-2 right-2 flex items-center gap-2">
+      <div className="relative h-[200px] w-[400px] rounded-lg border xl:h-[300px] xl:w-[500px]">
+        <div className="absolute right-2 top-2 flex items-center gap-2">
           {!isUpdating ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="hover:bg-transparent hover:text-accent p-0 text-accent z-30">
+                <Button
+                  variant="ghost"
+                  className="z-30 p-0 text-accent hover:bg-transparent hover:text-accent"
+                >
                   <EllipsisVertical size={20} />
                 </Button>
               </DropdownMenuTrigger>
@@ -119,10 +120,7 @@ const AlbumCoverImages: React.FC<{ album: Album }> = ({
                       className="w-full hover:bg-transparent"
                     >
                       {isAlbumUpdatePending ? (
-                        <LoaderCircle
-                          size={25}
-                          className="animate-spin"
-                        />
+                        <LoaderCircle size={25} className="animate-spin" />
                       ) : (
                         "Edit"
                       )}
@@ -135,7 +133,7 @@ const AlbumCoverImages: React.FC<{ album: Album }> = ({
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <div className="flex items-center gap-2 z-30">
+            <div className="z-30 flex items-center gap-2">
               <Button
                 type="submit"
                 form="update-album-form"
@@ -159,8 +157,8 @@ const AlbumCoverImages: React.FC<{ album: Album }> = ({
           )}
         </div>
         <Link href={`/galleries/${String(param.id)}/albums/${album.id}`}>
-          <div className="group/album w-full h-full absolute z-20 flex items-center justify-center bg-black/25 rounded-lg">
-            {isUpdating ?
+          <div className="group/album absolute z-20 flex h-full w-full items-center justify-center rounded-lg bg-black/25">
+            {isUpdating ? (
               <Form {...form}>
                 <form
                   id="update-album-form"
@@ -186,44 +184,48 @@ const AlbumCoverImages: React.FC<{ album: Album }> = ({
                   </div>
                 </form>
               </Form>
-              :
+            ) : (
               <div className="transition-transform duration-300 group-hover/album:scale-125">
-                <h1 className="text-3xl font-bold text-accent ">
-                  {album.name}
-                </h1>
+                <h1 className="text-3xl font-bold text-accent">{album.name}</h1>
               </div>
-            }
-
+            )}
           </div>
-          {isArrayOfNulls ? <div className="w-full h-full flex justify-center gap-2 bg-accent-foreground rounded-lg">
-
-          </div> :
+          {isArrayOfNulls ? (
+            <div className="flex h-full w-full justify-center gap-2 rounded-lg bg-accent-foreground"></div>
+          ) : (
             <div
-              className={`grid grid-cols-[repeat(3,1fr)] grid-rows-[repeat(2,1fr)] gap-[1px] w-full h-full shadow
-                        [&>*:nth-child(1)]:col-span-2 [&>*:nth-child(1)]:rounded-tl-lg
-                        [&>*:nth-child(2)]:col-start-3 [&>*:nth-child(2)]:rounded-tr-lg
-                        [&>*:nth-child(3)]:row-start-2 [&>*:nth-child(3)]:rounded-bl-lg
-                        [&>*:nth-child(4)]:col-span-2  [&>*:nth-child(4)]:row-start-2 [&>*:nth-child(4)]:rounded-br-lg
-                        `}>
-
-              {displayFiles.map((file, idx) => (
-                file ? <div key={idx} className="relative w-full h-full overflow-hidden">
-                  <Image src={file?.url ?? ''} alt={`One of ${album.name}'s images`} width={100} height={100} className="w-full h-full blur-[1px] object-cover" />
-                </div> :
-                  <div key={idx} className="bg-accent-foreground">
+              className={`grid h-full w-full grid-cols-[repeat(3,1fr)] grid-rows-[repeat(2,1fr)] gap-[1px] shadow [&>*:nth-child(1)]:col-span-2 [&>*:nth-child(1)]:rounded-tl-lg [&>*:nth-child(2)]:col-start-3 [&>*:nth-child(2)]:rounded-tr-lg [&>*:nth-child(3)]:row-start-2 [&>*:nth-child(3)]:rounded-bl-lg [&>*:nth-child(4)]:col-span-2 [&>*:nth-child(4)]:row-start-2 [&>*:nth-child(4)]:rounded-br-lg`}
+            >
+              {displayFiles.map((file, idx) =>
+                file ? (
+                  <div
+                    key={idx}
+                    className="relative h-full w-full overflow-hidden"
+                  >
+                    <Image
+                      src={file?.url ?? ""}
+                      alt={`One of ${album.name}'s images`}
+                      width={100}
+                      height={100}
+                      className="h-full w-full object-cover blur-[1px]"
+                    />
                   </div>
-              ))}
+                ) : (
+                  <div key={idx} className="bg-accent-foreground"></div>
+                ),
+              )}
             </div>
-          }
-
+          )}
         </Link>
       </div>
     </BlurFade>
-  )
+  );
 };
 
 const Albums: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
-  const { data: albums, isLoading } = api.album.getAlbums.useQuery({ id: gallerySlug });
+  const { data: albums, isLoading } = api.album.getAlbums.useQuery({
+    id: gallerySlug,
+  });
 
   if (albums?.length === 0)
     return (
@@ -233,18 +235,18 @@ const Albums: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
       />
     );
 
-  return (
-    isLoading ? (<div className="fixed inset-0 z-40 flex items-center justify-center bg-background/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
+  return isLoading ? (
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-background/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
       <Dot size={250} className="animate-bounce" />
-    </div>)
-      :
-      (<div className="container mx-auto px-4 py-10">
-        <div className="flex flex-wrap items-center justify-center gap-4 md:justify-start">
-          {albums?.map((album) => (
-            <AlbumCoverImages key={album.id} album={album} />
-          ))}
-        </div>
-      </div>)
+    </div>
+  ) : (
+    <div className="container mx-auto px-4 py-10">
+      <div className="flex flex-wrap items-center justify-center gap-4 md:justify-start">
+        {albums?.map((album) => (
+          <AlbumCoverImages key={album.id} album={album} />
+        ))}
+      </div>
+    </div>
   );
 };
 

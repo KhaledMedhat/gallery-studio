@@ -2,6 +2,22 @@ export enum isAlbumOrFileEnum {
   file = "file",
   album = "album",
 }
+
+export interface AddShowcaseType {
+  url: string;
+  fileKey: string;
+  fileType: string;
+  filePrivacy: "public" | "private";
+  caption: string;
+  tags: string[];
+  gallerySlug: string;
+}
+export interface ShowcaseFormData {
+  filePrivacy: boolean;
+  caption: string;
+  tags: string[] | undefined;
+  gallerySlug: string;
+}
 export interface Showcase {
   createdAt: Date;
   id: string;
@@ -59,14 +75,19 @@ export interface UserProfileType {
   followers: Follower[] | null;
   files?: Showcase[];
 }
+
+export interface UserImage {
+  imageUrl: string;
+  imageKey: string;
+}
 export interface User {
   email: string;
   name: string;
   firstName: string | null;
   lastName: string | null;
   createdAt: Date | null;
-  image: string | null;
-  coverImage: string | null;
+  image: UserImage | null;
+  coverImage: UserImage | null;
   followers: Follower[] | null;
   followings: Follower[] | null;
   id: string;
@@ -116,7 +137,7 @@ export interface UserRegistry {
   username: string;
   email: string;
   password: string;
-  image: string;
+  image: UserImage;
 }
 
 export interface Store {
@@ -124,7 +145,7 @@ export interface Store {
   isUserUpdating: boolean;
   setIsUserUpdating: (isUpdating: boolean) => void;
   setUserRegistry: (user: UserRegistry) => void;
-  setUserImage: (image: string) => void;
+  setUserImage: (image: UserImage) => void;
 }
 
 export interface selectedFiles {
@@ -136,7 +157,18 @@ export interface CommentInfo {
   commentUsername: string | undefined;
 }
 export interface FileStore {
+  formData: ShowcaseFormData;
+  setFormData: (formData: ShowcaseFormData) => void;
   commentOwnerName: undefined | string;
+  showcaseUrl: {
+    url: string;
+    type: string;
+  };
+  setShowcaseUrl: (showcaseUrl: { url: string; type: string }) => void;
+  croppedImage: string;
+  setCroppedImage: (croppedImage: string) => void;
+  showcaseOriginalName: string;
+  setShowcaseOriginalName: (showcaseOriginalName: string) => void;
   commentInfo: CommentInfo;
   isReplying: boolean;
   fileUrl: string;
@@ -166,4 +198,9 @@ export interface FileStore {
   setIsUpdating: (isUpdating: boolean) => void;
   setCommentIsUpdating: (isCommentUpdating: boolean) => void;
   setIsUpdatingPending: (isUpdatingPending: boolean) => void;
+}
+
+export interface Crop {
+  x: number;
+  y: number;
 }

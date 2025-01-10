@@ -42,9 +42,17 @@ import { useTheme } from "next-themes";
 import type { fileType } from "~/types/types";
 import Video from "./Video";
 import { Switch } from "~/components/ui/switch";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
 import { useRouter } from "next/navigation";
-import { typeOfFile } from "~/utils/utils";
+import { blobUrlToFile, typeOfFile } from "~/utils/utils";
+import { useUploader } from "~/hooks/useUploader";
 
 const AddFileButton: React.FC<{
   files?: fileType[] | undefined;
@@ -54,9 +62,8 @@ const AddFileButton: React.FC<{
   isTabs?: boolean;
 }> = ({ files, gallerySlug, isEmptyPage, isTabs, albumId }) => {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const [file, setFile] = useState<File | undefined>(undefined);
   const [isFileError, setIsFileError] = useState<boolean>(false);
-  const router = useRouter()
+  const router = useRouter();
   const theme = useTheme();
   const {
     fileUrl,
@@ -89,7 +96,7 @@ const AddFileButton: React.FC<{
         },
       )
       .optional(),
-    privacy: z.boolean().default(false)
+    privacy: z.boolean().default(false),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -97,44 +104,57 @@ const AddFileButton: React.FC<{
     defaultValues: {
       caption: "",
       tags: undefined,
-      privacy: false
+      privacy: false,
     },
   });
-  const { mutate: addToExistedAlbum, isPending: isAddToExistingAlbumPending } = api.album.addToAlbum.useMutation({
-    onSuccess: () => {
-      toast({
-        title: "Added Successfully.",
-        description: `Images has been added successfully.`,
-      });
-      void utils.file.getAlbumFiles.invalidate();
-    },
-    onError: () => {
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: `Uh oh! Something went wrong. Please try again.`,
-      });
-    },
-  });
-  const { mutate: addFile, isPending } = api.file.addFile.useMutation({
+  const {
+    showcaseUrl,
+    croppedImage,
+    showcaseOriginalName,
+    setShowcaseUrl,
+    setFormData,
+  } = useFileStore();
+  const { mutate: addToExistedAlbum, isPending: isAddToExistingAlbumPending } =
+    api.album.addToAlbum.useMutation({
+      onSuccess: () => {
+        toast({
+          title: "Added Successfully.",
+          description: `Images has been added successfully.`,
+        });
+        void utils.file.getAlbumFiles.invalidate();
+      },
+      onError: () => {
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: `Uh oh! Something went wrong. Please try again.`,
+        });
+      },
+    });
+  const { mutate: addShowcase, isPending } = api.file.addFile.useMutation({
     onSuccess: (data) => {
-      setFile(undefined);
       setFileUrl("");
       setFileKey("");
+      setShowcaseUrl({ url: "", type: "" });
       setIsDialogOpen(false);
       form.reset();
-      router.refresh()
+      router.refresh();
       void utils.file.getFiles.invalidate();
-      if(data?.filePrivacy === 'public') void utils.file.getShowcaseFiles.invalidate();
+      if (data?.filePrivacy === "public")
+        void utils.file.getShowcaseFiles.invalidate();
       toast({
-        description: <span>Your {typeOfFile(data?.fileType)} has been added successfully</span>,
+        description: (
+          <span>
+            Your {typeOfFile(data?.fileType)} has been added successfully
+          </span>
+        ),
       });
       if (isTabs && data) {
-        addToExistedAlbum({ id: [data.id], albumId: Number(albumId) })
-
+        addToExistedAlbum({ id: [data.id], albumId: Number(albumId) });
       }
     },
-    onError: (e) => {
+    onError: async (e) => {
+      await deleteFileOnServer(fileKey);
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
@@ -142,19 +162,46 @@ const AddFileButton: React.FC<{
       });
     },
   });
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    if (!file || !fileKey || !fileUrl || !fileType) {
+  console.log(isPending, isUploading);
+  const { startUpload, getDropzoneProps } = useUploader(
+    true,
+    undefined,
+    addShowcase,
+    undefined,
+    undefined,
+  );
+
+  const getCroppedImage = async () => {
+    if (
+      showcaseUrl &&
+      typeOfFile(showcaseUrl.type) === "Image" &&
+      croppedImage
+    ) {
+      const croppedImageFile = await blobUrlToFile(
+        croppedImage,
+        showcaseOriginalName,
+      );
+      await startUpload([croppedImageFile]);
+    } else {
+      const convertedVideoFromUrl = await blobUrlToFile(
+        showcaseUrl.url,
+        showcaseOriginalName,
+      );
+      await startUpload([convertedVideoFromUrl]);
+    }
+  };
+
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    if (!showcaseUrl) {
       setIsFileError(true);
     } else {
-      addFile({
-        url: fileUrl,
-        fileKey: fileKey,
-        fileType: fileType,
-        filePrivacy: data.privacy ? 'public' : 'private',
+      setFormData({
+        filePrivacy: data.privacy,
         caption: data.caption,
         tags: data.tags,
         gallerySlug,
       });
+      await getCroppedImage();
     }
   };
   if (isTabs) {
@@ -163,8 +210,8 @@ const AddFileButton: React.FC<{
         <CardHeader>
           <CardTitle>Add Image , Video or GIF</CardTitle>
           <CardDescription>
-            Upload a new image , video or even GIF to your gallery. Click save when you&apos;re
-            done.
+            Upload a new image , video or even GIF to your gallery. Click save
+            when you&apos;re done.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
@@ -175,58 +222,14 @@ const AddFileButton: React.FC<{
               className="w-full space-y-8"
             >
               <div className="flex flex-col gap-6">
-                {file && fileUrl && progress === 100 ? (
-                  <div className="relative flex flex-col items-center justify-center gap-6">
-                    {typeOfFile(fileType) === 'Video' ? (
-                      <Video url={fileUrl} />
-                    ) : (
-                      <AspectRatio ratio={1 / 1}>
-                        <Image
-                          src={fileUrl}
-                          alt="Profile Picture"
-                          layout="fill"
-                          className="h-full w-full cursor-pointer rounded-full object-cover"
-                        />
-                      </AspectRatio>
-                    )}
-                    <Button
-                      className="absolute right-0 top-0 hover:bg-transparent"
-                      type="button"
-                      variant="ghost"
-                      onClick={async () => {
-                        if (fileKey) {
-                          await deleteFileOnServer(fileKey);
-                          setFile(undefined);
-                          setFileUrl("");
-                        }
-                      }}
-                    >
-                      <X size={20} className={`${typeOfFile(fileType) === 'Video' ? "text-accent" : "text-foreground-accent"}`} />
-                    </Button>
-                  </div>
-                ) : isUploading && progress !== 0 ? (
-                  <AnimatedCircularProgressBar
-                    className="m-auto"
-                    max={100}
-                    min={0}
-                    value={progress}
-                    gaugePrimaryColor={
-                      theme.resolvedTheme === "dark" ? "#d4d4d4" : "#171717"
-                    }
-                    gaugeSecondaryColor={
-                      theme.resolvedTheme === "dark" ? "#171717" : "#d4d4d4"
-                    }
-                  />
-                ) : (
-                  <UploadthingButton
-                    isImageComponent={true}
-                    setFile={setFile}
-                    label={"Image"}
-                    isFileError={isFileError}
-                    isProfile={false}
-                  />
-                )}
-
+                <UploadthingButton
+                  getDropzoneProps={getDropzoneProps}
+                  isImageComponent={true}
+                  label={"Showcase"}
+                  isFileError={isFileError}
+                  isProfile={false}
+                  isCircle={false}
+                />
                 <FormField
                   control={form.control}
                   name="caption"
@@ -234,7 +237,10 @@ const AddFileButton: React.FC<{
                     <FormItem>
                       <FormLabel>Caption *</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Caption of the image" {...field} />
+                        <Textarea
+                          placeholder="Caption of the image"
+                          {...field}
+                        />
                       </FormControl>
                       <FormDescription>Enter image caption.</FormDescription>
                       <FormMessage />
@@ -257,16 +263,17 @@ const AddFileButton: React.FC<{
                     </FormItem>
                   )}
                 />
-                {file && progress === 100 &&
+                {showcaseUrl.url && (
                   <FormField
                     control={form.control}
                     name="privacy"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row items-center gap-1 justify-between rounded-lg border p-3 shadow-sm">
+                      <FormItem className="flex flex-row items-center justify-between gap-1 rounded-lg border p-3 shadow-sm">
                         <div className="space-y-0.5">
                           <FormLabel>Showcase Privacy</FormLabel>
                           <FormDescription>
-                            By default it sets to private but you can change it to public.
+                            By default it sets to private but you can change it
+                            to public.
                           </FormDescription>
                         </div>
                         <FormControl>
@@ -278,7 +285,7 @@ const AddFileButton: React.FC<{
                       </FormItem>
                     )}
                   />
-                }
+                )}
               </div>
             </form>
           </Form>
@@ -290,45 +297,51 @@ const AddFileButton: React.FC<{
             className="w-full"
             disabled={isPending || isUploading || isAddToExistingAlbumPending}
           >
-            {!isPending || !isAddToExistingAlbumPending || !isUploading ? (
-              "Save"
+            {isPending || isAddToExistingAlbumPending || isUploading ? (
+              <div className="flex items-center justify-center gap-1">
+                <LoaderCircle size={20} className="animate-spin" />
+                {isUploading && "Uploading ..."}
+                {isAddToExistingAlbumPending ||
+                  (isPending && "Adding your showcase ...")}
+              </div>
             ) : (
-              <LoaderCircle size={20} className="animate-spin" />
+              "Save"
             )}
           </Button>
         </CardFooter>
       </Card>
-
-    )
+    );
   }
 
   return (
-
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
             <DialogTrigger asChild>
-              {isEmptyPage ? <Button variant="outline">Add Image or Video</Button> :
+              {isEmptyPage ? (
+                <Button variant="outline">Add Showcase</Button>
+              ) : (
                 <Button variant="ghost">
                   <ImagePlus
                     size={25}
-                    className={`${files && files?.length === 0 && "animate-bounce"}`} />
+                    className={`${files && files?.length === 0 && "animate-bounce"}`}
+                  />
 
-                  <span className="sr-only">Add Image</span>
+                  <span className="sr-only">Add Showcase</span>
                 </Button>
-              }
+              )}
             </DialogTrigger>
           </TooltipTrigger>
-          <TooltipContent>Add Image , Video or GIF</TooltipContent>
+          <TooltipContent>Add Showcase</TooltipContent>
         </Tooltip>
       </TooltipProvider>
-      <DialogContent className="h-fit max-h-full overflow-y-auto max-w-2xl xl:max-w-fit">
+      <DialogContent className="h-fit max-h-full max-w-2xl overflow-y-auto xl:max-w-fit">
         <DialogHeader>
-          <DialogTitle>Add Image , Video or GIF</DialogTitle>
+          <DialogTitle>Add Showcase</DialogTitle>
           <DialogDescription>
-            Upload a new image , video or even GIF to your gallery. Click save when you&apos;re
-            done.
+            Upload a new image , video or even GIF as a showcase to your
+            gallery. Click save when you&apos;re done.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -337,67 +350,28 @@ const AddFileButton: React.FC<{
             onSubmit={form.handleSubmit(onSubmit)}
             className="w-full space-y-8"
           >
-            <div className="flex flex-col gap-6">
-              {file && fileUrl && progress === 100 ? (
-                <div className="relative flex flex-col items-center justify-center gap-6">
-                  {typeOfFile(fileType) === 'Video' ? (
-                    <Video url={fileUrl} />
-                  ) : (
-                    <AspectRatio ratio={1 / 1}>
-                      <Image
-                        src={fileUrl}
-                        alt="Profile Picture"
-                        layout="fill"
-                        className="h-full w-full cursor-pointer rounded-full object-cover"
-                      />
-                    </AspectRatio>
-                  )}
-                  <Button
-                    className="absolute right-0 top-0 hover:bg-transparent"
-                    type="button"
-                    variant="ghost"
-                    onClick={async () => {
-                      if (fileKey) {
-                        await deleteFileOnServer(fileKey);
-                        setFile(undefined);
-                        setFileUrl("");
-                      }
-                    }}
-                  >
-                    <X size={20} className={`${typeOfFile(fileType) === 'Video' ? "text-accent" : "text-foreground-accent"}`} />
-                  </Button>
-                </div>
-              ) : isUploading && progress !== 0 ? (
-                <AnimatedCircularProgressBar
-                  className="m-auto"
-                  max={100}
-                  min={0}
-                  value={progress}
-                  gaugePrimaryColor={
-                    theme.resolvedTheme === "dark" ? "#d4d4d4" : "#171717"
-                  }
-                  gaugeSecondaryColor={
-                    theme.resolvedTheme === "dark" ? "#171717" : "#d4d4d4"
-                  }
-                />
-              ) : (
-                <UploadthingButton
-                  isImageComponent={true}
-                  setFile={setFile}
-                  label={"Image"}
-                  isFileError={isFileError}
-                  isProfile={false}
-                />
-              )}
+            <div className="flex flex-col gap-2">
+              <UploadthingButton
+                getDropzoneProps={getDropzoneProps}
+                isImageComponent={true}
+                label={"Showcase"}
+                isFileError={isFileError}
+                isProfile={false}
+                isCircle={false}
+              />
 
               <FormField
                 control={form.control}
                 name="caption"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="space-y-1">
                     <FormLabel>Caption *</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Caption of the image" {...field} />
+                      <Textarea
+                        className="resize-none rounded-none border-0 border-b focus-visible:ring-0 focus-visible:ring-offset-0"
+                        placeholder="Caption of the image"
+                        {...field}
+                      />
                     </FormControl>
                     <FormDescription>Enter image caption.</FormDescription>
                     <FormMessage />
@@ -408,10 +382,14 @@ const AddFileButton: React.FC<{
                 control={form.control}
                 name="tags"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="space-y-1">
                     <FormLabel>Tags</FormLabel>
                     <FormControl>
-                      <Input placeholder="#tags" {...field} />
+                      <Input
+                        className="rounded-none border-0 border-b focus-visible:ring-0 focus-visible:ring-offset-0"
+                        placeholder="#tags"
+                        {...field}
+                      />
                     </FormControl>
                     <FormDescription>
                       Enter showcase tags to be searched by it.
@@ -420,16 +398,17 @@ const AddFileButton: React.FC<{
                   </FormItem>
                 )}
               />
-              {file &&
+              {showcaseUrl.url && (
                 <FormField
                   control={form.control}
                   name="privacy"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center gap-1 justify-between rounded-lg border p-3 shadow-sm">
+                    <FormItem className="flex flex-row items-center justify-between gap-1 rounded-lg border p-3 shadow-sm">
                       <div className="space-y-0.5">
                         <FormLabel>Showcase Privacy</FormLabel>
                         <FormDescription>
-                          By default it sets to private but you can change it to public.
+                          By default it sets to private but you can change it to
+                          public.
                         </FormDescription>
                       </div>
                       <FormControl>
@@ -441,7 +420,7 @@ const AddFileButton: React.FC<{
                     </FormItem>
                   )}
                 />
-              }
+              )}
             </div>
           </form>
         </Form>
@@ -452,10 +431,14 @@ const AddFileButton: React.FC<{
             type="submit"
             disabled={isPending || isUploading}
           >
-            {!isPending ? (
-              "Save"
+            {isPending || isUploading ? (
+              <div className="flex items-center justify-center gap-1">
+                <LoaderCircle size={20} className="animate-spin" />
+                {isUploading && "Uploading ..."}
+                {isPending && "Adding your showcase ..."}
+              </div>
             ) : (
-              <LoaderCircle size={20} className="animate-spin" />
+              "Save"
             )}
           </Button>
         </DialogFooter>

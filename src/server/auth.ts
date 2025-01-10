@@ -100,6 +100,7 @@ export const authOptions: NextAuthOptions = {
           name: username,
           firstName,
           lastName,
+          image: {imageUrl: user?.image ?? "", imageKey: ""},
         })
         .where(eq(users.id, user.id));
       try {

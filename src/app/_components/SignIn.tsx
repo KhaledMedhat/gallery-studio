@@ -27,10 +27,10 @@ import { useState } from "react";
 const SignIn = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const isPasswordReset = searchParams.get('ctxFP')
-  const userEncryptedId = searchParams.get('ctxId')
+  const isPasswordReset = searchParams.get("ctxFP");
+  const userEncryptedId = searchParams.get("ctxId");
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const { toast } = useToast()
+  const { toast } = useToast();
   const formSchema = z.object({
     email: z.string().email(),
     password: z.string().min(1, "Password is required"),
@@ -47,7 +47,7 @@ const SignIn = () => {
   const { mutate: userLogin, isPending: isPendingLogin } =
     api.user.login.useMutation({
       onSuccess: () => {
-        router.push('/showcases');
+        router.push("/showcases");
       },
       onError: (error) => {
         toast({
@@ -79,7 +79,7 @@ const SignIn = () => {
         </div>
       </div>
       <div className="relative flex w-full flex-col items-center justify-center bg-[#171717] p-8 lg:w-3/4">
-        <div className="absolute top-10 px-10 flex w-full items-center justify-between">
+        <div className="absolute top-10 flex w-full items-center justify-between px-10">
           <div className="text-center">
             <Button className="border border-solid border-gray-100 bg-transparent hover:bg-transparent">
               <Link
@@ -100,12 +100,13 @@ const SignIn = () => {
             </Link>
           </div>
         </div>
-        {isPasswordReset
-          ?
-          userEncryptedId ? <ResetPassword userEncryptedId={userEncryptedId} />
-            :
+        {isPasswordReset ? (
+          userEncryptedId ? (
+            <ResetPassword userEncryptedId={userEncryptedId} />
+          ) : (
             <ForgetPassword />
-          :
+          )
+        ) : (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -128,10 +129,11 @@ const SignIn = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel
-                          className={`${form.formState.errors.email
-                            ? "text-red-500"
-                            : "text-gray-100"
-                            }`}
+                          className={`${
+                            form.formState.errors.email
+                              ? "text-red-500"
+                              : "text-gray-100"
+                          }`}
                         >
                           Email
                         </FormLabel>
@@ -156,10 +158,11 @@ const SignIn = () => {
                       <FormItem className="w-full">
                         <div className="flex items-center justify-between">
                           <FormLabel
-                            className={`${form.formState.errors.password
-                              ? "text-red-500"
-                              : "text-gray-100"
-                              }`}
+                            className={`${
+                              form.formState.errors.password
+                                ? "text-red-500"
+                                : "text-gray-100"
+                            }`}
                           >
                             Password
                           </FormLabel>
@@ -173,16 +176,26 @@ const SignIn = () => {
                           </div>
                         </div>
                         <FormControl>
-                          <div className="relative flex items-center ">
+                          <div className="relative flex items-center">
                             <Input
                               type={showPassword ? "text" : "password"}
                               {...field}
-                              className="text-gray-100 bg-transparent"
+                              className="bg-transparent text-gray-100"
                             />
-                            {field.value.length > 0 && <Button type="button" variant='ghost' onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-2 hover:bg-transparent">
-                              {showPassword ? <Eye color="white" /> : <EyeOff color="white" />}
-                            </Button>}
+                            {field.value.length > 0 && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-2 hover:bg-transparent"
+                              >
+                                {showPassword ? (
+                                  <Eye color="white" />
+                                ) : (
+                                  <EyeOff color="white" />
+                                )}
+                              </Button>
+                            )}
                           </div>
                         </FormControl>
                         <FormDescription>Enter your password.</FormDescription>
@@ -218,7 +231,7 @@ const SignIn = () => {
 
             <AuthButtons />
           </motion.div>
-        }
+        )}
       </div>
     </div>
   );

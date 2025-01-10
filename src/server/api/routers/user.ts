@@ -118,7 +118,9 @@ export const userRouter = createTRPCRouter({
         password: z.string().min(1),
         username: z.string().min(1),
         otp: z.string().length(6),
-        image: z.string().optional(),
+        image: z
+          .object({ imageUrl: z.string(), imageKey: z.string() })
+          .optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -311,9 +313,13 @@ export const userRouter = createTRPCRouter({
   updateUserProfile: protectedProcedure
     .input(
       z.object({
-        image: z.string().optional(),
+        image: z
+          .object({ imageUrl: z.string(), imageKey: z.string() })
+          .optional(),
         username: z.string().min(1).optional(),
-        coverImage: z.string().optional(),
+        coverImage: z
+          .object({ imageUrl: z.string(), imageKey: z.string() })
+          .optional(),
         firstName: z.string().min(1).optional(),
         lastName: z.string().min(1).optional(),
         bio: z.string().min(1).optional(),

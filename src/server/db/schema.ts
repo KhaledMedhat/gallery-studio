@@ -147,8 +147,10 @@ export const users = createTable("user", {
   followings: json("followings")
     .$type<{ followed: boolean; userId: string }[]>()
     .default([]),
-  image: varchar("image", { length: 255 }).default(""),
-  coverImage: varchar("cover_image", { length: 255 }).default(""),
+  image: json("image")
+  .$type<{ imageUrl: string; imageKey: string }>(),
+  coverImage: json("cover_image")
+  .$type<{ imageUrl: string; imageKey: string }>(),
   createdAt: timestamp("created_at", { withTimezone: true }),
   updatedAt: timestamp("updated_at", { withTimezone: true }),
 });

@@ -65,12 +65,17 @@ import type { User, fileType } from "~/types/types";
 import FromAlbumToAlbum from "./FromAlbumToAlbum";
 import { useState } from "react";
 
-const GalleryNavbar: React.FC<{ user: User | null | undefined, files: fileType[] | undefined }> = ({ user, files }) => {
+const GalleryNavbar: React.FC<{
+  user: User | null | undefined;
+  files: fileType[] | undefined;
+}> = ({ user, files }) => {
   const router = useRouter();
   const pathname = usePathname();
   const utils = api.useUtils();
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const { data: albums } = api.album.getAlbums.useQuery({ id: user?.gallery?.slug ?? "" });
+  const { data: albums } = api.album.getAlbums.useQuery({
+    id: user?.gallery?.slug ?? "",
+  });
   const { selectedFiles, setSelectedFilesToEmpty, fileType } = useFileStore();
   const isAlbum = pathname.includes("albums");
   const isInsideAlbum = pathname.includes("albums/");
@@ -93,7 +98,7 @@ const GalleryNavbar: React.FC<{ user: User | null | undefined, files: fileType[]
           description: `Album has been created successfully.`,
         });
         void utils.album.getAlbums.invalidate();
-        setIsDialogOpen(false)
+        setIsDialogOpen(false);
       },
       onError: () => {
         toast({
@@ -118,17 +123,21 @@ const GalleryNavbar: React.FC<{ user: User | null | undefined, files: fileType[]
     router.refresh();
   };
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 mx-auto mb-4 flex origin-bottom h-full max-h-14">
-      <div className="fixed bottom-0 inset-x-0 h-16 w-full bg-background to-transparent backdrop-blur-lg [-webkit-mask-image:linear-gradient(to_top,black,transparent)] dark:bg-background"></div>
+    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 mx-auto mb-4 flex h-full max-h-14 origin-bottom">
+      <div className="fixed inset-x-0 bottom-0 h-16 w-full bg-background to-transparent backdrop-blur-lg [-webkit-mask-image:linear-gradient(to_top,black,transparent)] dark:bg-background"></div>
       <Dock
         direction="middle"
-        className="z-50 bottom-8 pointer-events-auto relative  mx-auto mb-4 flex origin-bottom gap-4 rounded-3xl bg-background">
+        className="pointer-events-auto relative bottom-8 z-50 mx-auto mb-4 flex origin-bottom gap-4 rounded-3xl bg-background"
+      >
         <DockIcon>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" className={`${isURLActive(pathname, '/showcases') && 'rounded-full p-3 bg-accent text-accent-foreground'}`}>
-                  <Link href={"/showcases"} >
+                <Button
+                  variant="ghost"
+                  className={`${isURLActive(pathname, "/showcases") && "rounded-full bg-accent p-3 text-accent-foreground"}`}
+                >
+                  <Link href={"/showcases"}>
                     <Telescope size={20} />
                   </Link>
                 </Button>
@@ -142,7 +151,10 @@ const GalleryNavbar: React.FC<{ user: User | null | undefined, files: fileType[]
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" className={`${isURLActive(pathname, `/galleries/${user?.gallery?.slug}`) && 'bg-accent text-accent-foreground'}`}>
+                <Button
+                  variant="ghost"
+                  className={`${isURLActive(pathname, `/galleries/${user?.gallery?.slug}`) && "bg-accent text-accent-foreground"}`}
+                >
                   <Link href={`/galleries/${user?.gallery?.slug}`}>
                     <Images size={20} />
                   </Link>
@@ -156,7 +168,10 @@ const GalleryNavbar: React.FC<{ user: User | null | undefined, files: fileType[]
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" className={`${isURLActive(pathname, `/galleries/${user?.gallery?.slug}/albums`) && 'bg-accent text-accent-foreground'}`}>
+                <Button
+                  variant="ghost"
+                  className={`${isURLActive(pathname, `/galleries/${user?.gallery?.slug}/albums`) && "bg-accent text-accent-foreground"}`}
+                >
                   <Link href={`/galleries/${user?.gallery?.slug}/albums`}>
                     <FolderOpen size={20} />
                   </Link>
@@ -218,7 +233,11 @@ const GalleryNavbar: React.FC<{ user: User | null | undefined, files: fileType[]
                   </form>
                 </Form>
                 <DialogFooter>
-                  <Button form="album-id" type="submit" disabled={isAddAlbumPending}>
+                  <Button
+                    form="album-id"
+                    type="submit"
+                    disabled={isAddAlbumPending}
+                  >
                     {isAddAlbumPending ? (
                       <LoaderCircle size={20} className="animate-spin" />
                     ) : (
@@ -230,7 +249,13 @@ const GalleryNavbar: React.FC<{ user: User | null | undefined, files: fileType[]
             </Dialog>
           )}
           {isInsideAlbum && <ChooseFilesModal />}
-          {!isAlbum && !isInsideAlbum && <AddFileButton gallerySlug={user?.gallery?.slug ?? ""} files={files} isEmptyPage={false} />}
+          {!isAlbum && !isInsideAlbum && (
+            <AddFileButton
+              gallerySlug={user?.gallery?.slug ?? ""}
+              files={files}
+              isEmptyPage={false}
+            />
+          )}
         </DockIcon>
         {selectedFiles.length > 0 && (
           <DockIcon className="hidden xl:flex">
@@ -290,12 +315,15 @@ const GalleryNavbar: React.FC<{ user: User | null | undefined, files: fileType[]
                     >
                       <Avatar>
                         <AvatarImage
-                          src={user?.image ?? ""}
+                          src={user?.image?.imageUrl ?? ""}
                           alt={user?.name ?? "Avatar"}
                           className="object-cover"
                         />
                         <AvatarFallback>
-                          {getInitials(user?.firstName ?? "", user?.lastName ?? "")}
+                          {getInitials(
+                            user?.firstName ?? "",
+                            user?.lastName ?? "",
+                          )}
                         </AvatarFallback>
                       </Avatar>
                     </Button>
@@ -308,14 +336,10 @@ const GalleryNavbar: React.FC<{ user: User | null | undefined, files: fileType[]
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="cursor-pointer">
-                <Link href={`/${user?.name}`}>
-                  Profile
-                </Link>
+                <Link href={`/${user?.name}`}>Profile</Link>
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
-                <Link href={"/"}>
-                  Home
-                </Link>
+                <Link href={"/"}>Home</Link>
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
                 Settings

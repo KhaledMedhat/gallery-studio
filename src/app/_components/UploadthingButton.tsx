@@ -1,75 +1,64 @@
 import { useDropzone } from "@uploadthing/react";
 import { Upload } from "lucide-react";
-import { useCallback } from "react";
-import {
-  generateClientDropzoneAccept,
-  generatePermittedFileTypes,
-} from "uploadthing/client";
-import { type UploadThingError } from "uploadthing/server";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { useToast } from "~/hooks/use-toast";
 import { useFileStore } from "~/store";
-import { useUploadThing } from "~/utils/uploadthing";
+import CustomCropper from "./Cropper";
+import { typeOfFile } from "~/utils/utils";
+import Video from "./Video";
 
 const UploadthingButton: React.FC<{
   isImageComponent?: boolean;
-  setFile: (args: File | undefined) => void;
   label: string;
   isProfile: boolean;
   isFileError?: boolean;
-}> = ({ isImageComponent, setFile, label, isFileError, isProfile }) => {
-  const { setIsUploading, setProgress, setFileUrl, setFileKey, setFileType } =
+  getDropzoneProps: () => {
+    onDrop: (acceptedFiles: File[]) => void;
+    accept: Record<string, never[]>;
+  };
+  isCircle: boolean;
+}> = ({
+  isImageComponent,
+  getDropzoneProps,
+  label,
+  isFileError,
+  isProfile,
+  isCircle,
+}) => {
+  const { setShowcaseUrl, showcaseUrl, setShowcaseOriginalName } =
     useFileStore();
-  const { toast } = useToast();
-  const { startUpload, routeConfig } = useUploadThing("imageUploader", {
-    onClientUploadComplete: (res) => {
-      if (res[0]) {
-        setIsUploading(false);
-        setFileUrl(res[0]?.url);
-        setFileKey(res[0]?.key);
-        setFileType(res[0]?.type);
-      }
-    },
-    onUploadProgress: (progress) => {
-      setIsUploading(true);
-      setProgress(progress);
-    },
-    onUploadError: (e) => {
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description:
-          e.code === "BAD_REQUEST"
-            ? "You can't upload more than 1 file at a time"
-            : e.message,
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      const file = e.target.files[0];
+      setShowcaseOriginalName(file.name);
+      const imageUrl = URL.createObjectURL(file);
+      setShowcaseUrl({
+        url: imageUrl,
+        type: file.type,
       });
-      setIsUploading(false);
-    },
+    }
+  };
+  console.log(showcaseUrl);
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    ...getDropzoneProps(),
   });
 
-  const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
-      startUpload(acceptedFiles).catch((e: UploadThingError) => {
-        return e
-      });
-      setFile(acceptedFiles[0]);
-    },
-    [setFile, startUpload],
-  );
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: generateClientDropzoneAccept(
-      generatePermittedFileTypes(routeConfig).fileTypes,
-    ),
-  });
-  return (
+  return showcaseUrl.url ? (
+    typeOfFile(showcaseUrl.type) === "Image" ? (
+      <CustomCropper showcase={showcaseUrl.url} isCircle={isCircle} />
+    ) : (
+      <Video url={showcaseUrl.url} />
+    )
+  ) : (
     <div className="space-y-4">
       <Label
         htmlFor="profileImage"
         className={`${!isImageComponent && "text-gray-100"} text-sm font-medium`}
       >
-        <p className={`${isFileError && "text-[#EF4444]"}`}>{label} {label === 'Image' && '*'}</p>
+        <p className={`${isFileError && "text-[#EF4444]"}`}>
+          {label} {label === "Image" && "*"}
+        </p>
       </Label>
       <div className="flex w-full items-center justify-center">
         <div
@@ -83,13 +72,17 @@ const UploadthingButton: React.FC<{
             <span className="font-semibold">Click to upload</span> or drag and
             drop
           </p>
-          <p className={`${!isImageComponent && "text-gray-100"} text-xs text-center w-3/4`}>
-            {isProfile ? ' Images type allowed are .png, .jpg, .jpeg (MAX. 32MB|Image)' : ' Image, Video or GIF (MAX. 32MB|Image/GIF) (MAX. 256MB|Video)'}
-
+          <p
+            className={`${!isImageComponent && "text-gray-100"} w-3/4 text-center text-xs`}
+          >
+            {isProfile
+              ? " Images type allowed are .png, .jpg, .jpeg (MAX. 32MB|Image)"
+              : " Image, Video or GIF (MAX. 32MB|Image/GIF) (MAX. 256MB|Video)"}
           </p>
         </div>
         <Input
           {...getInputProps()}
+          onChange={handleImageUpload}
           id="profileImage"
           name="profileImage"
           type="file"

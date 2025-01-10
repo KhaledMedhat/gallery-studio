@@ -26,19 +26,25 @@ const FileOptions: React.FC<{
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-fit">
         <DropdownMenuGroup>
-          <DropdownMenuItem className="p-0 w-full">
+          <DropdownMenuItem className="w-full p-0">
             <Button
               onClick={() => {
                 setIsUpdating(true);
               }}
               variant="ghost"
-              className="hover:outline-none w-full cursor-pointer"
+              className="w-full cursor-pointer hover:outline-none"
             >
               Edit
             </Button>
           </DropdownMenuItem>
-          <DropdownMenuItem className="p-0 w-full" asChild>
-            <DeleteButton fileType={fileType} fileId={fileId} fileKey={fileKey} isFileModal={true} handleOpenModalChange={handleOpenModalChange} />
+          <DropdownMenuItem className="w-full p-0" asChild>
+            <DeleteButton
+              fileType={fileType}
+              fileId={fileId}
+              fileKey={fileKey}
+              isFileModal={true}
+              handleOpenModalChange={handleOpenModalChange}
+            />
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

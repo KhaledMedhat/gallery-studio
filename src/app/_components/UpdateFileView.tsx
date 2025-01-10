@@ -20,19 +20,28 @@ import { Textarea } from "~/components/ui/textarea";
 import { api } from "~/trpc/react";
 import { toast } from "~/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 import { useState } from "react";
 import { typeOfFile } from "~/utils/utils";
 
 const UpdateFileView: React.FC<{
   file: fileType;
   username?: string | null | undefined;
-  imageWanted: boolean
+  imageWanted: boolean;
 }> = ({ file, username, imageWanted }) => {
-  const [privacy, setPrivacy] = useState<"public" | "private" | null>(file.filePrivacy);
+  const [privacy, setPrivacy] = useState<"public" | "private" | null>(
+    file.filePrivacy,
+  );
   const { setIsUpdating, setIsUpdatingPending } = useFileStore();
   const utils = api.useUtils();
-  const router = useRouter()
+  const router = useRouter();
   const formSchema = z.object({
     caption: z.string().min(1, { message: "Caption cannot be empty" }),
     tags: z
@@ -91,7 +100,7 @@ const UpdateFileView: React.FC<{
         });
         void utils.file.getFileById.invalidate({ id: file.id });
         void utils.file.getFiles.invalidate();
-        if (!imageWanted) router.refresh()
+        if (!imageWanted) router.refresh();
       },
       onError: () => {
         toast({
@@ -124,7 +133,7 @@ const UpdateFileView: React.FC<{
           id: file.id,
           caption: data.caption,
           tags,
-          privacy
+          privacy,
         });
       }
     }
@@ -169,25 +178,30 @@ const UpdateFileView: React.FC<{
           </form>
         </Form>
       </div>
-      {imageWanted && <div className="relative mx-auto flex w-full max-w-full flex-col gap-4">
-        {typeOfFile(file.fileType) === 'Video' ? (
-          <Video url={file.url} className="rounded-lg" />
-        ) : (
-          <div className="aspect-w-16 aspect-h-9 relative h-auto w-full">
-            <AspectRatio ratio={4 / 3} className="bg-muted">
-              <Image
-                src={file.url}
-                alt={`One of ${username}'s images`}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                className="h-full w-full rounded-md object-cover"
-              />
-            </AspectRatio>
-          </div>
-        )}
-      </div>}
-      {privacy &&
-        <Select value={privacy} onValueChange={(value) => setPrivacy(value as "public" | "private")}>
+      {imageWanted && (
+        <div className="relative mx-auto flex w-full max-w-full flex-col gap-4">
+          {typeOfFile(file.fileType) === "Video" ? (
+            <Video url={file.url} className="rounded-lg" />
+          ) : (
+            <div className="aspect-w-16 aspect-h-9 relative h-auto w-full">
+              <AspectRatio ratio={4 / 3} className="bg-muted">
+                <Image
+                  src={file.url}
+                  alt={`One of ${username}'s images`}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  className="h-full w-full rounded-md object-cover"
+                />
+              </AspectRatio>
+            </div>
+          )}
+        </div>
+      )}
+      {privacy && (
+        <Select
+          value={privacy}
+          onValueChange={(value) => setPrivacy(value as "public" | "private")}
+        >
           <SelectTrigger className="w-fit">
             <SelectValue placeholder={file.filePrivacy} />
           </SelectTrigger>
@@ -198,7 +212,7 @@ const UpdateFileView: React.FC<{
             </SelectGroup>
           </SelectContent>
         </Select>
-      }
+      )}
     </section>
   );
 };

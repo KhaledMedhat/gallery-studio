@@ -5,15 +5,14 @@ import { usePathname } from "next/navigation";
 import { useFileStore } from "~/store";
 
 const RouteChangeHandler = () => {
-    const pathname = usePathname();
-    const { setSelectedFilesToEmpty } = useFileStore()
+  const pathname = usePathname();
+  const { setSelectedFilesToEmpty } = useFileStore();
 
-    useEffect(() => {
-        setSelectedFilesToEmpty(); // Clear Zustand state in every route change
+  useEffect(() => {
+    setSelectedFilesToEmpty(); // Clear Zustand state in every route change
+  }, [pathname, setSelectedFilesToEmpty]);
 
-    }, [pathname, setSelectedFilesToEmpty]);
-
-    return null;
+  return null;
 };
 
 export default RouteChangeHandler;
