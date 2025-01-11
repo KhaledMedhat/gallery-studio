@@ -156,10 +156,15 @@ export interface CommentInfo {
   commentId: string | undefined;
   commentUsername: string | undefined;
 }
+
+export interface ReplyData {
+  commentId: string;
+  content: string;
+  isReplying: boolean;
+}
 export interface FileStore {
   formData: ShowcaseFormData;
   setFormData: (formData: ShowcaseFormData) => void;
-  commentOwnerName: undefined | string;
   showcaseUrl: {
     url: string;
     type: string;
@@ -170,7 +175,7 @@ export interface FileStore {
   showcaseOriginalName: string;
   setShowcaseOriginalName: (showcaseOriginalName: string) => void;
   commentInfo: CommentInfo;
-  isReplying: boolean;
+  replyData: ReplyData;
   fileUrl: string;
   fileKey: string;
   fileType: string;
@@ -183,8 +188,7 @@ export interface FileStore {
   progress: number;
   selectedFiles: selectedFiles[];
   setCommentInfo: (commentInfo: CommentInfo) => void;
-  setIsReplying: (isReplying: boolean) => void;
-  setCommentOwnerName: (commentOwnerName: string | undefined) => void;
+  setReplyData: (replyData: ReplyData) => void;
   setIsSelecting: () => void;
   setIsCommenting: (isCommenting: boolean) => void;
   setSelectedFilesToEmpty: () => void;

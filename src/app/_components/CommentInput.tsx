@@ -22,16 +22,16 @@ import { useTheme } from "next-themes";
 import Picker from "@emoji-mart/react";
 import { useRouter } from "next/navigation";
 import { useFileStore } from "~/store";
-import { useEffect } from "react";
+import { extractUsername } from "~/utils/utils";
 
 const CommentInput: React.FC<{
   fileId: string;
-  originalComment?: string | undefined;
+  originalComment?: string;
 }> = ({ fileId, originalComment }) => {
   const {
     setCommentIsUpdating,
-    isReplying,
-    setIsReplying,
+    replyData,
+    setReplyData,
     commentInfo,
     setCommentInfo,
   } = useFileStore();
@@ -43,14 +43,9 @@ const CommentInput: React.FC<{
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      comment: originalComment ?? "",
+      comment: replyData.isReplying ? `${replyData.content}` : "",
     },
   });
-  useEffect(() => {
-    if (commentInfo.commentUsername) {
-      form.setValue("comment", `@${commentInfo.commentUsername} `);
-    }
-  }, [commentInfo.commentUsername, form, setCommentInfo]);
   const utils = api.useUtils();
   const { mutate: updateComment, isPending: isUpdatingComment } =
     api.comment.updateComment.useMutation({
@@ -70,6 +65,7 @@ const CommentInput: React.FC<{
         form.reset();
       },
     });
+  console.log(replyData);
   const { mutate: postReply, isPending: isPostingReply } =
     api.comment.postReply.useMutation({
       onSuccess: () => {
@@ -77,25 +73,36 @@ const CommentInput: React.FC<{
         void utils.file.getShowcaseFiles.invalidate();
         router.refresh();
         form.reset();
-        setIsReplying(false);
+        setReplyData({
+          isReplying: false,
+          commentId: "",
+          content: "",
+        });
       },
     });
+  console.log(form.watch("comment"));
   const onEmojiSelect = (emoji: Emoji) => {
     const currentComment = form.getValues("comment");
     form.setValue("comment", currentComment + emoji.native);
+    setReplyData({
+      ...replyData,
+      content: currentComment + emoji.native,
+    });
   };
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     if (originalComment === data.comment) {
       setCommentIsUpdating(false);
       return;
     }
-    if (commentInfo?.commentId) {
-      if (isReplying) {
-        postReply({ id: commentInfo.commentId, content: data.comment });
-      } else {
-        updateComment({ id: commentInfo.commentId, content: data.comment });
-      }
-    } else {
+    // if (commentInfo?.commentId) {
+    if (replyData.isReplying) {
+      postReply({ id: replyData.commentId, content: replyData.content });
+    }
+    // else {
+    //   updateComment({ id: commentInfo.commentId, content: data.comment });
+    // }
+    // }
+    else {
       postComment({ id: fileId, content: data.comment });
     }
   };
@@ -115,7 +122,28 @@ const CommentInput: React.FC<{
                   autoComplete="off"
                   className="border-none focus-visible:ring-0 focus-visible:ring-offset-0"
                   placeholder="Write a comment ... "
-                  {...field}
+                  value={
+                    replyData.isReplying ? `${replyData.content}` : field.value
+                  }
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    if (replyData.isReplying && newValue.trim().length === 0) {
+                      setReplyData({
+                        isReplying: false,
+                        commentId: "",
+                        content: "",
+                      });
+                    } else if (
+                      replyData.isReplying &&
+                      newValue.trim().length > 0
+                    ) {
+                      setReplyData({
+                        ...replyData,
+                        content: e.target.value,
+                      });
+                    }
+                    field.onChange(newValue);
+                  }}
                 />
               </FormControl>
               <FormMessage />
@@ -139,6 +167,8 @@ const CommentInput: React.FC<{
           variant="ghost"
           disabled={
             form.getValues("comment").trim().length === 0 ||
+            form.getValues("comment").trim() ===
+              extractUsername(replyData.content) ||
             isPostingComment ||
             isUpdatingComment ||
             isPostingReply

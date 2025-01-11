@@ -8,6 +8,7 @@ import type {
   CommentInfo,
   UserImage,
   ShowcaseFormData,
+  ReplyData,
 } from "./types/types";
 
 export const useUserStore = create<Store>()(
@@ -47,12 +48,15 @@ export const useFileStore = create<FileStore>()((set, get) => ({
   },
   setFormData: (formData: ShowcaseFormData) =>
     set(() => ({ formData: formData })),
-  commentOwnerName: undefined,
   commentInfo: {
     commentId: undefined,
     commentUsername: undefined,
   },
-  isReplying: false,
+  replyData: {
+    commentId: "",
+    content: "",
+    isReplying: false,
+  },
   showcaseUrl: {
     url: "",
     type: "",
@@ -78,10 +82,7 @@ export const useFileStore = create<FileStore>()((set, get) => ({
   selectedFiles: [],
   setCommentInfo: (commentInfo: CommentInfo) =>
     set(() => ({ commentInfo: commentInfo })),
-  setIsReplying: (isReplying: boolean) =>
-    set(() => ({ isReplying: isReplying })),
-  setCommentOwnerName: (commentOwnerName: string | undefined) =>
-    set(() => ({ commentOwnerName: commentOwnerName })),
+  setReplyData: (replyData: ReplyData) => set(() => ({ replyData: replyData })),
   setIsCommenting: (isCommenting: boolean) =>
     set(() => ({ isCommenting: isCommenting })),
   setIsSelecting: () => set((state) => ({ isSelecting: !state.isSelecting })),

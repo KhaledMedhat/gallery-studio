@@ -28,6 +28,8 @@ import UpdateFileView from "./UpdateFileView";
 import LikeButton from "./LikeButton";
 import { Card, CardContent } from "~/components/ui/card";
 import CommentInput from "./CommentInput";
+import Comments from "./Comments";
+import { api } from "~/trpc/react";
 
 dayjs.extend(relativeTime);
 
@@ -42,6 +44,9 @@ const FileFullView: React.FC<{
     file.user?.firstName ?? "",
     file.user?.lastName ?? "",
   );
+  const { data: allComments } = api.comment.getAllComments.useQuery({
+    id: file?.commentsInfo?.map((comment) => comment.id) ?? [],
+  });
   return (
     <section className="container mx-auto flex flex-col items-start justify-around gap-4 p-4">
       <Button variant="link" className="p-0" onClick={() => router.back()}>
@@ -167,88 +172,12 @@ const FileFullView: React.FC<{
         <div className="w-full">
           <div className="p-2">
             {file?.commentsInfo && file.commentsInfo.length > 0 && (
-              <div className="flex flex-col gap-2 p-2">
-                {file.commentsInfo.map((comment) => (
-                  <div key={comment.id} className="flex flex-col items-start">
-                    <div className="flex items-center gap-2 self-start">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage
-                          src={comment.user?.image?.imageUrl ?? ""}
-                        />
-                        <AvatarFallback>
-                          {getInitials(
-                            comment.user?.firstName ?? "",
-                            comment.user?.lastName ?? "",
-                          )}
-                        </AvatarFallback>
-                      </Avatar>
-                      <HoverCard>
-                        <HoverCardTrigger asChild>
-                          <Button variant="link" className="p-0 font-bold">
-                            <Link href={`/${comment.user?.name}`}>
-                              @{comment.user?.name}
-                            </Link>
-                          </Button>
-                        </HoverCardTrigger>
-                        <HoverCardContent className="w-80">
-                          <div className="flex items-center justify-start space-x-4">
-                            <Avatar>
-                              <AvatarImage
-                                src={comment.user?.image?.imageUrl ?? ""}
-                              />
-                              <AvatarFallback>
-                                {getInitials(
-                                  comment.user?.firstName ?? "",
-                                  comment.user?.lastName ?? "",
-                                )}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="space-y-1">
-                              <h4 className="text-sm font-semibold">
-                                @{comment.user?.name}
-                              </h4>
-                              <p className="text-sm">
-                                {comment.user?.bio
-                                  ? `${comment.user?.bio}.`
-                                  : ""}
-                              </p>
-                              <div className="flex items-center pt-2">
-                                <CalendarIcon className="mr-2 h-4 w-4 opacity-70" />
-                                <span className="text-xs text-muted-foreground">
-                                  Joined{" "}
-                                  {dayjs(comment.user?.createdAt).format(
-                                    "MMMM",
-                                  )}{" "}
-                                  {dayjs(comment.user?.createdAt).format(
-                                    "YYYY",
-                                  )}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </HoverCardContent>
-                      </HoverCard>
-                    </div>
-                    <div className="pl-12">
-                      <p className="">{comment.content}</p>
-                      <p className="text-xs">
-                        {dayjs(comment.createdAt)
-                          .fromNow(true)
-                          .replace("minutes", "m")
-                          .replace("minute", "m")
-                          .replace("hours", "h")
-                          .replace("hour", "h")
-                          .replace("days", "d")
-                          .replace("day", "d")
-                          .replace("seconds", "s")
-                          .replace("second", "s")
-                          .replace("an", "1")
-                          .replace("a", "1")}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <Comments
+                isFullView={true}
+                file={file}
+                currentUser={user}
+                showcaseComments={allComments ?? []}
+              />
             )}
           </div>
         </div>

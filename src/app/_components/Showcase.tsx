@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { CalendarIcon, Earth, MessageCircle, X } from "lucide-react";
+import { CalendarIcon, Earth, MessageCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Card, CardContent } from "~/components/ui/card";
 import type { User, Showcase } from "~/types/types";
@@ -127,9 +127,9 @@ const Showcase: React.FC<{
           />
           <div className="flex items-center gap-1">
             <Button variant="ghost" className="p-0 hover:bg-transparent">
-              {/* <Link href={`/showcases/${file.id}`} > */}
-              <MessageCircle size={22} />
-              {/* </Link> */}
+              <Link href={`/showcases/${file.id}`}>
+                <MessageCircle size={22} />
+              </Link>
             </Button>
             <p>{formatNumber(file.comments)}</p>
           </div>
@@ -142,7 +142,7 @@ const Showcase: React.FC<{
               isFullView={false}
               file={file}
               currentUser={currentUser}
-              slicedComments={allComments ?? []}
+              showcaseComments={allComments ?? []}
             />
           )}
           <CommentInput fileId={file.id} />

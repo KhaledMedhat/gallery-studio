@@ -34,12 +34,12 @@ import { cookies } from "next/headers";
 dayjs.extend(relativeTime);
 
 const Comments: React.FC<{
-  slicedComments: Comment[];
+  showcaseComments: Comment[];
   currentUser: User | undefined | null;
   isFullView: boolean;
   file: Showcase;
-}> = ({ slicedComments, currentUser, file, isFullView }) => {
-  const { setIsCommenting, setIsReplying, setCommentInfo } = useFileStore();
+}> = ({ showcaseComments, currentUser, file, isFullView }) => {
+  const { setIsCommenting, setReplyData, setCommentInfo } = useFileStore();
   const [isCommentUpdating, setCommentIsUpdating] = useState<boolean>(false);
   const utils = api.useUtils();
   const { mutate: deleteComment, isPending: isDeletingComment } =
@@ -142,7 +142,17 @@ const Comments: React.FC<{
                     commentLikesInfo={comment.likesInfo}
                     likedUsers={comment.likedUsers}
                   />
-                  <Button variant="link" className="h-fit p-0 font-bold">
+                  <Button
+                    onClick={() =>
+                      setReplyData({
+                        commentId: comment.id,
+                        content: `@${comment.user.name} `,
+                        isReplying: true,
+                      })
+                    }
+                    variant="link"
+                    className="h-fit p-0 font-bold"
+                  >
                     Reply
                   </Button>
                 </div>
@@ -191,7 +201,9 @@ const Comments: React.FC<{
   };
   return (
     <div className="flex flex-col gap-2">
-      {renderComments(isFullView ? slicedComments : slicedComments.slice(0, 2))}
+      {renderComments(
+        isFullView ? showcaseComments : showcaseComments.slice(0, 2),
+      )}
       {file.comments > 2 && (
         <Button className="self-start p-2" variant="link">
           <Button variant="link">
