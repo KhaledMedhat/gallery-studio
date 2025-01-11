@@ -154,7 +154,11 @@ const UpdateFileView: React.FC<{
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Textarea placeholder="Caption of the image" {...field} />
+                      <Textarea
+                        className="resize-none rounded-none border-0 border-b focus-visible:ring-0 focus-visible:ring-offset-0"
+                        placeholder="Caption of the image"
+                        {...field}
+                      />
                     </FormControl>
                     <FormDescription>Update caption.</FormDescription>
                     <FormMessage />
@@ -167,7 +171,11 @@ const UpdateFileView: React.FC<{
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input placeholder="#tags" {...field} />
+                      <Input
+                        className="rounded-none border-0 border-b focus-visible:ring-0 focus-visible:ring-offset-0"
+                        placeholder="#tags"
+                        {...field}
+                      />
                     </FormControl>
                     <FormDescription>Update tags.</FormDescription>
                     <FormMessage />
@@ -184,7 +192,7 @@ const UpdateFileView: React.FC<{
             <Video url={file.url} className="rounded-lg" />
           ) : (
             <div className="aspect-w-16 aspect-h-9 relative h-auto w-full">
-              <AspectRatio ratio={4 / 3} className="bg-muted">
+              <AspectRatio ratio={16 / 9} className="bg-muted">
                 <Image
                   src={file.url}
                   alt={`One of ${username}'s images`}

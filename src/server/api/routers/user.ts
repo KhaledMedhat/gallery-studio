@@ -181,6 +181,15 @@ export const userRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      const foundedUser = await ctx.db.query.users.findFirst({
+        where: eq(users.email, input.email),
+      });
+      if (!foundedUser) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Email not found",
+        });
+      }
       const hashedPassword = hashPassword(input.password);
       const cookieStore = cookies();
       const user = await ctx.db.query.users.findFirst({

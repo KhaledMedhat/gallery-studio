@@ -17,9 +17,15 @@ const ModeToggle = () => {
   };
 
   return (
-    <Button onClick={handleThemeChange} variant="ghost">
-      {theme.resolvedTheme === "light" ? <Moon size={20} /> : <Sun size={20} />}
-    </Button>
+    <div>
+      <Button onClick={handleThemeChange} variant="ghost">
+        {theme.resolvedTheme === "light" ? (
+          <Moon size={20} />
+        ) : (
+          <Sun size={20} />
+        )}
+      </Button>
+    </div>
   );
 };
 

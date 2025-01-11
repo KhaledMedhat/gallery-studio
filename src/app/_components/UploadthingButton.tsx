@@ -39,7 +39,6 @@ const UploadthingButton: React.FC<{
       });
     }
   };
-  console.log(showcaseUrl);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     ...getDropzoneProps(),
   });

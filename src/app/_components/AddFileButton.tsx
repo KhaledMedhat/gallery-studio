@@ -237,6 +237,7 @@ const AddFileButton: React.FC<{
                       <FormLabel>Caption *</FormLabel>
                       <FormControl>
                         <Textarea
+                          className="resize-none rounded-none border-0 border-b focus-visible:ring-0 focus-visible:ring-offset-0"
                           placeholder="Caption of the image"
                           {...field}
                         />
@@ -253,7 +254,11 @@ const AddFileButton: React.FC<{
                     <FormItem>
                       <FormLabel>Tags</FormLabel>
                       <FormControl>
-                        <Input placeholder="#tags" {...field} />
+                        <Input
+                          className="rounded-none border-0 border-b focus-visible:ring-0 focus-visible:ring-offset-0"
+                          placeholder="#tags"
+                          {...field}
+                        />
                       </FormControl>
                       <FormDescription>
                         Enter showcase tags to be searched by it.
