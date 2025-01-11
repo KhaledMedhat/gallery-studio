@@ -1,4 +1,4 @@
-import { LoaderCircle, ImagePlus } from "lucide-react";
+import { LoaderCircle, ImagePlus, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -207,14 +207,28 @@ const AddFileButton: React.FC<{
               className="w-full space-y-8"
             >
               <div className="flex flex-col gap-6">
-                <UploadthingButton
-                  getDropzoneProps={getDropzoneProps}
-                  isImageComponent={true}
-                  label={"Showcase"}
-                  isFileError={isFileError}
-                  isProfile={false}
-                  isCircle={false}
-                />
+                <div className="relative">
+                  {typeOfFile(showcaseUrl.type) === "Video" && (
+                    <div className="absolute right-0 top-0 z-10">
+                      <Button
+                        type="button"
+                        className="py-0 hover:bg-transparent"
+                        onClick={() => setShowcaseUrl({ url: "", type: "" })}
+                      >
+                        <X size={30} />
+                      </Button>
+                    </div>
+                  )}
+                  <UploadthingButton
+                    getDropzoneProps={getDropzoneProps}
+                    isImageComponent={true}
+                    label={"Showcase"}
+                    isFileError={isFileError}
+                    isProfile={false}
+                    isCircle={false}
+                  />
+                </div>
+
                 <FormField
                   control={form.control}
                   name="caption"
@@ -336,14 +350,27 @@ const AddFileButton: React.FC<{
             className="w-full space-y-8"
           >
             <div className="flex flex-col gap-2">
-              <UploadthingButton
-                getDropzoneProps={getDropzoneProps}
-                isImageComponent={true}
-                label={"Showcase"}
-                isFileError={isFileError}
-                isProfile={false}
-                isCircle={false}
-              />
+              <div className="relative">
+                {typeOfFile(showcaseUrl.type) === "Video" && (
+                  <div className="absolute right-0 top-0 z-10">
+                    <Button
+                      type="button"
+                      className="py-0 hover:bg-transparent"
+                      onClick={() => setShowcaseUrl({ url: "", type: "" })}
+                    >
+                      <X size={30} />
+                    </Button>
+                  </div>
+                )}
+                <UploadthingButton
+                  getDropzoneProps={getDropzoneProps}
+                  isImageComponent={true}
+                  label={"Showcase"}
+                  isFileError={isFileError}
+                  isProfile={false}
+                  isCircle={false}
+                />
+              </div>
 
               <FormField
                 control={form.control}

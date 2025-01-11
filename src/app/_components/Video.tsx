@@ -148,15 +148,6 @@ const CustomVideoPlayer: React.FC<CustomVideoPlayerProps> = ({
       onMouseMove={showControls}
       onMouseLeave={hideControls}
     >
-      <div className="absolute right-0 top-0 z-10">
-        <Button
-          type="button"
-          className="py-0 hover:bg-transparent"
-          onClick={() => setShowcaseUrl({ url: "", type: "" })}
-        >
-          <X size={30} />
-        </Button>
-      </div>
       <video
         ref={videoRef}
         src={url}
