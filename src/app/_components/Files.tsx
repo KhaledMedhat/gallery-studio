@@ -12,19 +12,12 @@ import Video from "./Video";
 import { Badge } from "~/components/ui/badge";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { isAlbumOrFileEnum } from "~/types/types";
-import { Dot, Earth, Filter, LockKeyhole } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-} from "~/components/ui/select";
+import { Dot, Earth, LockKeyhole } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import DeleteButton from "./DeleteButton";
 import ToAlbumButton from "./ToAlbumButton";
 import { typeOfFile } from "~/utils/utils";
+import CircularFilterMenu from "./CircularFilterMenu";
 
 const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
   const { data: files, isLoading } = api.file.getFiles.useQuery();
@@ -58,6 +51,7 @@ const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
   const isFileSelected = (fileId: string) => {
     return selectedFiles.some((file) => file.id === fileId);
   };
+  console.log(filter);
   return isLoading ? (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-background/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
       <Dot size={250} className="animate-bounce" />
@@ -71,19 +65,7 @@ const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
             <ToAlbumButton gallerySlug={gallerySlug} />
           </div>
         ) : (
-          <Select value={filter} onValueChange={(value) => setFilter(value)}>
-            <SelectTrigger className="w-fit border-0">
-              <Filter size={30} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>Type</SelectLabel>
-                <SelectItem value="All">All</SelectItem>
-                <SelectItem value="Images">Images</SelectItem>
-                <SelectItem value="Videos">Videos</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+          <CircularFilterMenu setFilter={setFilter} />
         )}
         <Button
           onClick={() => {
@@ -129,7 +111,7 @@ const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                   />
                   <Link href={`/galleries/${gallerySlug}/images/${file.id}`}>
                     <div className="relative h-full w-full">
-                      <div className="h-full w-[300px]">
+                      <div className="h-full w-[150px]">
                         {typeOfFile(file.fileType) === "Image" ? (
                           <AspectRatio ratio={1 / 1}>
                             <Image
@@ -148,7 +130,11 @@ const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                             />
                           </AspectRatio>
                         ) : (
-                          <Video url={file.url} showInitialPlayButton={false} />
+                          <Video
+                            className="max-h-[150px]"
+                            url={file.url}
+                            showInitialPlayButton={false}
+                          />
                         )}
                       </div>
 
