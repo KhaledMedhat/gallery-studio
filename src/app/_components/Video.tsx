@@ -8,12 +8,10 @@ import {
   VolumeX,
   Maximize,
   Minimize,
-  X,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { Slider } from "~/components/ui/slider";
-import { useFileStore } from "~/store";
 
 interface CustomVideoPlayerProps {
   url: string;
@@ -37,7 +35,6 @@ const CustomVideoPlayer: React.FC<CustomVideoPlayerProps> = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<HTMLDivElement>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout>();
-  const { setShowcaseUrl } = useFileStore();
 
   useEffect(() => {
     const video = videoRef.current;

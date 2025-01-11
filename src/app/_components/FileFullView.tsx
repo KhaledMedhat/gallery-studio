@@ -45,7 +45,7 @@ const FileFullView: React.FC<{
   return (
     <section className="container mx-auto flex flex-col items-start justify-around gap-4 p-4">
       <Button variant="link" className="p-0" onClick={() => router.back()}>
-        <ChevronLeft size={20} className="mr-2" />{" "}
+        <ChevronLeft size={20} />
         {gallerySlug ? "Back to Gallery" : "Back"}
       </Button>
       <div className="flex w-full flex-col gap-4">

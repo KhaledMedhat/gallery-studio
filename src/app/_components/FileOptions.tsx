@@ -18,7 +18,7 @@ const FileOptions: React.FC<{
 }> = ({ fileId, fileKey, handleOpenModalChange, fileType }) => {
   const { setIsUpdating, isUpdating, isUpdatingPending } = useFileStore();
   return !isUpdating ? (
-    <DropdownMenu modal={false}>
+    <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="hover:bg-transparent">
           <Ellipsis size={30} />
