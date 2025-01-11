@@ -242,6 +242,7 @@ const FileFullView: React.FC<{
                           .replace("day", "d")
                           .replace("seconds", "s")
                           .replace("second", "s")
+                          .replace("an", "1")
                           .replace("a", "1")}
                       </p>
                     </div>

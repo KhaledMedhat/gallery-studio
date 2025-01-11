@@ -32,7 +32,7 @@ const FileOptions: React.FC<{
                 setIsUpdating(true);
               }}
               variant="ghost"
-              className="w-full cursor-pointer hover:outline-none"
+              className="w-full cursor-pointer"
             >
               Edit
             </Button>

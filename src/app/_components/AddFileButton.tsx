@@ -1,6 +1,4 @@
-import Image from "next/legacy/image";
-import { X, LoaderCircle, ImagePlus } from "lucide-react";
-import AnimatedCircularProgressBar from "~/components/ui/animated-circular-progress-bar";
+import { LoaderCircle, ImagePlus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -29,7 +27,6 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { Button } from "~/components/ui/button";
-import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { Input } from "~/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -38,9 +35,7 @@ import { useState } from "react";
 import { useFileStore } from "~/store";
 import { api } from "~/trpc/react";
 import { toast } from "~/hooks/use-toast";
-import { useTheme } from "next-themes";
 import type { fileType } from "~/types/types";
-import Video from "./Video";
 import { Switch } from "~/components/ui/switch";
 import {
   Card,
@@ -64,16 +59,7 @@ const AddFileButton: React.FC<{
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [isFileError, setIsFileError] = useState<boolean>(false);
   const router = useRouter();
-  const theme = useTheme();
-  const {
-    fileUrl,
-    fileKey,
-    fileType,
-    isUploading,
-    progress,
-    setFileUrl,
-    setFileKey,
-  } = useFileStore();
+  const { fileKey, isUploading, setFileUrl, setFileKey } = useFileStore();
   const utils = api.useUtils();
   const formSchema = z.object({
     caption: z.string().min(1, { message: "Caption Cannot be empty." }),
@@ -162,7 +148,6 @@ const AddFileButton: React.FC<{
       });
     },
   });
-  console.log(isPending, isUploading);
   const { startUpload, getDropzoneProps } = useUploader(
     true,
     undefined,

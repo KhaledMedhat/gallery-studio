@@ -46,12 +46,12 @@ const FileModalView: React.FC<{
           <Video url={file.url} className="h-auto w-full rounded-lg" />
         ) : (
           <div className="aspect-w-16 aspect-h-9 relative h-auto w-full">
-            <AspectRatio ratio={4 / 3} className="bg-muted">
+            <AspectRatio ratio={16 / 9} className="bg-muted">
               <Image
                 src={file.url}
                 alt={`One of ${file.user.name}'s images`}
                 fill
-                className="h-full w-full rounded-md object-cover"
+                className="h-full w-full rounded-md object-contain"
               />
             </AspectRatio>
           </div>
@@ -106,7 +106,10 @@ const FileModalView: React.FC<{
                       </Avatar>
                       <HoverCard>
                         <HoverCardTrigger asChild>
-                          <Button variant="link" className="p-0 font-bold">
+                          <Button
+                            variant="link"
+                            className="h-fit p-0 font-bold"
+                          >
                             <Link href={`/${comment.user?.name}`}>
                               @{comment.user?.name}
                             </Link>
@@ -164,6 +167,7 @@ const FileModalView: React.FC<{
                           .replace("day", "d")
                           .replace("seconds", "s")
                           .replace("second", "s")
+                          .replace("an", "1")
                           .replace("a", "1")}
                       </p>
                     </div>
