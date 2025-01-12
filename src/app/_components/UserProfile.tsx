@@ -22,6 +22,7 @@ import { useUserStore } from "~/store";
 import { UpdateUserCoverImage, UpdateUserInfo } from "./UpdateUserProfile";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
+import { AspectRatio } from "~/components/ui/aspect-ratio";
 
 const UserProfile: React.FC<{
   user: User | null;
@@ -178,7 +179,7 @@ const UserProfile: React.FC<{
                   View {user?.name}&apos;s latest showcases.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="grid h-full w-full grid-cols-2 gap-4 md:grid-cols-4">
+              <CardContent className="grid h-full w-full grid-cols-3 gap-4 lg:grid-cols-4">
                 {/* Add photo grid here */}
                 {files.length > 0 ? (
                   files?.map((file, idx) => (
@@ -188,19 +189,26 @@ const UserProfile: React.FC<{
                       inView
                     >
                       <Link href={`/showcases/${file.id}`}>
-                        {typeOfFile(file.fileType) === "Image" ? (
-                          <div className="relative h-[300px] max-w-full">
-                            <Image
-                              priority
-                              src={file.url}
-                              alt={`Gallery image ${file.id}`}
-                              layout="fill"
-                              className={`h-full w-full cursor-pointer rounded-md object-cover`}
-                            />
+                        <div className="relative h-full w-full">
+                          <div className="h-full max-w-[200px] lg:max-w-[300px]">
+                            {typeOfFile(file.fileType) === "Image" ? (
+                              <AspectRatio ratio={1 / 1}>
+                                <Image
+                                  priority
+                                  src={file.url}
+                                  alt={`Gallery image ${file.id}`}
+                                  layout="fill"
+                                  className={`h-full w-full cursor-pointer rounded-md object-cover`}
+                                />
+                              </AspectRatio>
+                            ) : (
+                              <Video
+                                url={file.url}
+                                showInitialPlayButton={false}
+                              />
+                            )}
                           </div>
-                        ) : (
-                          <Video url={file.url} showInitialPlayButton={false} />
-                        )}
+                        </div>
                       </Link>
                     </BlurFade>
                   ))

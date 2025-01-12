@@ -249,9 +249,6 @@ export const userRouter = createTRPCRouter({
     }),
 
   getUser: publicProcedure.query(async ({ ctx }) => {
-    if (!ctx.user) {
-      return null;
-    }
     const existedUser = await ctx.db.query.users.findFirst({
       where: eq(users.id, ctx.user?.id ?? ""),
       with: {
@@ -260,6 +257,7 @@ export const userRouter = createTRPCRouter({
     });
     return existedUser;
   }),
+
   getUserByUsername: protectedProcedure
     .input(
       z.object({
@@ -426,7 +424,7 @@ export const userRouter = createTRPCRouter({
         .update(users)
         .set({
           followers: foundedUser?.followers?.filter(
-            (follow) => follow.userId !== ctx.user.id,
+            (follow) => follow.userId !== ctx.user?.id,
           ),
         })
         .where(eq(users.id, foundedUser.id));

@@ -16,6 +16,7 @@ import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
 import { sessions, users } from "../db/schema";
 import { cookies } from "next/headers";
+// check if the createTROCContext headers is the same as cookies imported from next/headers
 
 /**
  * 1. CONTEXT
@@ -151,16 +152,38 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
  */
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)
-  .use(({ ctx, next }) => {
-    if (!ctx.user) {
+  .use(async ({ ctx, next }) => {
+    const cookieStore = cookies();
+    const normalUser = cookieStore.get("sessionToken");
+    const nextAuthUserDev = cookieStore.get("next-auth.session-token"); // development
+    const nextAuthUserProd = cookieStore.get(
+      "__Secure-next-auth.session-token",
+    ); // production
+
+    const foundedUser = await ctx.db.query.sessions.findFirst({
+      where: eq(
+        sessions.sessionToken,
+        normalUser?.value ??
+          nextAuthUserDev?.value ??
+          nextAuthUserProd?.value ??
+          "",
+      ),
+    });
+    if (!foundedUser) {
       throw new TRPCError({
         code: "UNAUTHORIZED",
         message: "You need to be logged in to access this.",
       });
     }
+    const existedUser = await ctx.db.query.users.findFirst({
+      where: eq(users.id, foundedUser.userId),
+      with: {
+        gallery: true,
+      },
+    });
     return next({
       ctx: {
-        user: ctx.user,
+        user: existedUser,
       },
     });
   });
