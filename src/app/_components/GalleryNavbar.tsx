@@ -127,7 +127,7 @@ const GalleryNavbar: React.FC<{
       <div className="fixed inset-x-0 bottom-0 h-16 w-full bg-background to-transparent backdrop-blur-lg [-webkit-mask-image:linear-gradient(to_top,black,transparent)] dark:bg-background"></div>
       <Dock
         direction="middle"
-        className="pointer-events-auto relative bottom-8 z-50 mx-auto mb-4 flex origin-bottom gap-4 rounded-3xl bg-background"
+        className="pointer-events-auto relative bottom-8 z-50 mx-auto mb-4 flex origin-bottom gap-2 rounded-3xl bg-background"
       >
         <DockIcon>
           <TooltipProvider>
@@ -135,10 +135,11 @@ const GalleryNavbar: React.FC<{
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
+                  asChild
                   className={`${isURLActive(pathname, "/showcases") && "rounded-full bg-accent p-3 text-accent-foreground"}`}
                 >
                   <Link href={"/showcases"}>
-                    <Telescope size={20} />
+                    <Telescope size={20}/>
                   </Link>
                 </Button>
               </TooltipTrigger>
@@ -153,6 +154,7 @@ const GalleryNavbar: React.FC<{
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
+                  asChild
                   className={`${isURLActive(pathname, `/galleries/${user?.gallery?.slug}`) && "bg-accent text-accent-foreground"}`}
                 >
                   <Link href={`/galleries/${user?.gallery?.slug}`}>
@@ -170,6 +172,7 @@ const GalleryNavbar: React.FC<{
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
+                  asChild
                   className={`${isURLActive(pathname, `/galleries/${user?.gallery?.slug}/albums`) && "bg-accent text-accent-foreground"}`}
                 >
                   <Link href={`/galleries/${user?.gallery?.slug}/albums`}>
@@ -336,7 +339,7 @@ const GalleryNavbar: React.FC<{
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="cursor-pointer">
-                <Link href={`/${user?.name}`}>Profile</Link>
+                <Link className="h-full w-full" href={`/${user?.name}`}>Profile</Link>
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
                 <Link href={"/"}>Home</Link>

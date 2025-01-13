@@ -65,7 +65,6 @@ const CommentInput: React.FC<{
         form.reset();
       },
     });
-  console.log(replyData);
   const { mutate: postReply, isPending: isPostingReply } =
     api.comment.postReply.useMutation({
       onSuccess: () => {
@@ -80,7 +79,6 @@ const CommentInput: React.FC<{
         });
       },
     });
-  console.log(form.watch("comment"));
   const onEmojiSelect = (emoji: Emoji) => {
     const currentComment = form.getValues("comment");
     form.setValue("comment", currentComment + emoji.native);

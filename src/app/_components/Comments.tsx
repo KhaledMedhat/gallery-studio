@@ -12,6 +12,7 @@ import {
   extractComment,
   extractUsername,
   extractUsernameWithoutAt,
+  getCommentWithHighestRatio,
   getInitials,
 } from "~/utils/utils";
 import dayjs from "dayjs";
@@ -199,18 +200,17 @@ const Comments: React.FC<{
       </div>
     ));
   };
+  const topComment = getCommentWithHighestRatio(showcaseComments)
   return (
     <div className="flex flex-col gap-2">
       {renderComments(
-        isFullView ? showcaseComments : showcaseComments.slice(0, 2),
+        isFullView ? showcaseComments : topComment,
       )}
       {file.comments > 2 && (
-        <Button className="self-start p-2" variant="link">
-          <Button variant="link">
-            <Link href={`/showcases/${file.id}?comments=true`}>
+          <Button variant="link" className="p-0 self-start h-fit">
+            <Link href={`/showcases/${file.id}`} className="w-full h-full">
               Show all comments
             </Link>
-          </Button>
         </Button>
       )}
     </div>

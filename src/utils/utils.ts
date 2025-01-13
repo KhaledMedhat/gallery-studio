@@ -141,3 +141,21 @@ export const blobUrlToFile = async (
   const blob = await response.blob();
   return new File([blob], fileName, { type: blob.type });
 };
+
+
+export function getCommentWithHighestRatio(comments: Comment[]): Comment[]  {
+  let highestRatioComment: Comment[] = [];
+  let highestRatio = -1;
+
+  comments.forEach(comment => {
+    const likesCount = comment.likedUsers ? comment.likedUsers.length : 0;
+    const repliesCount = comment.replies ? comment.replies.length : 0;
+    const ratio = repliesCount === 0 ? likesCount : likesCount / repliesCount;
+
+    if (ratio > highestRatio) {
+      highestRatio = ratio;
+      highestRatioComment = [comment];
+    }
+  });
+  return highestRatioComment;
+}

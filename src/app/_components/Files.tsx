@@ -75,7 +75,7 @@ const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
               setIsSelecting();
             }
           }}
-          className="xl:hidden"
+          className="md:hidden"
           variant="outline"
         >
           {isSelecting ? "Cancel" : "Select"}
@@ -106,7 +106,7 @@ const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                     }}
                     className={`absolute right-2 top-2 z-10 items-center justify-center bg-muted ${
                       foundedFileInSelectedFiles(file.id) ? "flex" : "hidden"
-                    } group-hover:flex ${isSelecting && "flex"} `}
+                    } group-hover:hidden md:group-hover:flex ${isSelecting && "flex"} `}
                   />
                   <Link href={`/galleries/${gallerySlug}/images/${file.id}`}>
                     <div className="relative h-full w-full">

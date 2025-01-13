@@ -87,9 +87,15 @@ const Showcase: React.FC<{
         )}
       </div>
 
-      <div className="flex w-full flex-col gap-2">
+      <div className="flex w-full flex-col gap-1">
         <p>{file.caption}</p>
-        <p>{file.tags}</p>
+        <div className="flex items-center gap-1">
+        {file.tags?.map((tag) => (
+          <Button variant='link' className="h-fit p-0 text-bold">
+             <Link href={`/${tag}`}>{file.tags}</Link>
+          </Button>
+        ))}
+        </div>
         <Link href={`/showcases/${file.id}`}>
           {file.fileType?.includes("video") ? (
             <Video url={file.url} className="rounded-lg xl:h-[752px]" />
