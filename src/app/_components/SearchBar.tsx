@@ -43,20 +43,19 @@ const SearchBar = () => {
         </div>
         <Input
           placeholder="Search for Artists..."
-          type="search"
           value={searchValue}
           onChange={handleChange}
           className="w-full ps-10 focus-visible:ring-0 focus-visible:ring-offset-0"
         />
-        {/* {searchValue.length > 0 && (
+        {searchValue.length > 0 && (
           <Button
             onClick={() => setSearchValue("")}
             variant="ghost"
             className="absolute right-3 top-1/2 -translate-y-1/2 transform bg-transparent p-0 hover:bg-transparent"
           >
-            <X size={20}/>
+            <X size={20} />
           </Button>
-        )} */}
+        )}
       </div>
       {searchValue.length > 0 && (
         <Card className="flex w-full flex-col rounded-md bg-background p-2">
