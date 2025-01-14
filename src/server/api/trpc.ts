@@ -16,8 +16,6 @@ import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
 import { sessions, users } from "../db/schema";
 import { cookies } from "next/headers";
-// check if the createTROCContext headers is the same as cookies imported from next/headers
-
 /**
  * 1. CONTEXT
  *

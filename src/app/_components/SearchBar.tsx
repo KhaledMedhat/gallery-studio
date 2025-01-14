@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, X } from "lucide-react";
+import { LoaderCircle, Search, X } from "lucide-react";
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -16,7 +16,7 @@ const SearchBar = () => {
   const [foundedSearch, setFoundedSearch] = useState<User[] | undefined>(
     undefined,
   );
-  const { mutate: search } = api.user.usersSearch.useMutation({
+  const { mutate: search, isPending } = api.user.usersSearch.useMutation({
     onSuccess: (data) => {
       setFoundedSearch(data);
     },
@@ -46,21 +46,23 @@ const SearchBar = () => {
           type="search"
           value={searchValue}
           onChange={handleChange}
-          className="block w-full ps-10"
+          className="w-full ps-10 focus-visible:ring-0 focus-visible:ring-offset-0"
         />
-        {searchValue.length > 0 && (
+        {/* {searchValue.length > 0 && (
           <Button
             onClick={() => setSearchValue("")}
             variant="ghost"
             className="absolute right-3 top-1/2 -translate-y-1/2 transform bg-transparent p-0 hover:bg-transparent"
           >
-            <X size={20} className="" />
+            <X size={20}/>
           </Button>
-        )}
+        )} */}
       </div>
       {searchValue.length > 0 && (
         <Card className="flex w-full flex-col rounded-md bg-background p-2">
-          {foundedSearch?.length === 0 ? (
+          {isPending ? (
+            <LoaderCircle size={25} className="m-auto animate-spin" />
+          ) : foundedSearch?.length === 0 ? (
             <div className="text-center">No artists found</div>
           ) : (
             foundedSearch?.map((user) => (
