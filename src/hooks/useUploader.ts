@@ -8,7 +8,7 @@ import { useFileStore } from "~/store";
 import { useCallback, useState } from "react";
 import { type UploadThingError } from "uploadthing/server";
 import { deleteFileOnServer } from "~/app/actions";
-import type { AddShowcaseType, ShowcaseFormData } from "~/types/types";
+import type { AddShowcaseType } from "~/types/types";
 
 export const useUploader = (
   isCropping: boolean,

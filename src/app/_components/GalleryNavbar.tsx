@@ -139,7 +139,7 @@ const GalleryNavbar: React.FC<{
                   className={`${isURLActive(pathname, "/showcases") && "rounded-full bg-accent p-3 text-accent-foreground"}`}
                 >
                   <Link href={"/showcases"}>
-                    <Telescope size={20}/>
+                    <Telescope size={20} />
                   </Link>
                 </Button>
               </TooltipTrigger>
@@ -339,7 +339,9 @@ const GalleryNavbar: React.FC<{
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="cursor-pointer">
-                <Link className="h-full w-full" href={`/${user?.name}`}>Profile</Link>
+                <Link className="h-full w-full" href={`/${user?.name}`}>
+                  Profile
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
                 <Link href={"/"}>Home</Link>

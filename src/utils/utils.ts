@@ -86,14 +86,14 @@ export function buildCommentHierarchy(
 
 export default async function getCroppedImg(
   imageSrc: string,
-  crop: { x: number; y: number; width: number; height: number }
+  crop: { x: number; y: number; width: number; height: number },
 ): Promise<string> {
   const image = await createImage(imageSrc);
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
 
   if (!ctx) {
-    throw new Error('Could not create canvas context');
+    throw new Error("Could not create canvas context");
   }
 
   const { width, height } = crop;
@@ -109,29 +109,30 @@ export default async function getCroppedImg(
     0,
     0,
     canvas.width,
-    canvas.height
+    canvas.height,
   );
 
   return new Promise<string>((resolve, reject) => {
     canvas.toBlob((blob) => {
       if (!blob) {
-        reject(new Error('Canvas is empty'));
+        reject(new Error("Canvas is empty"));
         return;
       }
       resolve(URL.createObjectURL(blob));
-    }, 'image/jpeg');
+    }, "image/jpeg");
   });
 }
 
 function createImage(url: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.addEventListener('load', () => resolve(img));
-    img.addEventListener('error', () => reject(new Error('Failed to load image')));
+    img.addEventListener("load", () => resolve(img));
+    img.addEventListener("error", () =>
+      reject(new Error("Failed to load image")),
+    );
     img.src = url;
   });
 }
-
 
 export const blobUrlToFile = async (
   blobUrl: string,
@@ -142,12 +143,11 @@ export const blobUrlToFile = async (
   return new File([blob], fileName, { type: blob.type });
 };
 
-
-export function getCommentWithHighestRatio(comments: Comment[]): Comment[]  {
+export function getCommentWithHighestRatio(comments: Comment[]): Comment[] {
   let highestRatioComment: Comment[] = [];
   let highestRatio = -1;
 
-  comments.forEach(comment => {
+  comments.forEach((comment) => {
     const likesCount = comment.likedUsers ? comment.likedUsers.length : 0;
     const repliesCount = comment.replies ? comment.replies.length : 0;
     const ratio = repliesCount === 0 ? likesCount : likesCount / repliesCount;

@@ -53,7 +53,7 @@ const UserProfile: React.FC<{
   return (
     <div className="min-h-screen">
       {/* Cover Photo */}
-      <div className="relative h-[20rem] md:h-64 lg:h-96">
+      <div className="relative h-64 lg:h-96">
         {isUserUpdating ? (
           <UpdateUserCoverImage
             coverImage={

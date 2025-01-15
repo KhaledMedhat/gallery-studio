@@ -92,7 +92,7 @@ export const UpdateUserCoverImage: React.FC<{ coverImage: UserImage }> = ({
           </div>
         </Button>
       </DialogTrigger>
-      <DialogContent className="h-fit max-h-full max-w-2xl overflow-y-auto xl:max-w-4xl">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Upload Cover Image</DialogTitle>
           <DialogDescription>
@@ -112,7 +112,12 @@ export const UpdateUserCoverImage: React.FC<{ coverImage: UserImage }> = ({
             onClick={handleUpdateCoverImage}
           >
             {isUpdatingUserCoverImagePending || isUploading ? (
-              <LoaderCircle size={20} className="animate-spin" />
+              <div className="flex items-center justify-center gap-1">
+                <LoaderCircle size={20} className="animate-spin" />
+                {isUploading && "Uploading ..."}
+                {isUpdatingUserCoverImagePending &&
+                  "Updating your profile cover ..."}
+              </div>
             ) : (
               "Save changes"
             )}
@@ -138,6 +143,7 @@ export const UpdateUserInfo: React.FC<{
     croppedImage,
     showcaseUrl,
     showcaseOriginalName,
+    setShowcaseUrl,
   } = useFileStore();
   const { setIsUserUpdating } = useUserStore();
 
@@ -147,6 +153,7 @@ export const UpdateUserInfo: React.FC<{
     isPending: isUpdatingUserCoverImagePending,
   } = api.user.updateUserProfile.useMutation({
     onSuccess: () => {
+      setShowcaseUrl({ url: "", type: "" });
       setFileUrl("");
       setFileKey("");
       setIsUserUpdating(false);
@@ -203,7 +210,7 @@ export const UpdateUserInfo: React.FC<{
             <DialogTrigger asChild>
               <Plus className="!h-[50px] !w-[50px]" />
             </DialogTrigger>
-            <DialogContent className="w-fit">
+            <DialogContent>
               <DialogHeader>
                 <DialogTitle>Upload Profile Image</DialogTitle>
                 <DialogDescription>
@@ -224,7 +231,12 @@ export const UpdateUserInfo: React.FC<{
                   onClick={handleUpdateProfile}
                 >
                   {isUpdatingUserCoverImagePending || isUploading ? (
-                    <LoaderCircle size={20} className="animate-spin" />
+                    <div className="flex items-center justify-center gap-1">
+                      <LoaderCircle size={20} className="animate-spin" />
+                      {isUploading && "Uploading ..."}
+                      {isUpdatingUserCoverImagePending &&
+                        "Updating your profile picture ..."}
+                    </div>
                   ) : (
                     "  Save changes"
                   )}

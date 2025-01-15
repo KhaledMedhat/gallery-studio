@@ -16,11 +16,12 @@ const CircularFilterMenu: React.FC<CircularFilterMenuProps> = ({
   setFilter,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState<string>("all");
+  const [selectedFilter, setSelectedFilter] = useState<string>("All");
   const filterOptions: FilterOption[] = [
     { id: "All", label: "All" },
     { id: "Videos", label: "Videos" },
     { id: "Images", label: "Images" },
+    { id: "GIF", label: "GIF" },
   ];
 
   const toggleMenu = () => setIsOpen(!isOpen);
@@ -39,7 +40,7 @@ const CircularFilterMenu: React.FC<CircularFilterMenuProps> = ({
   };
 
   return (
-    <div className="fixed bottom-10 left-8 z-50">
+    <div className="fixed bottom-14 left-8 z-50">
       <div className="relative">
         <Button
           onClick={toggleMenu}
