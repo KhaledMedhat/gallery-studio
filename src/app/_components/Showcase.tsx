@@ -90,11 +90,11 @@ const Showcase: React.FC<{
       <div className="flex w-full flex-col gap-1">
         <p>{file.caption}</p>
         <div className="flex items-center gap-1">
-        {file.tags?.map((tag) => (
-          <Button variant='link' className="h-fit p-0 text-bold">
-             <Link href={`/${tag}`}>{file.tags}</Link>
-          </Button>
-        ))}
+          {file.tags?.map((tag) => (
+            <Button key={tag} variant="link" className="text-bold h-fit p-0">
+              <Link href={`/${tag}`}>{file.tags}</Link>
+            </Button>
+          ))}
         </div>
         <Link href={`/showcases/${file.id}`}>
           {file.fileType?.includes("video") ? (
@@ -142,7 +142,7 @@ const Showcase: React.FC<{
         </div>
       </div>
       <Card className="w-full">
-        <CardContent className="flex flex-col gap-2 p-2">
+        <CardContent className="flex flex-col gap-2 p-1">
           {file?.commentsInfo && file.commentsInfo.length > 0 && (
             <Comments
               isFullView={false}

@@ -77,7 +77,7 @@ const ChooseFilesModal: React.FC<{ isInsideAlbum?: boolean }> = ({
           )}
         </Button>
       </DialogTrigger>
-      <DialogContent className="h-fit max-h-full overflow-y-auto">
+      <DialogContent className="h-fit overflow-y-auto lg:max-w-4xl">
         <VisuallyHidden.Root>
           <DialogHeader>
             <DialogTitle></DialogTitle>
@@ -87,7 +87,7 @@ const ChooseFilesModal: React.FC<{ isInsideAlbum?: boolean }> = ({
         <Tabs
           onValueChange={setCurrentTab}
           defaultValue="choose-from-gallery"
-          className="w-full"
+          className="max-h-[80vh] w-full max-w-full overflow-y-auto"
         >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="choose-from-gallery">
@@ -96,7 +96,7 @@ const ChooseFilesModal: React.FC<{ isInsideAlbum?: boolean }> = ({
             <TabsTrigger value="add-file">Add</TabsTrigger>
           </TabsList>
           <TabsContent value="choose-from-gallery">
-            <Card className="max-h-[80vh] w-full overflow-y-auto">
+            <Card className="max-h-[80vh] w-full">
               <CardHeader>
                 <CardTitle>Add from your gallery</CardTitle>
                 <CardDescription>

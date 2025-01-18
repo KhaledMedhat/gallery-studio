@@ -189,135 +189,144 @@ const AddFileButton: React.FC<{
       await getCroppedImage();
     }
   };
-  if (isTabs) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Add Image , Video or GIF</CardTitle>
-          <CardDescription>
-            Upload a new image , video or even GIF to your gallery. Click save
-            when you&apos;re done.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <Form {...form}>
-            <form
-              id="add-image-form"
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="w-full space-y-8"
+  const renderContent = () => (
+    <div className="flex flex-col gap-4">
+      {typeOfFile(showcaseUrl.type) === "Video" ? (
+        <div className="relative">
+          <div className="absolute right-0 top-0 z-10">
+            <Button
+              type="button"
+              className="py-0 hover:bg-transparent"
+              onClick={() => setShowcaseUrl({ url: "", type: "" })}
             >
-              <div className="flex flex-col gap-6">
-                <div className="relative">
-                  {typeOfFile(showcaseUrl.type) === "Video" && (
-                    <div className="absolute right-0 top-0 z-10">
-                      <Button
-                        type="button"
-                        className="py-0 hover:bg-transparent"
-                        onClick={() => setShowcaseUrl({ url: "", type: "" })}
-                      >
-                        <X size={30} />
-                      </Button>
-                    </div>
-                  )}
-                  <UploadthingButton
-                    getDropzoneProps={getDropzoneProps}
-                    isImageComponent={true}
-                    label={"Showcase"}
-                    isFileError={isFileError}
-                    isProfile={false}
-                    isCircle={false}
-                  />
-                </div>
+              <X size={30} />
+            </Button>
+          </div>
 
-                <FormField
-                  control={form.control}
-                  name="caption"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Caption *</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          className="resize-none rounded-none border-0 border-b focus-visible:ring-0 focus-visible:ring-offset-0"
-                          placeholder="Caption of the image"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>Enter image caption.</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="tags"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tags</FormLabel>
-                      <FormControl>
-                        <Input
-                          className="rounded-none border-0 border-b focus-visible:ring-0 focus-visible:ring-offset-0"
-                          placeholder="#tags"
-                          {...field}
-                        />
-                      </FormControl>
+          <UploadthingButton
+            getDropzoneProps={getDropzoneProps}
+            isImageComponent={true}
+            label={"Showcase"}
+            isFileError={isFileError}
+            isProfile={false}
+            isCircle={false}
+          />
+        </div>
+      ) : (
+        <UploadthingButton
+          getDropzoneProps={getDropzoneProps}
+          isImageComponent={true}
+          label={"Showcase"}
+          isFileError={isFileError}
+          isProfile={false}
+          isCircle={false}
+        />
+      )}
+      <Form {...form}>
+        <form
+          id="add-image-form"
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="w-full space-y-8"
+        >
+          <div className="flex flex-col gap-2">
+            <FormField
+              control={form.control}
+              name="caption"
+              render={({ field }) => (
+                <FormItem className="space-y-1">
+                  <FormLabel>Caption *</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      className="resize-none rounded-none border-0 border-b focus-visible:ring-0 focus-visible:ring-offset-0"
+                      placeholder="Caption of the image"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>Enter image caption.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem className="space-y-1">
+                  <FormLabel>Tags</FormLabel>
+                  <FormControl>
+                    <Input
+                      className="rounded-none border-0 border-b focus-visible:ring-0 focus-visible:ring-offset-0"
+                      placeholder="#tags"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Enter showcase tags to be searched by it.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {showcaseUrl.url && (
+              <FormField
+                control={form.control}
+                name="privacy"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between gap-1 rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                      <FormLabel>Showcase Privacy</FormLabel>
                       <FormDescription>
-                        Enter showcase tags to be searched by it.
+                        By default it sets to private but you can change it to
+                        public.
                       </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                {showcaseUrl.url && (
-                  <FormField
-                    control={form.control}
-                    name="privacy"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between gap-1 rounded-lg border p-3 shadow-sm">
-                        <div className="space-y-0.5">
-                          <FormLabel>Showcase Privacy</FormLabel>
-                          <FormDescription>
-                            By default it sets to private but you can change it
-                            to public.
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
                 )}
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-        <CardFooter>
-          <Button
-            form="add-image-form"
-            type="submit"
-            className="w-full"
-            disabled={isPending || isUploading || isAddToExistingAlbumPending}
-          >
-            {isPending || isAddToExistingAlbumPending || isUploading ? (
-              <div className="flex items-center justify-center gap-1">
-                <LoaderCircle size={20} className="animate-spin" />
-                {isUploading && "Uploading ..."}
-                {isAddToExistingAlbumPending ||
-                  (isPending && "Adding your showcase ...")}
-              </div>
-            ) : (
-              "Save"
+              />
             )}
-          </Button>
-        </CardFooter>
-      </Card>
-    );
-  }
+          </div>
+        </form>
+      </Form>
+    </div>
+  );
 
-  return (
+  return isTabs ? (
+    <Card>
+      <CardHeader>
+        <CardTitle>Add Image , Video or GIF</CardTitle>
+        <CardDescription>
+          Upload a new image , video or even GIF to your gallery. Click save
+          when you&apos;re done.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>{renderContent()}</CardContent>
+      <CardFooter>
+        <Button
+          form="add-image-form"
+          type="submit"
+          className="w-full"
+          disabled={isPending || isUploading || isAddToExistingAlbumPending}
+        >
+          {isPending || isAddToExistingAlbumPending || isUploading ? (
+            <div className="flex items-center justify-center gap-1">
+              <LoaderCircle size={20} className="animate-spin" />
+              {isUploading && "Uploading ..."}
+              {isAddToExistingAlbumPending ||
+                (isPending && "Adding your showcase ...")}
+            </div>
+          ) : (
+            "Save"
+          )}
+        </Button>
+      </CardFooter>
+    </Card>
+  ) : (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <TooltipProvider>
         <Tooltip>
@@ -340,7 +349,7 @@ const AddFileButton: React.FC<{
           <TooltipContent>Add Showcase</TooltipContent>
         </Tooltip>
       </TooltipProvider>
-      <DialogContent className="h-fit max-h-full max-w-2xl overflow-y-auto xl:max-w-fit">
+      <DialogContent className="h-fit max-h-full overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add Showcase</DialogTitle>
           <DialogDescription>
@@ -348,100 +357,7 @@ const AddFileButton: React.FC<{
             gallery. Click save when you&apos;re done.
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form
-            id="add-image-form"
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="w-full space-y-8"
-          >
-            <div className="flex flex-col gap-2">
-              <div className="relative">
-                {typeOfFile(showcaseUrl.type) === "Video" && (
-                  <div className="absolute right-0 top-0 z-10">
-                    <Button
-                      type="button"
-                      className="py-0 hover:bg-transparent"
-                      onClick={() => setShowcaseUrl({ url: "", type: "" })}
-                    >
-                      <X size={30} />
-                    </Button>
-                  </div>
-                )}
-                <UploadthingButton
-                  getDropzoneProps={getDropzoneProps}
-                  isImageComponent={true}
-                  label={"Showcase"}
-                  isFileError={isFileError}
-                  isProfile={false}
-                  isCircle={false}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="caption"
-                render={({ field }) => (
-                  <FormItem className="space-y-1">
-                    <FormLabel>Caption *</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        className="resize-none rounded-none border-0 border-b focus-visible:ring-0 focus-visible:ring-offset-0"
-                        placeholder="Caption of the image"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>Enter image caption.</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="tags"
-                render={({ field }) => (
-                  <FormItem className="space-y-1">
-                    <FormLabel>Tags</FormLabel>
-                    <FormControl>
-                      <Input
-                        className="rounded-none border-0 border-b focus-visible:ring-0 focus-visible:ring-offset-0"
-                        placeholder="#tags"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Enter showcase tags to be searched by it.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {showcaseUrl.url && (
-                <FormField
-                  control={form.control}
-                  name="privacy"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between gap-1 rounded-lg border p-3 shadow-sm">
-                      <div className="space-y-0.5">
-                        <FormLabel>Showcase Privacy</FormLabel>
-                        <FormDescription>
-                          By default it sets to private but you can change it to
-                          public.
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              )}
-            </div>
-          </form>
-        </Form>
-
+        {renderContent()}
         <DialogFooter>
           <Button
             form="add-image-form"

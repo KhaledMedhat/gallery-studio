@@ -16,10 +16,10 @@ import {
 } from "lucide-react";
 import "react-advanced-cropper/dist/style.css";
 import "react-advanced-cropper/dist/themes/classic.css";
-const CustomCropper: React.FC<{ showcase: string; isCircle: boolean }> = ({
-  showcase,
-  isCircle,
-}) => {
+const CustomCropper: React.FC<{
+  showcase: string;
+  isCircle: boolean;
+}> = ({ showcase, isCircle }) => {
   const { setShowcaseUrl } = useFileStore();
   const cropperRef = useRef<CropperRef>(null);
   const { setCroppedImage } = useFileStore();
@@ -43,7 +43,9 @@ const CustomCropper: React.FC<{ showcase: string; isCircle: boolean }> = ({
   };
 
   return (
-    <div className="relative flex h-fit min-w-40 flex-col items-center gap-4">
+    <div
+      className={`relative flex h-fit min-w-40 max-w-full flex-col items-center gap-4`}
+    >
       <div className="h-full w-full">
         <div className="absolute right-0 top-0 z-10">
           <Button
