@@ -52,7 +52,7 @@ export const UpdateUserCoverImage: React.FC<{ coverImage: UserImage }> = ({
     },
   });
   const { startUpload, getDropzoneProps } = useUploader(
-    true,
+    undefined,
     coverImage.imageKey,
     undefined,
     UpdateUserCoverImage,
@@ -179,7 +179,7 @@ export const UpdateUserInfo: React.FC<{
     }
   };
   const { startUpload, getDropzoneProps } = useUploader(
-    true,
+    undefined,
     image?.imageKey,
     undefined,
     undefined,

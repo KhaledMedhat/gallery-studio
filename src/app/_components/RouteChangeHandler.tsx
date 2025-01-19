@@ -6,11 +6,13 @@ import { useFileStore } from "~/store";
 
 const RouteChangeHandler = () => {
   const pathname = usePathname();
-  const { setSelectedFilesToEmpty } = useFileStore();
+  const { setSelectedFilesToEmpty, setShowcaseUrl } = useFileStore();
 
   useEffect(() => {
-    setSelectedFilesToEmpty(); // Clear Zustand state in every route change
-  }, [pathname, setSelectedFilesToEmpty]);
+    setSelectedFilesToEmpty();
+    setShowcaseUrl({ url: "", type: "" });
+    // Clear Zustand state in every route change
+  }, [pathname, setSelectedFilesToEmpty, setShowcaseUrl]);
 
   return null;
 };

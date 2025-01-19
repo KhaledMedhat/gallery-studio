@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useUploadThing } from "~/utils/uploadthing";
 import { toast } from "~/hooks/use-toast";
 import {
@@ -5,13 +6,13 @@ import {
   generatePermittedFileTypes,
 } from "uploadthing/client";
 import { useFileStore } from "~/store";
-import { useCallback, useState } from "react";
-import { type UploadThingError } from "uploadthing/server";
+import { useCallback } from "react";
 import { deleteFileOnServer } from "~/app/actions";
 import type { AddShowcaseType } from "~/types/types";
+import type { UseFormReturn } from "react-hook-form";
 
 export const useUploader = (
-  isCropping: boolean,
+  form?: UseFormReturn<any, any>,
   imageKey?: string,
   addShowcase?: (data: AddShowcaseType) => void,
   UpdateUserCoverImage?: (data: {
@@ -21,18 +22,16 @@ export const useUploader = (
     image: { imageUrl: string; imageKey: string };
   }) => void,
 ) => {
-  const [file, setFile] = useState<File | undefined>(undefined);
-
   const {
     setIsUploading,
-    setProgress,
     setFileUrl,
     setFileKey,
     setFileType,
-    setShowcaseUrl,
     setShowcaseOriginalName,
     formData,
+    setShowcaseUrl,
   } = useFileStore();
+
   const { startUpload, routeConfig } = useUploadThing("imageUploader", {
     onClientUploadComplete: async (res) => {
       if (res[0]) {
@@ -73,9 +72,8 @@ export const useUploader = (
         }
       }
     },
-    onUploadProgress: (progress) => {
+    onUploadProgress: () => {
       setIsUploading(true);
-      setProgress(progress);
     },
     onUploadError: (e) => {
       toast({
@@ -89,36 +87,34 @@ export const useUploader = (
       setIsUploading(false);
     },
   });
-  const onDropForCrop = useCallback(
+  const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       if (acceptedFiles[0]) {
         setShowcaseOriginalName(acceptedFiles[0].name);
-        setShowcaseUrl({
-          url: URL.createObjectURL(acceptedFiles[0]),
-          type: acceptedFiles[0].type,
-        });
+        if (form) {
+          form.setValue("showcaseFile", {
+            url: URL.createObjectURL(acceptedFiles[0]),
+            type: acceptedFiles[0].type,
+          });
+          form.clearErrors("showcaseFile");
+        } else {
+          setShowcaseUrl({
+            url: URL.createObjectURL(acceptedFiles[0]),
+            type: acceptedFiles[0].type,
+          });
+        }
       }
     },
-    [setShowcaseOriginalName, setShowcaseUrl],
-  );
-  const onDropForUpload = useCallback(
-    (acceptedFiles: File[]) => {
-      startUpload(acceptedFiles).catch((e: UploadThingError) => {
-        return e;
-      });
-      setFile(acceptedFiles[0]);
-    },
-    [setFile, startUpload],
+    [setShowcaseOriginalName, form, setShowcaseUrl],
   );
   const getDropzoneProps = () => ({
-    onDrop: isCropping ? onDropForCrop : onDropForUpload,
+    onDrop,
     accept: generateClientDropzoneAccept(
       generatePermittedFileTypes(routeConfig).fileTypes,
     ),
   });
 
   return {
-    file,
     startUpload,
     getDropzoneProps,
   };

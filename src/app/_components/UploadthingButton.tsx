@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useDropzone } from "@uploadthing/react";
 import { Upload } from "lucide-react";
 import { Input } from "~/components/ui/input";
@@ -6,12 +8,15 @@ import { useFileStore } from "~/store";
 import CustomCropper from "./Cropper";
 import { typeOfFile } from "~/utils/utils";
 import Video from "./Video";
+import { toast } from "~/hooks/use-toast";
+import type { ControllerRenderProps, UseFormReturn } from "react-hook-form";
 
 const UploadthingButton: React.FC<{
   isImageComponent?: boolean;
-  label: string;
+  label?: string;
   isProfile: boolean;
-  isFileError?: boolean;
+  field?: ControllerRenderProps<any, "showcaseFile">;
+  form?: UseFormReturn<any, any>;
   getDropzoneProps: () => {
     onDrop: (acceptedFiles: File[]) => void;
     accept: Record<string, never[]>;
@@ -20,34 +25,56 @@ const UploadthingButton: React.FC<{
 }> = ({
   isImageComponent,
   getDropzoneProps,
+  field,
   label,
-  isFileError,
+  form,
   isProfile,
   isCircle,
 }) => {
-  const { setShowcaseUrl, showcaseUrl, setShowcaseOriginalName } =
+  const { setShowcaseOriginalName, setShowcaseUrl, showcaseUrl } =
     useFileStore();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 1) {
+      toast({
+        title: "You can only upload one file at a time.",
+        description: "Please select a single file.",
+      });
+      return;
+    }
     if (e.target.files?.[0]) {
       const file = e.target.files[0];
       setShowcaseOriginalName(file.name);
       const imageUrl = URL.createObjectURL(file);
-      setShowcaseUrl({
-        url: imageUrl,
-        type: file.type,
-      });
+      if (form) {
+        form.setValue("showcaseFile", {
+          url: imageUrl,
+          type: file?.type ?? "",
+        });
+        form.clearErrors("showcaseFile");
+      } else {
+        setShowcaseUrl({
+          url: imageUrl,
+          type: file?.type ?? "",
+        });
+      }
     }
   };
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     ...getDropzoneProps(),
   });
+  const formShowcaseUrl: { url: string; type: string } =
+    form?.watch("showcaseFile");
 
-  return showcaseUrl.url ? (
-    typeOfFile(showcaseUrl.type) === "Image" ? (
-      <CustomCropper showcase={showcaseUrl.url} isCircle={isCircle} />
+  return (formShowcaseUrl?.url ?? showcaseUrl.url) ? (
+    typeOfFile(formShowcaseUrl?.type ?? showcaseUrl.type) === "Image" ? (
+      <CustomCropper
+        form={form}
+        showcase={formShowcaseUrl?.url ?? showcaseUrl.url}
+        isCircle={isCircle}
+      />
     ) : (
-      <Video url={showcaseUrl.url} />
+      <Video url={formShowcaseUrl?.url ?? showcaseUrl.url} />
     )
   ) : (
     <div className="space-y-4">
@@ -55,9 +82,7 @@ const UploadthingButton: React.FC<{
         htmlFor="profileImage"
         className={`${!isImageComponent && "text-gray-100"} text-sm font-medium`}
       >
-        <p className={`${isFileError && "text-[#EF4444]"}`}>
-          {label} {label === "Image" && "*"}
-        </p>
+        <p>{label === "Image" && "*"}</p>
       </Label>
       <div className="flex w-full items-center justify-center">
         <div
@@ -80,20 +105,17 @@ const UploadthingButton: React.FC<{
           </p>
         </div>
         <Input
-          {...getInputProps()}
+          onBlur={field?.onBlur}
+          name={field?.name}
+          ref={field?.ref}
           onChange={handleImageUpload}
           id="profileImage"
-          name="profileImage"
           type="file"
           accept={isProfile ? ".png, .jpg, .jpeg" : "image/*, video/*"}
           className="hidden"
+          {...getInputProps()}
         />
       </div>
-      {isFileError && (
-        <p className="text-sm font-semibold text-[#EF4444]">
-          File is required.
-        </p>
-      )}
     </div>
   );
 };

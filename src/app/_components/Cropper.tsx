@@ -16,13 +16,14 @@ import {
 } from "lucide-react";
 import "react-advanced-cropper/dist/style.css";
 import "react-advanced-cropper/dist/themes/classic.css";
+import type { FieldValues, UseFormReturn } from "react-hook-form";
 const CustomCropper: React.FC<{
   showcase: string;
   isCircle: boolean;
-}> = ({ showcase, isCircle }) => {
-  const { setShowcaseUrl } = useFileStore();
+  form?: UseFormReturn<FieldValues, FieldValues>;
+}> = ({ showcase, isCircle, form }) => {
   const cropperRef = useRef<CropperRef>(null);
-  const { setCroppedImage } = useFileStore();
+  const { setCroppedImage, setShowcaseUrl } = useFileStore();
 
   const onChange = debounce((cropper: CropperRef) => {
     cropper
@@ -44,7 +45,7 @@ const CustomCropper: React.FC<{
 
   return (
     <div
-      className={`relative flex h-fit min-w-40 max-w-full flex-col items-center gap-4`}
+      className={`relative flex h-fit max-h-[20vh] min-w-40 max-w-full flex-col items-center gap-4`}
     >
       <div className="h-full w-full">
         <div className="absolute right-0 top-0 z-10">
@@ -52,7 +53,11 @@ const CustomCropper: React.FC<{
             type="button"
             className="py-0 hover:bg-transparent"
             variant="ghost"
-            onClick={() => setShowcaseUrl({ url: "", type: "" })}
+            onClick={async () => {
+              form?.unregister("showcaseFile");
+              await form?.trigger("showcaseFile");
+              setShowcaseUrl({ url: "", type: "" });
+            }}
           >
             <X size={30} color="white" />
           </Button>

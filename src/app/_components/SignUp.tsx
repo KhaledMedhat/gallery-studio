@@ -128,7 +128,7 @@ const SignUp = () => {
     sendingOTP({ name: fullName, email: userInfo.email });
   };
   const { startUpload, getDropzoneProps } = useUploader(
-    true,
+    undefined,
     undefined,
     undefined,
     undefined,
@@ -312,12 +312,14 @@ const SignUp = () => {
         );
       case 1:
         return (
-          <UploadthingButton
-            getDropzoneProps={getDropzoneProps}
-            label="Profile Image"
-            isProfile={true}
-            isCircle={true}
-          />
+          <div className="h-1/2 max-w-md">
+            <UploadthingButton
+              getDropzoneProps={getDropzoneProps}
+              label="Profile Image"
+              isProfile={true}
+              isCircle={true}
+            />
+          </div>
         );
       default:
         return null;
@@ -363,7 +365,7 @@ const SignUp = () => {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="flex max-w-md items-center"
+          className="flexmax-w-md items-center"
         >
           {isCodeVerifying ? (
             <OTP />
@@ -383,7 +385,9 @@ const SignUp = () => {
                 <p className="text-center text-gray-100">
                   {stages[stage]?.subtitle}
                 </p>
-                {renderStageContent()}
+                <div className="max-h-full max-w-full">
+                  {renderStageContent()}
+                </div>
                 <div className="flex items-center justify-between gap-2">
                   {stage > 0 && (
                     <Button
