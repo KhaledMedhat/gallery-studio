@@ -7,17 +7,10 @@ export default async function UserGalleryPage({
 }: {
   params: { id: string };
 }) {
-
-  const user = await api.user.getUser()
+  const user = await api.user.getUser();
   if (user?.gallery.slug !== gallerySlug) {
-    redirect('/access-denied')
+    redirect("/access-denied");
   }
 
-  return (
-    <div className="flex flex-col items-center">
-      <h1 className="text-3xl mt-8 font-bold text-center">Your Gallery</h1>
-      <Files gallerySlug={gallerySlug} />
-    </div>
-  )
-
+  return <Files gallerySlug={gallerySlug} isAlbum={false} />;
 }

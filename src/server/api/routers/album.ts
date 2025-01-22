@@ -164,6 +164,13 @@ export const albumRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const existingAlbum = await ctx.db.query.albums.findFirst({
         where: eq(albums.id, input.id),
+        with: {
+          albumFiles: {
+            with: {
+              files: true,
+            },
+          },
+        },
       });
       if (!existingAlbum) {
         throw new TRPCError({

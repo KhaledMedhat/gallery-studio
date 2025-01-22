@@ -1,9 +1,5 @@
 "use client";
-
-import { CalendarIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -11,97 +7,66 @@ import {
   DialogOverlay,
   DialogTitle,
 } from "~/components/ui/dialog";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "~/components/ui/hover-card";
-import { getInitials } from "~/utils/utils";
 import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
-import FileOptions from "./FileOptions";
-import { api } from "~/trpc/react";
 import { useFileStore } from "~/store";
-import { type User } from "~/types/types";
-import Link from "next/link";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
+import { Skeleton } from "~/components/ui/skeleton";
 
 dayjs.extend(relativeTime);
 export function Modal({
   children,
-  fileId,
-  user,
+  isPending,
 }: {
   children: React.ReactNode;
-  fileId: string;
-  user: User | undefined | null;
+  isPending: boolean;
 }) {
   const router = useRouter();
-  const { data: file } = api.file.getFileById.useQuery({ id: fileId });
   const { setIsCommenting } = useFileStore();
   const handleOpenModalChange = () => {
     setIsCommenting(false);
     router.back();
   };
-  const initials = getInitials(
-    file?.user.firstName ?? "",
-    file?.user.lastName ?? "",
-  );
   return (
     <Dialog defaultOpen={true} open={true} onOpenChange={handleOpenModalChange}>
       <DialogOverlay>
         <DialogContent className="max-h-[80vh] overflow-y-auto">
-          <DialogTitle className="flex h-fit items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Avatar>
-                <AvatarImage src={file?.user.image?.imageUrl ?? ""} />
-                <AvatarFallback>{initials}</AvatarFallback>
-              </Avatar>
-              <HoverCard openDelay={100} closeDelay={100}>
-                <HoverCardTrigger asChild>
-                  <Button
-                    variant="link"
-                    className="p-0 font-bold"
-                    tabIndex={-1}
-                  >
-                    <Link href={`/${file?.user.name}`}>@{file?.user.name}</Link>
-                  </Button>
-                </HoverCardTrigger>
-                <HoverCardContent className="fixed w-80">
-                  <div className="flex items-center justify-start space-x-4">
-                    <Avatar>
-                      <AvatarImage src={file?.user.image?.imageUrl ?? ""} />
-                      <AvatarFallback>{initials}</AvatarFallback>
-                    </Avatar>
-                    <div className="space-y-1">
-                      <h4 className="text-sm font-semibold">
-                        @{file?.user.name}
-                      </h4>
-                      <p className="text-sm">
-                        {file?.user.bio ? `${file?.user.bio}.` : ""}
-                      </p>
-                      <div className="flex items-center pt-2">
-                        <CalendarIcon className="mr-2 h-4 w-4 opacity-70" />
-                        <span className="text-xs text-muted-foreground">
-                          Joined {dayjs(file?.user.createdAt).format("MMMM")}{" "}
-                          {dayjs(file?.user.createdAt).format("YYYY")}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </HoverCardContent>
-              </HoverCard>
+          <VisuallyHidden.Root>
+            <DialogTitle></DialogTitle>
+            <DialogDescription></DialogDescription>
+          </VisuallyHidden.Root>
+          {isPending ? (
+            <div className="flex w-full flex-col items-center gap-2 pt-2">
+              <div className="flex w-full items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                  <Skeleton className="h-5 w-32" />
+                </div>
+                <Skeleton className="h-8 w-8" />
+              </div>
+
+              <div className="flex w-full flex-col gap-1">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="aspect-w-2 aspect-h-1 h-[400px] w-full rounded-lg" />
+              </div>
+
+              <div className="flex w-full items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-4 w-4 rounded-full" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-6 w-16" />
+                  <Skeleton className="h-6 w-16" />
+                </div>
+              </div>
+
+              <Skeleton className="h-20 w-full" />
             </div>
-            {file && user?.id === file.user.id && (
-              <FileOptions
-                fileType={file.fileType}
-                fileId={fileId}
-                fileKey={file.fileKey}
-                handleOpenModalChange={handleOpenModalChange}
-              />
-            )}
-          </DialogTitle>
-          {children}
-          <DialogDescription></DialogDescription>
+          ) : (
+            children
+          )}
         </DialogContent>
       </DialogOverlay>
     </Dialog>

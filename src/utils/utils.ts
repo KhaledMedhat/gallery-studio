@@ -21,15 +21,10 @@ export function generateOTP(): string {
   return otp.toString().padStart(6, "0");
 }
 
-export function getInitials(
-  firstName: string | undefined,
-  lastName: string | undefined,
-) {
-  if (firstName && lastName) {
-    const firstInitial = firstName.charAt(0).toUpperCase();
-    const lastInitial = lastName.charAt(0).toUpperCase(); // Get the first letter of each part
-    return `${firstInitial}${lastInitial}`; // Join the initials into a string
-  }
+export function getInitials(firstName: string, lastName: string) {
+  const firstInitial = firstName.charAt(0).toUpperCase();
+  const lastInitial = lastName.charAt(0).toUpperCase(); // Get the first letter of each part
+  return `${firstInitial}${lastInitial}`; // Join the initials into a string
 }
 
 export function formatNumber(number: number) {

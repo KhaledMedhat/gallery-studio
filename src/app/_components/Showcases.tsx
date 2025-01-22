@@ -6,7 +6,6 @@ import type { User } from "~/types/types";
 import Showcase from "./Showcase";
 import { Separator } from "~/components/ui/separator";
 import BlurFade from "~/components/ui/blur-fade";
-import SearchBar from "./SearchBar";
 dayjs.extend(relativeTime);
 
 const Showcases: React.FC<{ currentUser: User | undefined | null }> = ({
@@ -22,7 +21,7 @@ const Showcases: React.FC<{ currentUser: User | undefined | null }> = ({
     );
 
   return (
-    <div className="w-full lg:w-3/5">
+    <div className="flex w-full flex-col gap-4 lg:w-3/5">
       {showcaseFiles?.map((file, idx) => (
         <BlurFade
           className="flex flex-col gap-4"
@@ -30,8 +29,8 @@ const Showcases: React.FC<{ currentUser: User | undefined | null }> = ({
           delay={0.25 + Number(idx) * 0.05}
           inView
         >
-          <Showcase file={file} currentUser={currentUser} />
-          {idx < showcaseFiles.length - 1 && <Separator />}
+          <Showcase file={file} currentUser={currentUser} isFullView={false} />
+          {/* {idx < showcaseFiles.length - 1 && <Separator />} */}
         </BlurFade>
       ))}
     </div>

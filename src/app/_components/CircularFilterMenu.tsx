@@ -5,23 +5,22 @@ import { Button } from "~/components/ui/button";
 
 interface FilterOption {
   id: string;
-  label: string;
+  label: {
+    name: string;
+    icon?: React.ReactNode;
+  };
 }
 
-interface CircularFilterMenuProps {
+const CircularFilterMenu: React.FC<{
   setFilter: (selectedFilter: string) => void;
-}
-
-const CircularFilterMenu: React.FC<CircularFilterMenuProps> = ({
-  setFilter,
-}) => {
+}> = ({ setFilter }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<string>("All");
   const filterOptions: FilterOption[] = [
-    { id: "All", label: "All" },
-    { id: "Videos", label: "Videos" },
-    { id: "Images", label: "Images" },
-    { id: "GIF", label: "GIF" },
+    { id: "All", label: { name: "All" } },
+    { id: "Videos", label: { name: "Videos" } },
+    { id: "Images", label: { name: "Images" } },
+    { id: "GIF", label: { name: "GIF" } },
   ];
 
   const toggleMenu = () => setIsOpen(!isOpen);
@@ -40,14 +39,14 @@ const CircularFilterMenu: React.FC<CircularFilterMenuProps> = ({
   };
 
   return (
-    <div className="fixed bottom-14 left-8 z-50">
+    <div className="fixed bottom-20 left-4 z-50">
       <div className="relative">
         <Button
           onClick={toggleMenu}
           className="h-16 w-16 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90"
           aria-label="Toggle filter menu"
         >
-          <Filter className="h-6 w-6" />
+          <Filter size={20} />
         </Button>
 
         <AnimatePresence>
@@ -73,7 +72,7 @@ const CircularFilterMenu: React.FC<CircularFilterMenuProps> = ({
                       onClick={() => handleFilterChange(option.id)}
                       style={{ transform: `translate(${x}px, ${y}px)` }}
                     >
-                      {option.label}
+                      {option.label.name}
                     </Button>
                   </motion.div>
                 );

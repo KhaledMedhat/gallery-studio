@@ -172,11 +172,9 @@ export const UpdateUserInfo: React.FC<{
   });
 
   const handleBioChange = () => {
-    if (updatedBio) {
-      UpdateUserProfile({
-        bio: updatedBio,
-      });
-    }
+    UpdateUserProfile({
+      bio: updatedBio ?? undefined,
+    });
   };
   const { startUpload, getDropzoneProps } = useUploader(
     undefined,

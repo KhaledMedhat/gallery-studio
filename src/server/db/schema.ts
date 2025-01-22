@@ -119,7 +119,7 @@ export const albums = createTable("album", {
   name: varchar("name", { length: 255 }).notNull().unique(),
   galleryId: integer("gallery_id")
     .notNull()
-    .references(() => galleries.id),
+    .references(() => galleries.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
@@ -147,10 +147,11 @@ export const users = createTable("user", {
   followings: json("followings")
     .$type<{ followed: boolean; userId: string }[]>()
     .default([]),
-  image: json("image")
-  .$type<{ imageUrl: string; imageKey: string }>(),
-  coverImage: json("cover_image")
-  .$type<{ imageUrl: string; imageKey: string }>(),
+  image: json("image").$type<{ imageUrl: string; imageKey: string }>(),
+  coverImage: json("cover_image").$type<{
+    imageUrl: string;
+    imageKey: string;
+  }>(),
   createdAt: timestamp("created_at", { withTimezone: true }),
   updatedAt: timestamp("updated_at", { withTimezone: true }),
 });
@@ -259,18 +260,24 @@ export const galleriesRelations = relations(galleries, ({ one, many }) => ({
 export const filesRelations = relations(files, ({ one, many }) => ({
   user: one(users, { fields: [files.createdById], references: [users.id] }),
   gallery: many(galleries), // Direct relation to gallery
-  albumFiles: many(albumFiles), // Link to the join table albumFiles
+  albumFiles: one(albumFiles, {
+    fields: [files.id],
+    references: [albumFiles.fileId],
+  }),
   commentsInfo: many(comments),
 }));
 
-export const albumsRelations = relations(albums, ({ many }) => ({
-  gallery: many(galleries), // Direct relation to gallery
-  albumFiles: many(albumFiles), // Link to the join table albumFiles
+export const albumsRelations = relations(albums, ({ many, one }) => ({
+  gallery: one(galleries), // Direct relation to gallery
+  albumFiles: many(albumFiles), // Proper relation to albumFiles
 }));
 
-export const albumFilesRelations = relations(albumFiles, ({ one }) => ({
-  file: one(files), // Direct relation to files
-  album: one(albums), // Direct relation to albums
+export const albumFilesRelations = relations(albumFiles, ({ one, many }) => ({
+  files: many(files), // Direct relation to files
+  album: one(albums, {
+    fields: [albumFiles.albumId],
+    references: [albums.id],
+  }), // Direct relation to albums
 }));
 
 export const commentsRelations = relations(comments, ({ one, many }) => ({

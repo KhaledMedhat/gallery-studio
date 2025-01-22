@@ -102,7 +102,6 @@ const AddFileButton: React.FC<{
     },
   });
   const showcaseUrl = form.watch("showcaseFile");
-  console.log(showcaseUrl);
   const { mutate: addToExistedAlbum, isPending: isAddToExistingAlbumPending } =
     api.album.addToAlbum.useMutation({
       onSuccess: () => {
@@ -192,7 +191,7 @@ const AddFileButton: React.FC<{
       <form
         id="add-image-form"
         onSubmit={form.handleSubmit(onSubmit)}
-        className="w-full space-y-8"
+        className="h-fit max-h-full w-full space-y-8 overflow-y-auto"
       >
         <div className="flex flex-col gap-2">
           <FormField

@@ -144,7 +144,6 @@ const SignUp = () => {
   };
 
   const handleNextToOtp = async () => {
-    console.log("clicked");
     await getCroppedImage();
   };
   const renderStageContent = () => {
@@ -312,7 +311,7 @@ const SignUp = () => {
         );
       case 1:
         return (
-          <div className="h-1/2 max-w-md">
+          <div className="h-fit max-h-full max-w-md overflow-y-auto">
             <UploadthingButton
               getDropzoneProps={getDropzoneProps}
               label="Profile Image"
@@ -365,7 +364,7 @@ const SignUp = () => {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="flexmax-w-md items-center"
+          className="w-fit max-w-full"
         >
           {isCodeVerifying ? (
             <OTP />
@@ -385,9 +384,8 @@ const SignUp = () => {
                 <p className="text-center text-gray-100">
                   {stages[stage]?.subtitle}
                 </p>
-                <div className="max-h-full max-w-full">
-                  {renderStageContent()}
-                </div>
+
+                {renderStageContent()}
                 <div className="flex items-center justify-between gap-2">
                   {stage > 0 && (
                     <Button

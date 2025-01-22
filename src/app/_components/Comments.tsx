@@ -31,6 +31,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { api } from "~/trpc/react";
 import { cookies } from "next/headers";
+import SharedHoverCard from "./SharedHoverCard";
 
 dayjs.extend(relativeTime);
 
@@ -52,7 +53,10 @@ const Comments: React.FC<{
   const theme = useTheme();
   const renderComments = (comments: Comment[], isReply = false) => {
     return comments.map((comment) => (
-      <div key={comment.id} className={`w-full ${isReply && "ml-8"}`}>
+      <div
+        key={comment.id}
+        className={`w-full ${isReply && "ml-8"} overflow-x-hidden`}
+      >
         <div className="max-w-full">
           <div className="flex items-start justify-start gap-6">
             <div
@@ -81,56 +85,21 @@ const Comments: React.FC<{
                 <div
                   className={`${theme.resolvedTheme === "dark" ? "bg-accent" : "bg-gray-200"} rounded-md px-2 py-1`}
                 >
-                  <HoverCard>
-                    <HoverCardTrigger asChild>
-                      <Button variant="link" className="h-fit p-0 font-bold">
-                        <Link href={`/${comment?.user?.name}`}>
-                          {comment.user?.name}
-                        </Link>
-                      </Button>
-                    </HoverCardTrigger>
-                    <HoverCardContent className="w-80">
-                      <div className="flex items-center justify-start space-x-4">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage
-                            src={comment.user?.image?.imageUrl ?? ""}
-                          />
-                          <AvatarFallback>
-                            {getInitials(
-                              comment.user?.firstName ?? "",
-                              comment.user?.lastName ?? "",
-                            )}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="space-y-1">
-                          <h4 className="text-sm font-semibold">
-                            @{comment.user?.name}
-                          </h4>
-                          <p className="text-sm">
-                            {comment.user?.bio ? `${comment.user?.bio}.` : ""}
-                          </p>
-                          <div className="flex items-center pt-2">
-                            <CalendarIcon className="mr-2 h-4 w-4 opacity-70" />
-                            <span className="text-xs text-muted-foreground">
-                              Joined{" "}
-                              {dayjs(comment.user?.createdAt).format("MMMM")}{" "}
-                              {dayjs(comment.user?.createdAt).format("YYYY")}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </HoverCardContent>
-                  </HoverCard>
+                  <SharedHoverCard comment={comment} />
+
                   <p className="break-words text-sm">
                     {extractUsername(comment.content) && (
-                      <Button variant="link" className="h-fit p-0 font-bold">
-                        <Link
-                          className="h-fit"
-                          href={`/${extractUsernameWithoutAt(comment.content)}`}
-                        >
-                          {extractUsername(comment.content)}
-                        </Link>
-                      </Button>
+                      <SharedHoverCard
+                        reply={extractUsernameWithoutAt(comment.content)}
+                      />
+                      // <Button variant="link" className="h-fit p-0 font-bold">
+                      //   <Link
+                      //     className="h-fit"
+                      //     href={`/${extractUsernameWithoutAt(comment.content)}`}
+                      //   >
+                      //     {extractUsername(comment.content)}
+                      //   </Link>
+                      // </Button>
                     )}{" "}
                     {extractComment(comment.content)}
                   </p>
@@ -200,17 +169,15 @@ const Comments: React.FC<{
       </div>
     ));
   };
-  const topComment = getCommentWithHighestRatio(showcaseComments)
+  const topComment = getCommentWithHighestRatio(showcaseComments);
   return (
     <div className="flex flex-col gap-2">
-      {renderComments(
-        isFullView ? showcaseComments : topComment,
-      )}
+      {renderComments(isFullView ? showcaseComments : topComment)}
       {file.comments > 2 && (
-          <Button variant="link" className="p-0 self-start h-fit">
-            <Link href={`/showcases/${file.id}`} className="w-full h-full">
-              Show all comments
-            </Link>
+        <Button variant="link" className="h-fit self-start p-0">
+          <Link href={`/showcases/${file.id}`} className="h-full w-full">
+            Show all comments
+          </Link>
         </Button>
       )}
     </div>

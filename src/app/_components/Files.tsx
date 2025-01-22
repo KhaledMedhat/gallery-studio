@@ -12,14 +12,29 @@ import Video from "./Video";
 import { Badge } from "~/components/ui/badge";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { type fileType, isAlbumOrFileEnum } from "~/types/types";
-import { Dot, Earth, LockKeyhole } from "lucide-react";
+import { Earth, LockKeyhole } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import DeleteButton from "./DeleteButton";
 import ToAlbumButton from "./ToAlbumButton";
 import { typeOfFile } from "~/utils/utils";
 import CircularFilterMenu from "./CircularFilterMenu";
+import FromAlbumToAlbum from "./FromAlbumToAlbum";
 
-const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
+const Files: React.FC<{
+  gallerySlug?: string;
+  isAlbum: boolean;
+  albumId?: string;
+}> = ({ gallerySlug, isAlbum, albumId }) => {
+  const { data: albumFilesData, isLoading: isAlbumFilesLoading } =
+    api.album.getAlbumById.useQuery(
+      {
+        id: Number(albumId),
+      },
+      { enabled: isAlbum },
+    );
+  const flattedAlbumFiles = albumFilesData?.albumFiles.flatMap(
+    (albumFiles) => albumFiles.files,
+  );
   const { data: files, isLoading } = api.file.getFiles.useQuery();
   const [filter, setFilter] = useState<string>("All");
   const {
@@ -40,14 +55,24 @@ const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
   };
   const filteredFiles =
     filter === "All"
-      ? files
-      : files?.filter((file) =>
-          filter === "Images"
-            ? file.fileType?.includes("image")
-            : filter === "GIF"
-              ? file.fileType?.includes("gif")
-              : file.fileType?.includes("video"),
-        );
+      ? isAlbum
+        ? flattedAlbumFiles
+        : files
+      : isAlbum
+        ? flattedAlbumFiles?.filter((file) =>
+            filter === "Images"
+              ? file.fileType?.includes("image")
+              : filter === "GIF"
+                ? file.fileType?.includes("gif")
+                : file.fileType?.includes("video"),
+          )
+        : files?.filter((file) =>
+            filter === "Images"
+              ? file.fileType?.includes("image")
+              : filter === "GIF"
+                ? file.fileType?.includes("gif")
+                : file.fileType?.includes("video"),
+          );
 
   const renderFile = (file: fileType, idx: number) => (
     <BlurFade key={file.id} delay={0.25 + Number(idx) * 0.05} inView>
@@ -114,24 +139,32 @@ const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
       </div>
     </BlurFade>
   );
-  if (files?.length === 0)
+  if (isAlbum && flattedAlbumFiles?.length === 0) {
+    return <EmptyPage isInsideAlbum={true} />;
+  }
+  if (files?.length === 0) {
     return (
       <EmptyPage
         gallerySlug={gallerySlug}
         isAlbumOrFilePage={isAlbumOrFileEnum.file}
       />
     );
-  return isLoading ? (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-background/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
-      <Dot size={250} className="animate-bounce" />
-    </div>
-  ) : (
+  }
+
+  return (
     <div className="container mx-auto flex flex-col items-center gap-6 px-4 py-10">
+      <h1 className="text-center text-3xl font-bold">
+        {isAlbum ? albumFilesData?.name : "Your Gallery"}
+      </h1>
       <div className="flex items-center gap-2">
         {selectedFiles.length > 0 ? (
           <div className="flex items-center gap-2 xl:hidden">
             <DeleteButton fileType={fileType} />
-            <ToAlbumButton gallerySlug={gallerySlug} />
+            {isAlbum ? (
+              <FromAlbumToAlbum gallerySlug={gallerySlug ?? ""} />
+            ) : (
+              <ToAlbumButton gallerySlug={gallerySlug ?? ""} />
+            )}
           </div>
         ) : (
           <CircularFilterMenu setFilter={setFilter} />
@@ -151,8 +184,21 @@ const Files: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
           {isSelecting ? "Cancel" : "Select"}
         </Button>
       </div>
+
       <div className="flex flex-wrap items-center justify-center gap-3">
-        {filteredFiles?.map((file, idx) => renderFile(file, idx))}
+        {isLoading || isAlbumFilesLoading
+          ? Array.from({ length: window.innerWidth < 768 ? 5 : 10 }).map(
+              (_, idx) => (
+                <div className="flex flex-col gap-1" key={idx}>
+                  <Skeleton className="h-[80px] w-[80px] rounded-md md:h-[150px] md:w-[150px]" />
+                  <div className="flex items-center justify-between">
+                    <Skeleton className="h-5 w-[40px] rounded-xl" />
+                    <Skeleton className="h-4 w-4 rounded-full" />
+                  </div>
+                </div>
+              ),
+            )
+          : filteredFiles?.map((file, idx) => renderFile(file, idx))}
       </div>
     </div>
   );
