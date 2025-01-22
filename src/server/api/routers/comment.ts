@@ -57,40 +57,6 @@ export const commentRouter = createTRPCRouter({
       }
     }),
 
-  getAllComments: protectedProcedure
-    .input(z.object({ id: z.array(z.string()) }))
-    .query(async ({ input, ctx }) => {
-      if (!ctx.user) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "Unauthorized",
-        });
-      }
-      const allComments = await ctx.db.query.comments.findMany({
-        where: inArray(comments.id, input.id),
-        with: {
-          user: true,
-        },
-        orderBy: (comments, { desc }) => [desc(comments.createdAt)],
-      });
-      const commentsWithLikedUsers = await Promise.all(
-        allComments.map(async (comment) => {
-          const userIds = comment?.likesInfo?.map((com) => com.userId) ?? [];
-
-          const likedUsers = await ctx.db.query.users.findMany({
-            where: inArray(users.id, userIds),
-          });
-
-          return {
-            ...comment,
-            likedUsers,
-          };
-        }),
-      );
-      const structuredComments = buildCommentHierarchy(commentsWithLikedUsers);
-
-      return structuredComments;
-    }),
   postComment: protectedProcedure
     .input(z.object({ id: z.string(), content: z.string() }))
     .mutation(async ({ input, ctx }) => {
@@ -113,7 +79,7 @@ export const commentRouter = createTRPCRouter({
         await ctx.db
           .update(files)
           .set({
-            comments: foundedFile?.comments + 1,
+            commentsCount: foundedFile?.commentsCount + 1,
           })
           .where(eq(files.id, input.id));
       }
@@ -204,7 +170,7 @@ export const commentRouter = createTRPCRouter({
       await ctx.db
         .update(files)
         .set({
-          comments: foundedFile?.comments - 1,
+          commentsCount: foundedFile?.commentsCount - 1,
         })
         .where(eq(files.id, foundedComment.fileId));
     }),

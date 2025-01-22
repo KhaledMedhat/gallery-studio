@@ -29,11 +29,12 @@ export interface Showcase {
   fileType: string | null;
   filePrivacy: "public" | "private" | null;
   galleryId: number;
-  comments: number;
+  commentsCount: number;
   likesInfo: LikesInfo[] | null;
   likedUsers: User[];
   user?: User | null | undefined;
   commentsInfo: Comment[] | null;
+  comments: Comment[];
 }
 export interface Feedback {
   id: number;

@@ -8,10 +8,5 @@ export default async function ShowCasesFilePage({
   params: { fileId: string };
 }) {
   const currentUser = await api.user.getUser();
-  return (
-    <Modal fileId={fileId} user={currentUser}>
-      <FileModalView fileId={fileId} user={currentUser} />
-    </Modal>
-  )
+  return <FileModalView fileId={fileId} user={currentUser} />;
 }
-

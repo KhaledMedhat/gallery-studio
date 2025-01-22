@@ -115,7 +115,6 @@ const GalleryNavbar: React.FC<{
       id: user?.gallery?.slug ?? "",
     });
   };
-
   const handleLogout = async () => {
     router.push("/");
     await signOut({ callbackUrl: "/" });
@@ -123,8 +122,12 @@ const GalleryNavbar: React.FC<{
     router.refresh();
   };
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[100] mx-auto mb-4 flex h-full max-h-14 origin-bottom">
-      <div className="fixed inset-x-0 bottom-0 h-16 w-full bg-background to-transparent backdrop-blur-lg [-webkit-mask-image:linear-gradient(to_top,black,transparent)] dark:bg-background"></div>
+    <div
+      className={`pointer-events-none fixed inset-x-0 ${pathname.includes("/images") ? "top-0 mt-4" : "bottom-0 mb-4"} z-30 mx-auto flex h-full max-h-14 origin-bottom`}
+    >
+      {!pathname.includes("/images") && (
+        <div className="fixed inset-x-0 bottom-0 h-16 w-full bg-background to-transparent backdrop-blur-lg [-webkit-mask-image:linear-gradient(to_top,black,transparent)] dark:bg-background"></div>
+      )}
       <Dock
         direction="middle"
         className="pointer-events-auto relative bottom-8 z-50 mx-auto mb-4 flex origin-bottom gap-2 rounded-3xl bg-background"

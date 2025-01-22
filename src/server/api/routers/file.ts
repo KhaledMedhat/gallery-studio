@@ -4,11 +4,13 @@ import {
   albums,
   albumFiles,
   users,
+  comments,
 } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { z } from "zod";
 import { and, eq, inArray, or } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import { buildCommentHierarchy } from "~/utils/utils";
 
 export const fileRouter = createTRPCRouter({
   unlikeFile: protectedProcedure
@@ -89,22 +91,42 @@ export const fileRouter = createTRPCRouter({
         },
       },
     });
-    const filesWithLikedUsers = await Promise.all(
+    const filesWithDetails = await Promise.all(
       showcaseFiles.map(async (file) => {
         const userIds = file?.likesInfo?.map((like) => like.userId) ?? [];
-
         const likedUsers = await ctx.db.query.users.findMany({
           where: inArray(users.id, userIds),
         });
 
+        const commentsWithLikedUsers = await Promise.all(
+          file.commentsInfo.map(async (comment) => {
+            const commentLikedUserIds =
+              comment?.likesInfo?.map((like) => like.userId) ?? [];
+
+            const likedUsersForComment = await ctx.db.query.users.findMany({
+              where: inArray(users.id, commentLikedUserIds),
+            });
+
+            return {
+              ...comment,
+              likedUsers: likedUsersForComment,
+            };
+          }),
+        );
+
+        const structuredComments = buildCommentHierarchy(
+          commentsWithLikedUsers,
+        );
+
         return {
           ...file,
           likedUsers,
+          comments: structuredComments,
         };
       }),
     );
 
-    return filesWithLikedUsers;
+    return filesWithDetails;
   }),
   getUserFiles: protectedProcedure
     .input(
@@ -227,34 +249,41 @@ export const fileRouter = createTRPCRouter({
           },
         },
       });
+
       if (!foundedFile) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Image not found",
+          message: "File not found",
         });
       }
-      // const filesWithLikedUsers = await Promise.all(
-      //   foundedFile.map(async (file) => {
-      //     const userIds = file?.likesInfo?.map((like) => like.userId) ?? [];
 
-      // const likedUsers = await ctx.db.query.users.findMany({
-      //   where: inArray(users.id, userIds),
-      // });
-
-      //     return {
-      //       ...file,
-      //       likedUsers,
-      //     };
-      //   }),
-      // );
       const usersIds = foundedFile.likesInfo?.map((like) => like.userId) ?? [];
       const likedUsers = await ctx.db.query.users.findMany({
         where: inArray(users.id, usersIds),
       });
 
+      const commentsWithLikedUsers = await Promise.all(
+        foundedFile.commentsInfo.map(async (comment) => {
+          const commentLikedUserIds =
+            comment?.likesInfo?.map((like) => like.userId) ?? [];
+
+          const likedUsersForComment = await ctx.db.query.users.findMany({
+            where: inArray(users.id, commentLikedUserIds),
+          });
+
+          return {
+            ...comment,
+            likedUsers: likedUsersForComment,
+          };
+        }),
+      );
+
+      const structuredComments = buildCommentHierarchy(commentsWithLikedUsers);
+
       return {
         ...foundedFile,
         likedUsers,
+        comments: structuredComments,
       };
     }),
 

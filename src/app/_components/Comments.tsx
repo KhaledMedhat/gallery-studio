@@ -1,12 +1,7 @@
-import { CalendarIcon, Ellipsis } from "lucide-react";
+import { Ellipsis } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "~/components/ui/hover-card";
 import type { User, Comment, Showcase } from "~/types/types";
 import {
   extractComment,
@@ -30,7 +25,6 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { api } from "~/trpc/react";
-import { cookies } from "next/headers";
 import SharedHoverCard from "./SharedHoverCard";
 
 dayjs.extend(relativeTime);
@@ -41,13 +35,14 @@ const Comments: React.FC<{
   isFullView: boolean;
   file: Showcase;
 }> = ({ showcaseComments, currentUser, file, isFullView }) => {
-  const { setIsCommenting, setReplyData, setCommentInfo } = useFileStore();
-  const [isCommentUpdating, setCommentIsUpdating] = useState<boolean>(false);
+  const { setReplyData } = useFileStore();
+  const [commentIsUpdating, setCommentIsUpdating] = useState<boolean>(false);
   const utils = api.useUtils();
   const { mutate: deleteComment, isPending: isDeletingComment } =
     api.comment.deleteComment.useMutation({
       onSuccess: () => {
-        void utils.comment.getAllComments.invalidate();
+        void utils.file.getFileById.invalidate();
+        void utils.file.getShowcaseFiles.invalidate();
       },
     });
   const theme = useTheme();
@@ -92,14 +87,6 @@ const Comments: React.FC<{
                       <SharedHoverCard
                         reply={extractUsernameWithoutAt(comment.content)}
                       />
-                      // <Button variant="link" className="h-fit p-0 font-bold">
-                      //   <Link
-                      //     className="h-fit"
-                      //     href={`/${extractUsernameWithoutAt(comment.content)}`}
-                      //   >
-                      //     {extractUsername(comment.content)}
-                      //   </Link>
-                      // </Button>
                     )}{" "}
                     {extractComment(comment.content)}
                   </p>
@@ -173,7 +160,7 @@ const Comments: React.FC<{
   return (
     <div className="flex flex-col gap-2">
       {renderComments(isFullView ? showcaseComments : topComment)}
-      {file.comments > 2 && (
+      {file.commentsCount > 2 && (
         <Button variant="link" className="h-fit self-start p-0">
           <Link href={`/showcases/${file.id}`} className="h-full w-full">
             Show all comments

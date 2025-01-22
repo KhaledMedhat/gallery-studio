@@ -47,13 +47,15 @@ const LikeButton: React.FC<{
   const { mutate: likeComment, isPending: isCommentLikePending } =
     api.comment.likeComment.useMutation({
       onSuccess: () => {
-        void utils.comment.getAllComments.invalidate();
+        void utils.file.getFileById.invalidate();
+        void utils.file.getShowcaseFiles.invalidate();
       },
     });
   const { mutate: unlikeComment, isPending: isCommentUnlikePending } =
     api.comment.unlikeComment.useMutation({
       onSuccess: () => {
-        void utils.comment.getAllComments.invalidate();
+        void utils.file.getFileById.invalidate();
+        void utils.file.getShowcaseFiles.invalidate();
       },
     });
   const findUserLikedFile = fileLikesInfo?.find(

@@ -48,7 +48,7 @@ export const files = createTable("image", {
   fileKey: varchar("image_key", { length: 255 }),
   fileType: varchar("file_type", { length: 255 }),
   filePrivacy: privacyEnum("privacy").default("private"),
-  comments: integer("file_comments").notNull().default(0),
+  commentsCount: integer("file_comments").notNull().default(0),
   likesInfo: json("likes_info")
     .$type<{ liked: boolean; userId: string }[]>()
     .default([]),

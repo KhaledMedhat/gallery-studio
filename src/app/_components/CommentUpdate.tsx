@@ -41,7 +41,8 @@ const CommentUpdate: React.FC<{
     api.comment.updateComment.useMutation({
       onSuccess: () => {
         setCommentIsUpdating(false);
-        void utils.comment.getAllComments.invalidate();
+        void utils.file.getFileById.invalidate();
+        void utils.file.getShowcaseFiles.invalidate();
       },
     });
   const onEmojiSelect = (emoji: Emoji) => {
