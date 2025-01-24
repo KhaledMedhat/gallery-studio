@@ -67,7 +67,7 @@ import { useState } from "react";
 
 const GalleryNavbar: React.FC<{
   user: User | null | undefined;
-  files: fileType[] | undefined;
+  files?: fileType[] | undefined;
 }> = ({ user, files }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -321,7 +321,7 @@ const GalleryNavbar: React.FC<{
                     >
                       <Avatar>
                         <AvatarImage
-                          src={user?.image?.imageUrl ?? ""}
+                          src={user?.profileImage?.imageUrl ?? ""}
                           alt={user?.name ?? "Avatar"}
                           className="object-cover"
                         />

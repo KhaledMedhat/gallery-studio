@@ -9,7 +9,7 @@ import {
   HoverCardTrigger,
 } from "~/components/ui/hover-card";
 import { api } from "~/trpc/react";
-import { Comment, Showcase } from "~/types/types";
+import type { Comment, Showcase } from "~/types/types";
 import { getInitials } from "~/utils/utils";
 const SharedHoverCard: React.FC<{
   comment?: Comment;
@@ -41,9 +41,9 @@ const SharedHoverCard: React.FC<{
             <AvatarImage
               className="rounded-full"
               src={
-                comment?.user?.image?.imageUrl ??
-                data?.image?.imageUrl ??
-                file?.user?.image?.imageUrl
+                comment?.user?.profileImage?.imageUrl ??
+                data?.profileImage?.imageUrl ??
+                file?.user?.profileImage?.imageUrl
               }
             />
             <AvatarFallback>

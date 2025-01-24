@@ -3,6 +3,10 @@ export enum isAlbumOrFileEnum {
   album = "album",
 }
 
+export const enum SearchType {
+  Accounts,
+  Tags,
+}
 export interface AddShowcaseType {
   url: string;
   fileKey: string;
@@ -34,7 +38,7 @@ export interface Showcase {
   likedUsers: User[];
   user?: User | null | undefined;
   commentsInfo: Comment[] | null;
-  comments: Comment[];
+  comments?: Comment[];
 }
 export interface Feedback {
   id: number;
@@ -87,7 +91,7 @@ export interface User {
   firstName: string | null;
   lastName: string | null;
   createdAt: Date | null;
-  image: UserImage | null;
+  profileImage: UserImage | null;
   coverImage: UserImage | null;
   followers: Follower[] | null;
   followings: Follower[] | null;

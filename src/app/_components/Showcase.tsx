@@ -22,7 +22,8 @@ const Showcase: React.FC<{
   file: Showcase | undefined;
   currentUser: User | undefined | null;
   isFullView: boolean;
-}> = ({ file, currentUser, isFullView }) => {
+  isWideAspectRatio: boolean;
+}> = ({ file, currentUser, isFullView, isWideAspectRatio }) => {
   const sameUser = currentUser?.id === file?.createdById;
   const renderCommentSection = (
     isFullView: boolean,
@@ -46,7 +47,7 @@ const Showcase: React.FC<{
           </div>
         )}
         {file?.filePrivacy === "public" && (
-          <Card className="sticky bottom-0 w-full">
+          <Card className="sticky bottom-4 w-full">
             <CardContent className="p-2">
               <CommentInput fileId={file?.id} />
             </CardContent>
@@ -79,7 +80,7 @@ const Showcase: React.FC<{
       <div className="flex w-full items-center justify-between">
         <div className="flex items-center gap-2">
           <Avatar>
-            <AvatarImage src={file?.user?.image?.imageUrl ?? ""} />
+            <AvatarImage src={file?.user?.profileImage?.imageUrl ?? ""} />
             <AvatarFallback>
               {getInitials(
                 file?.user?.firstName ?? "",
@@ -103,25 +104,33 @@ const Showcase: React.FC<{
         <div className="flex items-center gap-1">
           {file?.tags?.map((tag) => (
             <Button key={tag} variant="link" className="text-bold h-fit p-0">
-              <Link href={`/${tag}`}>{tag}</Link>
+              <Link href={`/search?q=${tag.slice(1)}`}>{tag}</Link>
             </Button>
           ))}
         </div>
         <Link href={`/showcases/${file?.id}`}>
           {file?.fileType?.includes("video") ? (
             <Video url={file.url} className="rounded-lg xl:h-[752px]" />
+          ) : isWideAspectRatio ? (
+            <AspectRatio ratio={16 / 9} className="rounded-lg bg-muted">
+              <Image
+                priority
+                src={file?.url ?? ""}
+                alt={`One of ${file?.user?.name}'s images`}
+                layout="fill"
+                className="h-full w-full rounded-md object-contain"
+              />
+            </AspectRatio>
           ) : (
-            <div className="aspect-w-2 aspect-h-1 h-auto w-full">
-              <AspectRatio ratio={16 / 9} className="rounded-lg bg-muted">
-                <Image
-                  priority
-                  src={file?.url ?? ""}
-                  alt={`One of ${file?.user?.name}'s images`}
-                  layout="fill"
-                  className="h-full w-full rounded-md object-contain"
-                />
-              </AspectRatio>
-            </div>
+            <AspectRatio ratio={1 / 1} className="overflow-hidden rounded-lg">
+              <Image
+                priority
+                src={file?.url ?? ""}
+                alt={`One of ${file?.user?.name}'s images`}
+                layout="fill"
+                className="aspect-square h-full w-full object-contain"
+              />
+            </AspectRatio>
           )}
         </Link>
       </div>

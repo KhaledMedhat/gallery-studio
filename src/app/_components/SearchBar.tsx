@@ -7,21 +7,24 @@ import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { api } from "~/trpc/react";
-import { type User } from "~/types/types";
 import { getInitials } from "~/utils/utils";
 import Link from "next/link";
+import { SearchType } from "~/types/types";
 
 const SearchBar = () => {
   const [searchValue, setSearchValue] = useState<string>("");
-  const [foundedSearch, setFoundedSearch] = useState<User[] | undefined>(
-    undefined,
+  const [filteredSearch, setFilteredSearch] = useState<SearchType>(
+    SearchType.Accounts,
   );
-  const { mutate: search, isPending } = api.user.usersSearch.useMutation({
-    onSuccess: (data) => {
-      setFoundedSearch(data);
-    },
-  });
-
+  const {
+    mutate: search,
+    isPending,
+    data: searchResult,
+  } = api.user.usersSearch.useMutation();
+  const filterOptions = [
+    { id: SearchType.Accounts, label: "Accounts" },
+    { id: SearchType.Tags, label: "Tags" },
+  ];
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchValue(value);
@@ -42,7 +45,7 @@ const SearchBar = () => {
           <Search size={20} />
         </div>
         <Input
-          placeholder="Search for Artists..."
+          placeholder="Search for Artists or Showcases through tags ..."
           value={searchValue}
           onChange={handleChange}
           className="w-full ps-10 focus-visible:ring-0 focus-visible:ring-offset-0"
@@ -61,24 +64,59 @@ const SearchBar = () => {
         <Card className="flex w-full flex-col rounded-md bg-background p-2">
           {isPending ? (
             <LoaderCircle size={25} className="m-auto animate-spin" />
-          ) : foundedSearch?.length === 0 ? (
+          ) : searchResult?.foundedUsers.length ||
+            searchResult?.foundedTag.length === 0 ? (
             <div className="text-center">No artists found</div>
           ) : (
-            foundedSearch?.map((user) => (
-              <Link
-                key={user.id}
-                className="flex w-full items-center gap-2 self-start rounded-md p-2 hover:bg-accent"
-                href={`/${user.name}`}
-              >
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={user?.image?.imageUrl ?? ""} />
-                  <AvatarFallback>
-                    {getInitials(user?.firstName ?? "", user?.lastName ?? "")}
-                  </AvatarFallback>
-                </Avatar>
-                <p className="text-sm font-bold">{user?.name}</p>
-              </Link>
-            ))
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-4">
+                {filterOptions.map((option) => (
+                  <Button
+                    key={option.id}
+                    variant={
+                      filteredSearch === option.id ? "default" : "outline"
+                    }
+                    onClick={() => setFilteredSearch(option.id)}
+                  >
+                    {option.label}
+                  </Button>
+                ))}
+              </div>
+              {filteredSearch === SearchType.Accounts
+                ? searchResult?.foundedUsers.map((user) => (
+                    <Link
+                      key={user.id}
+                      className="flex w-full items-center gap-2 self-start rounded-md p-2 hover:bg-accent"
+                      href={`/${user.name}`}
+                    >
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={user?.profileImage?.imageUrl ?? ""} />
+                        <AvatarFallback>
+                          {getInitials(
+                            user?.firstName ?? "",
+                            user?.lastName ?? "",
+                          )}
+                        </AvatarFallback>
+                      </Avatar>
+                      <p className="text-sm font-bold">{user?.name}</p>
+                    </Link>
+                  ))
+                : searchResult?.foundedTag.map((tag) => (
+                    <Link
+                      key={tag.id}
+                      className="flex w-full items-center gap-2 self-start rounded-md p-2 hover:bg-accent"
+                      href={`/search?q=${tag.tagName.slice(1)}`}
+                    >
+                      <div className="flex w-full items-center justify-between">
+                        <p className="text-sm font-bold">{tag?.tagName}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {tag?.tagUsedCount} {tag.tagUsedCount > 100 && "+"}{" "}
+                          {tag.tagUsedCount > 1 ? "showcases" : "showcase"}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+            </div>
           )}
         </Card>
       )}

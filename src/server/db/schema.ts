@@ -60,6 +60,18 @@ export const files = createTable("image", {
     .notNull(),
 });
 
+export const tags = createTable("tags", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  tagName: varchar("name", { length: 255 }).notNull().unique(),
+  tagUsedCount: integer("tag_used_count").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+
 export const comments = createTable("comments", {
   id: varchar("id", { length: 255 })
     .notNull()
@@ -147,7 +159,10 @@ export const users = createTable("user", {
   followings: json("followings")
     .$type<{ followed: boolean; userId: string }[]>()
     .default([]),
-  image: json("image").$type<{ imageUrl: string; imageKey: string }>(),
+  profileImage: json("profile_image").$type<{
+    imageUrl: string;
+    imageKey: string;
+  }>(),
   coverImage: json("cover_image").$type<{
     imageUrl: string;
     imageKey: string;

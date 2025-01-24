@@ -5,6 +5,7 @@ import {
   galleries,
   otp,
   sessions,
+  tags,
   users,
 } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
@@ -149,7 +150,7 @@ export const userRouter = createTRPCRouter({
               password: hashedPassword,
               name: input.username,
               provider: "email",
-              image: input.image,
+              profileImage: input.image ?? { imageUrl: "", imageKey: "" },
               firstName: input.firstName,
               lastName: input.lastName,
               createdAt: new Date(),
@@ -342,7 +343,7 @@ export const userRouter = createTRPCRouter({
       await ctx.db
         .update(users)
         .set({
-          image: input.image,
+          profileImage: input.image,
           name: input.username,
           coverImage: input.coverImage,
           firstName: input.firstName,
@@ -454,12 +455,15 @@ export const userRouter = createTRPCRouter({
           },
         },
       });
-      if (!foundedUsers) {
+      const foundedTag = await ctx.db.query.tags.findMany({
+        where: like(tags.tagName, `%${input.search}%`),
+      });
+      if (!foundedUsers || !foundedTag) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "User not found",
         });
       }
-      return foundedUsers;
+      return { foundedUsers, foundedTag };
     }),
 });

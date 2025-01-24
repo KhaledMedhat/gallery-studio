@@ -4,11 +4,10 @@ import {
   albums,
   albumFiles,
   users,
-  comments,
 } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { z } from "zod";
-import { and, eq, inArray, or } from "drizzle-orm";
+import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { buildCommentHierarchy } from "~/utils/utils";
 
@@ -90,6 +89,7 @@ export const fileRouter = createTRPCRouter({
           },
         },
       },
+      orderBy: (files, { desc }) => [desc(files.createdAt)],
     });
     const filesWithDetails = await Promise.all(
       showcaseFiles.map(async (file) => {
@@ -287,6 +287,27 @@ export const fileRouter = createTRPCRouter({
       };
     }),
 
+  getShowcasesByTag: protectedProcedure
+    .input(z.object({ tagName: z.string() }))
+    .query(async ({ ctx, input }) => {
+      if (!ctx.user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Unauthorized",
+        });
+      }
+      const foundedShowcases = await ctx.db.query.files.findMany({
+        where: and(
+          eq(files.filePrivacy, "public"),
+          sql`EXISTS (SELECT 1 FROM json_array_elements_text(${files.tags}) AS tag WHERE tag = ${`#${input.tagName}`})`,
+        ),
+        with: {
+          user: true,
+        },
+      });
+
+      return foundedShowcases;
+    }),
   deleteFile: protectedProcedure
     .input(z.object({ id: z.array(z.string()) }))
     .mutation(async ({ input, ctx }) => {

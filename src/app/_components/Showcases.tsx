@@ -39,7 +39,7 @@ const Showcases: React.FC<{ currentUser: User | undefined | null }> = ({
               <div className="flex w-full flex-col gap-1">
                 <Skeleton className="h-4 w-3/4" />
                 <Skeleton className="h-4 w-1/2" />
-                <Skeleton className="aspect-w-2 aspect-h-1 h-[400px] w-full rounded-lg" />
+                <Skeleton className="aspect-w-2 aspect-h-1 h-[400px] w-full rounded-lg md:h-[800px]" />
               </div>
 
               <div className="flex w-full items-center justify-between">
@@ -67,6 +67,7 @@ const Showcases: React.FC<{ currentUser: User | undefined | null }> = ({
                 file={file}
                 currentUser={currentUser}
                 isFullView={false}
+                isWideAspectRatio={false}
               />
             </BlurFade>
           ))}

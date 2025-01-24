@@ -56,7 +56,12 @@ const FileFullView: React.FC<{
           <Skeleton className="h-20 w-full" />
         </div>
       ) : (
-        <Showcase file={file} currentUser={user} isFullView={true} />
+        <Showcase
+          file={file}
+          currentUser={user}
+          isFullView={true}
+          isWideAspectRatio={true}
+        />
       )}
     </section>
   );

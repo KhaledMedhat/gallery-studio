@@ -119,8 +119,10 @@ const AddFileButton: React.FC<{
         });
       },
     });
+  const { mutate: addTags } = api.tags.addTags.useMutation();
   const { mutate: addShowcase, isPending } = api.file.addFile.useMutation({
     onSuccess: (data) => {
+      addTags({ tags: data?.tags ?? [] });
       setFileUrl("");
       setFileKey("");
       form.setValue("showcaseFile", { url: "", type: "" });

@@ -9,7 +9,7 @@ const Feedback: React.FC<{ feedback: Feedback }> = ({ feedback }) => {
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2">
             <Avatar>
-              <AvatarImage src={feedback.user?.image?.imageUrl ?? ""} />
+              <AvatarImage src={feedback.user?.profileImage?.imageUrl ?? ""} />
               <AvatarFallback>
                 {getInitials(
                   feedback.user?.firstName ?? "",

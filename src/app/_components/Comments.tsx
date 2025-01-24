@@ -59,7 +59,9 @@ const Comments: React.FC<{
             >
               <div className="relative">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={comment.user?.image?.imageUrl ?? ""} />
+                  <AvatarImage
+                    src={comment.user?.profileImage?.imageUrl ?? ""}
+                  />
                   <AvatarFallback
                     className={`${theme.resolvedTheme === "dark" ? "border-2 border-solid border-white" : "border-2 border-solid border-black"} text-sm`}
                   >

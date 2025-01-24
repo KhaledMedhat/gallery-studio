@@ -80,7 +80,7 @@ const UserProfile: React.FC<{
           <CardContent className="pb-8 pt-16">
             {isUserUpdating ? (
               <UpdateUserInfo
-                image={user?.image}
+                image={user?.profileImage}
                 bio={user?.bio}
                 name={user?.name}
                 firstName={user?.firstName}
@@ -90,7 +90,7 @@ const UserProfile: React.FC<{
               <div className="mt-12 flex flex-col items-center gap-6 md:mt-0 md:flex-row md:items-start">
                 <Avatar className="absolute left-1/2 top-0 flex h-[10rem] w-[10rem] -translate-x-1/2 -translate-y-1/2 transform items-center justify-center rounded-full border-4 border-background md:left-8 md:translate-x-0">
                   <AvatarImage
-                    src={user?.image?.imageUrl ?? ""}
+                    src={user?.profileImage?.imageUrl ?? ""}
                     alt={user?.name}
                     className="h-full w-full rounded-full object-cover"
                   />
