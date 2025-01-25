@@ -21,7 +21,7 @@ const Showcases: React.FC<{ currentUser: User | undefined | null }> = ({
       </h1>
     );
   return (
-    <div className="flex w-full flex-col gap-4 lg:w-3/5">
+    <div className="flex w-full flex-col items-center gap-4 lg:w-3/5">
       {isPending
         ? Array.from({ length: 2 }).map((_, idx) => (
             <div
@@ -39,7 +39,7 @@ const Showcases: React.FC<{ currentUser: User | undefined | null }> = ({
               <div className="flex w-full flex-col gap-1">
                 <Skeleton className="h-4 w-3/4" />
                 <Skeleton className="h-4 w-1/2" />
-                <Skeleton className="aspect-w-2 aspect-h-1 h-[400px] w-full rounded-lg md:h-[800px]" />
+                <Skeleton className="aspect-w-2 aspect-h-1 h-[400px] w-full rounded-lg md:h-[700px]" />
               </div>
 
               <div className="flex w-full items-center justify-between">

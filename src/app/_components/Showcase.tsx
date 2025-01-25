@@ -15,6 +15,7 @@ import LikeButton from "./LikeButton";
 import Comments from "./Comments";
 import FileOptions from "./FileOptions";
 import SharedHoverCard from "./SharedHoverCard";
+import { useState } from "react";
 
 dayjs.extend(relativeTime);
 
@@ -25,6 +26,24 @@ const Showcase: React.FC<{
   isWideAspectRatio: boolean;
 }> = ({ file, currentUser, isFullView, isWideAspectRatio }) => {
   const sameUser = currentUser?.id === file?.createdById;
+  const [imageDimensions, setImageDimensions] = useState({
+    width: 800,
+    height: 700,
+  });
+
+  const handleImageLoad = (
+    event: React.SyntheticEvent<HTMLImageElement, Event>,
+  ) => {
+    const { naturalWidth, naturalHeight } = event.currentTarget;
+    const aspectRatio = naturalHeight / naturalWidth;
+    const containerWidth = 800; // Set your desired container width
+    const calculatedHeight = containerWidth * aspectRatio;
+    // Limit the maximum height to 600px (adjust as needed)
+    const maxHeight = 700;
+    const finalHeight = Math.min(calculatedHeight, maxHeight);
+    setImageDimensions({ width: containerWidth, height: finalHeight });
+  };
+
   const renderCommentSection = (
     isFullView: boolean,
     file: Showcase,
@@ -75,7 +94,7 @@ const Showcase: React.FC<{
   return (
     <div
       key={file?.id}
-      className={`flex w-full flex-col items-center gap-2 ${!isFullView && "rounded-2xl border pb-2 pl-6 pr-6 pt-6"}`}
+      className={`flex w-full max-w-[800px] flex-col items-center gap-2 ${!isFullView && "rounded-2xl border pb-2 pl-6 pr-6 pt-6"}`}
     >
       <div className="flex w-full items-center justify-between">
         <div className="flex items-center gap-2">
@@ -122,15 +141,15 @@ const Showcase: React.FC<{
               />
             </AspectRatio>
           ) : (
-            <AspectRatio ratio={1 / 1} className="overflow-hidden rounded-lg">
-              <Image
-                priority
-                src={file?.url ?? ""}
-                alt={`One of ${file?.user?.name}'s images`}
-                layout="fill"
-                className="aspect-square h-full w-full object-contain"
-              />
-            </AspectRatio>
+            <Image
+              priority
+              src={file?.url ?? ""}
+              alt={`One of ${file?.user?.name}'s images`}
+              width={imageDimensions.width}
+              height={imageDimensions.height}
+              onLoad={handleImageLoad}
+              className="h-auto w-full rounded-lg"
+            />
           )}
         </Link>
       </div>

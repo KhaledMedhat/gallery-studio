@@ -86,9 +86,57 @@ const Comments: React.FC<{
               </div>
               <div className="flex min-w-0 flex-1 flex-col gap-1">
                 <div
-                  className={`${theme.resolvedTheme === "dark" ? "bg-accent" : "bg-gray-200"} rounded-md px-2 py-1`}
+                  className={`${theme.resolvedTheme === "dark" ? "bg-accent" : "bg-gray-200"} flex flex-col gap-1 rounded-md px-2 py-1`}
                 >
-                  <SharedHoverCard comment={comment} />
+                  <div className="flex items-center justify-between">
+                    <SharedHoverCard comment={comment} />
+                    {currentUser?.id === comment.user?.id && (
+                      <DropdownMenu
+                        modal={false}
+                        open={openDropDown}
+                        onOpenChange={setOpenDropDown}
+                      >
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            className="h-fit p-0 hover:bg-transparent"
+                          >
+                            <Ellipsis size={30} />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-fit">
+                          <DropdownMenuGroup>
+                            <DropdownMenuItem
+                              asChild
+                              className="p-0 hover:outline-none"
+                            >
+                              <CustomDrawer
+                                drawerAppearance={DrawerEnum.UPDATE_COMMENT}
+                                btnTitle={"Edit"}
+                                drawerTitle={"Update comment"}
+                                drawerDescription={"Update your comment."}
+                                originalComment={comment.content}
+                                commentId={comment.id}
+                                setOpenDropDown={setOpenDropDown}
+                              />
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="cursor-pointer p-0 text-destructive hover:bg-transparent hover:outline-none">
+                              <Button
+                                onClick={() =>
+                                  deleteComment({ id: comment.id })
+                                }
+                                variant="ghost"
+                                className="w-full hover:text-[#d33939]"
+                                disabled={isDeletingComment}
+                              >
+                                Delete
+                              </Button>
+                            </DropdownMenuItem>
+                          </DropdownMenuGroup>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </div>
 
                   <p className="break-words text-sm">
                     {extractUsername(comment.content) && (
@@ -123,7 +171,7 @@ const Comments: React.FC<{
                 </div>
               </div>
             </div>
-            {currentUser?.id === comment.user?.id && (
+            {/* {currentUser?.id === comment.user?.id && (
               <DropdownMenu
                 modal={false}
                 open={openDropDown}
@@ -166,7 +214,7 @@ const Comments: React.FC<{
                   </DropdownMenuGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
-            )}
+            )} */}
           </div>
         </div>
         {comment.replies && renderComments(comment.replies.slice(0, 2), true)}
