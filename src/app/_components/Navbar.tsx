@@ -22,7 +22,7 @@ const Navbar: React.FC<{ currentUser: User | null | undefined }> = ({
   const theme = useTheme();
   const pathname = usePathname();
   return (
-    <header className="container sticky top-0 z-40 m-auto mt-1 w-full border-b bg-background/95 px-2 pt-1 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="container sticky top-0 z-40 mx-auto mt-1 w-full border-b bg-background/95 px-2 pt-1 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-14 items-center">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">

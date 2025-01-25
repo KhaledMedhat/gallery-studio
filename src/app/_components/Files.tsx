@@ -16,7 +16,7 @@ import { Earth, LockKeyhole } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import DeleteButton from "./DeleteButton";
 import ToAlbumButton from "./ToAlbumButton";
-import { typeOfFile } from "~/utils/utils";
+import { typeOfFile, windowSize } from "~/utils/utils";
 import CircularFilterMenu from "./CircularFilterMenu";
 import FromAlbumToAlbum from "./FromAlbumToAlbum";
 
@@ -187,17 +187,15 @@ const Files: React.FC<{
 
       <div className="flex flex-wrap items-center justify-center gap-3">
         {isLoading || isAlbumFilesLoading
-          ? Array.from({ length: window.innerWidth < 768 ? 5 : 10 }).map(
-              (_, idx) => (
-                <div className="flex flex-col gap-1" key={idx}>
-                  <Skeleton className="h-[80px] w-[80px] rounded-md md:h-[150px] md:w-[150px]" />
-                  <div className="flex items-center justify-between">
-                    <Skeleton className="h-5 w-[40px] rounded-xl" />
-                    <Skeleton className="h-4 w-4 rounded-full" />
-                  </div>
+          ? Array.from({ length: windowSize() }).map((_, idx) => (
+              <div className="flex flex-col gap-1" key={idx}>
+                <Skeleton className="h-[80px] w-[80px] rounded-md md:h-[150px] md:w-[150px]" />
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-5 w-[40px] rounded-xl" />
+                  <Skeleton className="h-4 w-4 rounded-full" />
                 </div>
-              ),
-            )
+              </div>
+            ))
           : filteredFiles?.map((file, idx) => renderFile(file, idx))}
       </div>
     </div>

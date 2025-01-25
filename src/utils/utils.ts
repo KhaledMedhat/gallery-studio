@@ -4,7 +4,13 @@ import { type Comment } from "~/types/types";
 interface CommentWithReplies extends Comment {
   replies: CommentWithReplies[];
 }
-
+export function windowSize() {
+  if (typeof window !== "undefined" && window.innerWidth < 768) {
+    return 5;
+  } else {
+    return 10;
+  }
+}
 export const isURLActive = (pathname: string, url: string) => {
   return pathname === url;
 };

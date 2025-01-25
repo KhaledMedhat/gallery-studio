@@ -55,13 +55,7 @@ const FeedbackForm = () => {
     });
   };
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="w-full p-5 md:w-1/2"
-    >
-      <h1 className="font-bol mb-2 text-center text-2xl">Send Feedback</h1>
+    <div>
       <Form {...form}>
         <form
           id="feedback-form"
@@ -78,7 +72,7 @@ const FeedbackForm = () => {
                   <FormControl>
                     <Textarea
                       placeholder="Your feedback .."
-                      className="w-full"
+                      className="w-full resize-none"
                       {...field}
                     />
                   </FormControl>
@@ -101,10 +95,10 @@ const FeedbackForm = () => {
             Sending...
           </>
         ) : (
-          "Send Feedback"
+          "Submit"
         )}
       </Button>
-    </motion.div>
+    </div>
   );
 };
 

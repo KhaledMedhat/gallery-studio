@@ -2,7 +2,12 @@ import { Ellipsis } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
-import type { User, Comment, Showcase } from "~/types/types";
+import {
+  type User,
+  type Comment,
+  type Showcase,
+  DrawerEnum,
+} from "~/types/types";
 import {
   extractComment,
   extractUsername,
@@ -26,6 +31,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { api } from "~/trpc/react";
 import SharedHoverCard from "./SharedHoverCard";
+import CustomDrawer from "./CustomDrawer";
 
 dayjs.extend(relativeTime);
 
@@ -36,7 +42,7 @@ const Comments: React.FC<{
   file: Showcase;
 }> = ({ showcaseComments, currentUser, file, isFullView }) => {
   const { setReplyData } = useFileStore();
-  const [commentIsUpdating, setCommentIsUpdating] = useState<boolean>(false);
+  const [openDropDown, setOpenDropDown] = useState<boolean>(false);
   const utils = api.useUtils();
   const { mutate: deleteComment, isPending: isDeletingComment } =
     api.comment.deleteComment.useMutation({
@@ -118,7 +124,11 @@ const Comments: React.FC<{
               </div>
             </div>
             {currentUser?.id === comment.user?.id && (
-              <DropdownMenu modal={false}>
+              <DropdownMenu
+                modal={false}
+                open={openDropDown}
+                onOpenChange={setOpenDropDown}
+              >
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
@@ -129,14 +139,19 @@ const Comments: React.FC<{
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-fit">
                   <DropdownMenuGroup>
-                    <DropdownMenuItem className="p-0 hover:outline-none">
-                      <Button
-                        onClick={() => setCommentIsUpdating(true)}
-                        variant="ghost"
-                        className="w-full cursor-pointer p-0 hover:bg-transparent"
-                      >
-                        Edit
-                      </Button>
+                    <DropdownMenuItem
+                      asChild
+                      className="p-0 hover:outline-none"
+                    >
+                      <CustomDrawer
+                        drawerAppearance={DrawerEnum.UPDATE_COMMENT}
+                        btnTitle={"Edit"}
+                        drawerTitle={"Update comment"}
+                        drawerDescription={"Update your comment."}
+                        originalComment={comment.content}
+                        commentId={comment.id}
+                        setOpenDropDown={setOpenDropDown}
+                      />
                     </DropdownMenuItem>
                     <DropdownMenuItem className="cursor-pointer p-0 text-destructive hover:bg-transparent hover:outline-none">
                       <Button

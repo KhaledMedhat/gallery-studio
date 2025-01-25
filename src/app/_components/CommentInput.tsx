@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Smile, SendHorizontal } from "lucide-react";
 import { useForm } from "react-hook-form";
-import data, { type Emoji } from "@emoji-mart/data";
+import data from "@emoji-mart/data";
 import { z } from "zod";
 import {
   Form,
@@ -23,18 +23,16 @@ import Picker from "@emoji-mart/react";
 import { useRouter } from "next/navigation";
 import { useFileStore } from "~/store";
 import { extractUsername } from "~/utils/utils";
+import { EmojiSelectEvent } from "~/types/types";
 
 const CommentInput: React.FC<{
-  fileId: string;
+  fileId?: string;
+  commentId?: string;
   originalComment?: string;
-}> = ({ fileId, originalComment }) => {
-  const {
-    setCommentIsUpdating,
-    replyData,
-    setReplyData,
-    commentInfo,
-    setCommentInfo,
-  } = useFileStore();
+  setOpen?: (open: boolean) => void;
+  setOpenDropDown?: (open: boolean) => void;
+}> = ({ fileId, commentId, originalComment, setOpen, setOpenDropDown }) => {
+  const { replyData, setReplyData } = useFileStore();
   const router = useRouter();
   const theme = useTheme();
   const formSchema = z.object({
@@ -43,14 +41,21 @@ const CommentInput: React.FC<{
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      comment: replyData.isReplying ? `${replyData.content}` : "",
+      comment: commentId
+        ? originalComment
+        : replyData.isReplying
+          ? `${replyData.content}`
+          : "",
     },
   });
   const utils = api.useUtils();
   const { mutate: updateComment, isPending: isUpdatingComment } =
     api.comment.updateComment.useMutation({
       onSuccess: () => {
-        setCommentIsUpdating(false);
+        if (setOpen && setOpenDropDown) {
+          setOpen(false);
+          setOpenDropDown(false);
+        }
         void utils.file.getFileById.invalidate();
         void utils.file.getShowcaseFiles.invalidate();
       },
@@ -79,7 +84,8 @@ const CommentInput: React.FC<{
         });
       },
     });
-  const onEmojiSelect = (emoji: Emoji) => {
+
+  const onEmojiSelect = (emoji: EmojiSelectEvent) => {
     const currentComment = form.getValues("comment");
     form.setValue("comment", currentComment + emoji.native);
     setReplyData({
@@ -89,19 +95,14 @@ const CommentInput: React.FC<{
   };
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     if (originalComment === data.comment) {
-      setCommentIsUpdating(false);
       return;
     }
-    // if (commentInfo?.commentId) {
     if (replyData.isReplying) {
       postReply({ id: replyData.commentId, content: replyData.content });
-    }
-    // else {
-    //   updateComment({ id: commentInfo.commentId, content: data.comment });
-    // }
-    // }
-    else {
-      postComment({ id: fileId, content: data.comment });
+    } else if (commentId && originalComment) {
+      updateComment({ id: commentId, content: data.comment });
+    } else {
+      postComment({ id: fileId ?? "", content: data.comment });
     }
   };
   return (
@@ -157,6 +158,8 @@ const CommentInput: React.FC<{
               data={data}
               onEmojiSelect={onEmojiSelect}
               theme={theme.resolvedTheme}
+              previewPosition="none"
+              skinTonePosition="none"
             />
           </PopoverContent>
         </Popover>

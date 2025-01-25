@@ -7,6 +7,21 @@ export const enum SearchType {
   Accounts,
   Tags,
 }
+
+export enum DrawerEnum {
+  ADD_FEEDBACK,
+  UPDATE_COMMENT,
+}
+
+export interface EmojiSelectEvent {
+  native: string;
+  id: string;
+  keywords: string[];
+  name: string;
+  shortcodes: string;
+  unified: string;
+}
+
 export interface AddShowcaseType {
   url: string;
   fileKey: string;
