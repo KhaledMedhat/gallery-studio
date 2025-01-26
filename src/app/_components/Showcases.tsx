@@ -58,7 +58,7 @@ const Showcases: React.FC<{ currentUser: User | undefined | null }> = ({
           ))
         : showcaseFiles?.map((file, idx) => (
             <BlurFade
-              className="flex flex-col gap-4"
+              className="flex w-full flex-col gap-4"
               key={file.id}
               delay={0.25 + Number(idx) * 0.05}
               inView

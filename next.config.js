@@ -8,6 +8,7 @@ await import("./src/env.js");
 const config = {
   transpilePackages: ["@pqina/pintura", "@pqina/react-pintura"],
   images: {
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {
         hostname: "images.unsplash.com",

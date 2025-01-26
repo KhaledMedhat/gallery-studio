@@ -7,7 +7,7 @@ import { formatNumber, getInitials } from "~/utils/utils";
 import Video from "./Video";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { Button } from "~/components/ui/button";
-import Image from "next/legacy/image";
+import Image from "next/image";
 import Link from "next/link";
 import CommentInput from "./CommentInput";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -27,22 +27,35 @@ const Showcase: React.FC<{
 }> = ({ file, currentUser, isFullView, isWideAspectRatio }) => {
   const sameUser = currentUser?.id === file?.createdById;
   const [imageDimensions, setImageDimensions] = useState({
-    width: 800,
-    height: 700,
+    width: 1000,
+    height: 1000,
   });
 
   const handleImageLoad = (
     event: React.SyntheticEvent<HTMLImageElement, Event>,
   ) => {
     const { naturalWidth, naturalHeight } = event.currentTarget;
+    console.log("height", naturalHeight);
+    console.log("width", naturalWidth);
     const aspectRatio = naturalHeight / naturalWidth;
-    const containerWidth = 800; // Set your desired container width
-    const calculatedHeight = containerWidth * aspectRatio;
-    // Limit the maximum height to 600px (adjust as needed)
-    const maxHeight = 700;
-    const finalHeight = Math.min(calculatedHeight, maxHeight);
-    setImageDimensions({ width: containerWidth, height: finalHeight });
+    setImageDimensions({ width: naturalWidth, height: naturalHeight });
+    // const containerWidth = 1000;
+    // if (aspectRatio > 1) {
+    //   // Landscape image (width > height)
+    //   setImageDimensions({ width: containerWidth, height: 1000 });
+
+    //   // setImageDimensions({ width: containerWidth, height: 700 / aspectRatio });
+    // } else if (aspectRatio < 1) {
+    //   // Portrait image (height > width)
+    //   setImageDimensions({ width: containerWidth, height: 1000 });
+
+    //   // setImageDimensions({ width: containerWidth * aspectRatio, height: 700 });
+    // } else {
+    //   // Square image (1:1)
+    //   setImageDimensions({ width: containerWidth, height: 1000 });
+    // }
   };
+  console.log(imageDimensions);
 
   const renderCommentSection = (
     isFullView: boolean,
@@ -141,15 +154,56 @@ const Showcase: React.FC<{
               />
             </AspectRatio>
           ) : (
-            <Image
-              priority
-              src={file?.url ?? ""}
-              alt={`One of ${file?.user?.name}'s images`}
-              width={imageDimensions.width}
-              height={imageDimensions.height}
-              onLoad={handleImageLoad}
-              className="h-auto w-full rounded-lg"
-            />
+            // <div
+            //   className="relative w-full"
+            //   style={{
+            //     height: `${imageDimensions.height}px`,
+            //     width: `${imageDimensions.width}px`,
+            //   }}
+            // >
+            //   <Image
+            //     priority
+            //     src={file?.url ?? ""}
+            //     alt={`One of ${file?.user?.name}'s images`}
+            //     layout="fill"
+            //     objectFit="cover"
+            //     objectPosition="center"
+            //     className="rounded-lg object-cover center"
+            //   />
+            // </div>
+            <AspectRatio ratio={1 / 1} className="bg-muted">
+              <Image
+                src={file?.url ?? ""}
+                alt={`One of ${file?.user?.name}'s images`}
+                fill
+                className="h-full w-full rounded-md object-right"
+              />
+            </AspectRatio>
+            // <div
+            //   style={{
+            //     position: "relative",
+            //     height: "auto",
+            //     aspectRatio: "1/1",
+            //   }}
+            // >
+            //   <Image
+            //     priority
+            //     fill
+            //     src={file?.url ?? ""}
+            //     alt={`One of ${file?.user?.name}'s images`}
+            //     // width={imageDimensions.width}
+            //     // height={imageDimensions.height}
+            //     // onLoad={handleImageLoad}
+            //     style={{
+            //       aspectRatio: "1/1",
+            //       width: "100%",
+            //       height: "100%",
+            //     }}
+            //     className="rounded-lg"
+            //     objectFit="cover"
+            //     objectPosition="center"
+            //   />
+            // </div>
           )}
         </Link>
       </div>

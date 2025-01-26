@@ -64,8 +64,6 @@ const CustomCropper: React.FC<{
         <Cropper
           ref={cropperRef}
           stencilComponent={isCircle ? CircleStencil : undefined}
-          minHeight={400}
-          minWidth={600}
           src={showcase}
           onChange={onChange}
           boundaryClassName="max-h-[300px]"

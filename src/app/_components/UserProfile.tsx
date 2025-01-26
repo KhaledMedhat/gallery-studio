@@ -190,7 +190,7 @@ const UserProfile: React.FC<{
                     >
                       <Link href={`/showcases/${file.id}`}>
                         <div className="relative h-full w-full">
-                          <div className="h-full max-w-[200px] lg:max-w-[300px]">
+                          <div className="h-full max-w-[200px] lg:max-w-[400px]">
                             {typeOfFile(file.fileType) === "Image" ? (
                               <AspectRatio ratio={1 / 1}>
                                 <Image
