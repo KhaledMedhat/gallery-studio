@@ -3,7 +3,7 @@ import { Earth, LockKeyhole, MessageCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Card, CardContent } from "~/components/ui/card";
 import type { User, Showcase } from "~/types/types";
-import { formatNumber, getInitials } from "~/utils/utils";
+import { calculateClosestAspectRatio, formatNumber, getInitials } from "~/utils/utils";
 import Video from "./Video";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { Button } from "~/components/ui/button";
@@ -26,36 +26,22 @@ const Showcase: React.FC<{
   isWideAspectRatio: boolean;
 }> = ({ file, currentUser, isFullView, isWideAspectRatio }) => {
   const sameUser = currentUser?.id === file?.createdById;
-  const [imageDimensions, setImageDimensions] = useState({
-    width: 1000,
-    height: 1000,
+  const [dimensions, setDimensions] = useState({
+    width: 0,
+    height: 0,
   });
+  const handleImageLoad = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const img = event.currentTarget;
+    const { naturalWidth, naturalHeight } = img;
 
-  const handleImageLoad = (
-    event: React.SyntheticEvent<HTMLImageElement, Event>,
-  ) => {
-    const { naturalWidth, naturalHeight } = event.currentTarget;
-    console.log("height", naturalHeight);
-    console.log("width", naturalWidth);
-    const aspectRatio = naturalHeight / naturalWidth;
-    setImageDimensions({ width: naturalWidth, height: naturalHeight });
-    // const containerWidth = 1000;
-    // if (aspectRatio > 1) {
-    //   // Landscape image (width > height)
-    //   setImageDimensions({ width: containerWidth, height: 1000 });
+    // Calculate the closest aspect ratio
+    const { width, height } = calculateClosestAspectRatio(naturalWidth, naturalHeight);
 
-    //   // setImageDimensions({ width: containerWidth, height: 700 / aspectRatio });
-    // } else if (aspectRatio < 1) {
-    //   // Portrait image (height > width)
-    //   setImageDimensions({ width: containerWidth, height: 1000 });
-
-    //   // setImageDimensions({ width: containerWidth * aspectRatio, height: 700 });
-    // } else {
-    //   // Square image (1:1)
-    //   setImageDimensions({ width: containerWidth, height: 1000 });
-    // }
+    // Update the dimensions state
+    setDimensions({ width: width, height: height });
   };
-  console.log(imageDimensions);
+
+  console.log(dimensions);
 
   const renderCommentSection = (
     isFullView: boolean,
@@ -171,14 +157,17 @@ const Showcase: React.FC<{
             //     className="rounded-lg object-cover center"
             //   />
             // </div>
-            <AspectRatio ratio={1 / 1} className="bg-muted">
+            <div className="relative w-full" style={{ height: 'auto', aspectRatio: '1/1' }}>
               <Image
                 src={file?.url ?? ""}
                 alt={`One of ${file?.user?.name}'s images`}
+                // width={dimensions.width}
+                // height={dimensions.height}
                 fill
-                className="h-full w-full rounded-md object-right"
+                onLoad={handleImageLoad}
+                className="rounded-md " // Changed to object-cover
               />
-            </AspectRatio>
+            </div>
             // <div
             //   style={{
             //     position: "relative",

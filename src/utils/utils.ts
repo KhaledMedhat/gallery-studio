@@ -4,6 +4,26 @@ import { type Comment } from "~/types/types";
 interface CommentWithReplies extends Comment {
   replies: CommentWithReplies[];
 }
+
+export const calculateClosestAspectRatio = (width: number, height: number) => {
+  const aspectRatio16_9 = 16 / 9;
+  const aspectRatio1_1 = 1;
+
+  const currentAspectRatio = width / height;
+
+  // Calculate the difference between the current aspect ratio and the standard ones
+  const diff16_9 = Math.abs(currentAspectRatio - aspectRatio16_9);
+  const diff1_1 = Math.abs(currentAspectRatio - aspectRatio1_1);
+
+  // Determine which standard aspect ratio is closer
+  if (diff16_9 < diff1_1) {
+    // Closer to 16:9
+    return { width: width, height: width / aspectRatio16_9 };
+  } else {
+    // Closer to 1:1
+    return { width: width, height: width / aspectRatio1_1 };
+  }
+};
 export function windowSize() {
   if (typeof window !== "undefined" && window.innerWidth < 768) {
     return 5;
