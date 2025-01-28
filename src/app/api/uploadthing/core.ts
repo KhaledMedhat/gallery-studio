@@ -8,7 +8,7 @@ export const ourFileRouter = {
     image: { maxFileSize: "32MB" },
     video: { maxFileSize: "256MB" },
   })
-    .middleware(async () => {
+    .middleware(async ({ req, input }) => {
       return {};
     })
     .onUploadComplete(async ({ metadata, file }) => {

@@ -30,7 +30,7 @@ export function Modal({
   return (
     <Dialog defaultOpen={true} open={true} onOpenChange={handleOpenModalChange}>
       <DialogOverlay>
-        <DialogContent className="max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-h-[90vh] flex flex-col items-center overflow-y-auto">
           <VisuallyHidden.Root>
             <DialogTitle></DialogTitle>
             <DialogDescription></DialogDescription>

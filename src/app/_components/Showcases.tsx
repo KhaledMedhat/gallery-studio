@@ -67,7 +67,6 @@ const Showcases: React.FC<{ currentUser: User | undefined | null }> = ({
                 file={file}
                 currentUser={currentUser}
                 isFullView={false}
-                isWideAspectRatio={false}
               />
             </BlurFade>
           ))}

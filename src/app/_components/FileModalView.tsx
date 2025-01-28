@@ -21,7 +21,9 @@ const FileModalView: React.FC<{
   return (
     <Modal isPending={isPending}>
       {!isUpdating && file ? (
-        <Showcase file={file} currentUser={user} isFullView={true} />
+        <div className="w-full flex items-center justify-center">
+          <Showcase file={file} currentUser={user} isFullView={true} />
+        </div>
       ) : (
         file && (
           <UpdateFileView

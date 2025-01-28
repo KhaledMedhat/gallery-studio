@@ -10,7 +10,6 @@ import { useCallback } from "react";
 import { deleteFileOnServer } from "~/app/actions";
 import type { AddShowcaseType } from "~/types/types";
 import type { UseFormReturn } from "react-hook-form";
-
 export const useUploader = (
   form?: UseFormReturn<any, any>,
   imageKey?: string,
@@ -31,7 +30,6 @@ export const useUploader = (
     formData,
     setShowcaseUrl,
   } = useFileStore();
-
   const { startUpload, routeConfig } = useUploadThing("imageUploader", {
     onClientUploadComplete: async (res) => {
       if (res[0]) {
@@ -88,7 +86,7 @@ export const useUploader = (
     },
   });
   const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
+    async (acceptedFiles: File[]) => {
       if (acceptedFiles[0]) {
         setShowcaseOriginalName(acceptedFiles[0].name);
         if (form) {

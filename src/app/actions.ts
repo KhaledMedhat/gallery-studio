@@ -17,3 +17,4 @@ const utapi = new UTApi();
 export const deleteFileOnServer = async (fileKey: string | string[]) => {
   await utapi.deleteFiles(fileKey);
 };
+

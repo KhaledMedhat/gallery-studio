@@ -60,7 +60,6 @@ const FileFullView: React.FC<{
           file={file}
           currentUser={user}
           isFullView={true}
-          isWideAspectRatio={true}
         />
       )}
     </section>

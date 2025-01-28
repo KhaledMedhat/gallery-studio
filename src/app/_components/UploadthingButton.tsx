@@ -34,7 +34,7 @@ const UploadthingButton: React.FC<{
   const { setShowcaseOriginalName, setShowcaseUrl, showcaseUrl } =
     useFileStore();
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async(e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 1) {
       toast({
         title: "You can only upload one file at a time.",
