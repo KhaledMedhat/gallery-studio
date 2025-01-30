@@ -12,7 +12,10 @@ export enum DrawerEnum {
   ADD_FEEDBACK,
   UPDATE_COMMENT,
 }
-
+export interface SocialMediaUrls {
+  url: string;
+  platformIcon: string;
+}
 export interface EmojiSelectEvent {
   native: string;
   id: string;
@@ -116,6 +119,7 @@ export interface User {
   provider: string | null;
   emailVerified: Date | null;
   updatedAt: Date | null;
+  socialUrls: SocialMediaUrls[] | null;
   gallery?: Gallery | null;
 }
 

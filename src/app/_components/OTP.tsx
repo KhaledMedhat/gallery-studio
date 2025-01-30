@@ -30,8 +30,8 @@ const OTP = () => {
   const { toast } = useToast();
   const [timer, setTimer] = useState<number>(35);
   const [isTimerFinished, setIsTimerFinished] = useState(false);
-  const userRegistryInfo = useUserStore((state) => state.userRegistrationInfo);
-  const fullName = userRegistryInfo.firstName + " " + userRegistryInfo.lastName;
+  const { setUserImage, userRegistrationInfo } = useUserStore()
+  const fullName = userRegistrationInfo.firstName + " " + userRegistrationInfo.lastName;
   const FormSchema = z.object({
     otp: z.string().min(6, {
       message: "Your one-time password must be 6 digits.",
@@ -66,17 +66,17 @@ const OTP = () => {
   useEffect(() => {
     const timeout = setTimeout(
       () => {
-        deleteOtp({ email: userRegistryInfo.email });
+        deleteOtp({ email: userRegistrationInfo.email });
       },
       5 * 60 * 1000,
     ); // 5 minutes in milliseconds
 
     return () => clearTimeout(timeout); // Cleanup on unmount
-  }, [deleteOtp, userRegistryInfo.email]);
+  }, [deleteOtp, userRegistrationInfo.email]);
 
   const { mutate: resendOtp } = api.user.sendingOTP.useMutation({
     onMutate: () => {
-      deleteOtp({ email: userRegistryInfo.email });
+      deleteOtp({ email: userRegistrationInfo.email });
     },
     onSuccess: () => {
       startTimer();
@@ -91,6 +91,7 @@ const OTP = () => {
   });
   const { mutate: createUser, isPending } = api.user.create.useMutation({
     onSuccess: async () => {
+      setUserImage({ imageKey: '', imageUrl: '' });
       toast({
         description: <span>Your account has been created successfully 🎉</span>,
       });
@@ -106,12 +107,12 @@ const OTP = () => {
   });
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
     createUser({
-      firstName: userRegistryInfo.firstName,
-      lastName: userRegistryInfo.lastName,
-      username: userRegistryInfo.username,
-      email: userRegistryInfo.email,
-      password: userRegistryInfo.password,
-      image: userRegistryInfo.image,
+      firstName: userRegistrationInfo.firstName,
+      lastName: userRegistrationInfo.lastName,
+      username: userRegistrationInfo.username,
+      email: userRegistrationInfo.email,
+      password: userRegistrationInfo.password,
+      image: userRegistrationInfo.image,
       otp: data.otp,
     });
   };
@@ -175,7 +176,7 @@ const OTP = () => {
                       e.preventDefault();
                       resendOtp({
                         name: fullName,
-                        email: userRegistryInfo.email,
+                        email: userRegistrationInfo.email,
                       });
                     }}
                     className="text-white"

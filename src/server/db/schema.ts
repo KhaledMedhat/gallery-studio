@@ -15,6 +15,7 @@ import {
   type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
+import type { Follower, SocialMediaUrls, UserImage } from "~/types/types";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -153,20 +154,11 @@ export const users = createTable("user", {
     mode: "date",
     withTimezone: true,
   }).default(sql`CURRENT_TIMESTAMP`),
-  followers: json("followers")
-    .$type<{ followed: boolean; userId: string }[]>()
-    .default([]),
-  followings: json("followings")
-    .$type<{ followed: boolean; userId: string }[]>()
-    .default([]),
-  profileImage: json("profile_image").$type<{
-    imageUrl: string;
-    imageKey: string;
-  }>(),
-  coverImage: json("cover_image").$type<{
-    imageUrl: string;
-    imageKey: string;
-  }>(),
+  socialUrls: json("social_urls").$type<SocialMediaUrls[]>().default([]),
+  followers: json("followers").$type<Follower[]>().default([]),
+  followings: json("followings").$type<Follower[]>().default([]),
+  profileImage: json("profile_image").$type<UserImage>(),
+  coverImage: json("cover_image").$type<UserImage | null>(),
   createdAt: timestamp("created_at", { withTimezone: true }),
   updatedAt: timestamp("updated_at", { withTimezone: true }),
 });

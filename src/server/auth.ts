@@ -1,23 +1,15 @@
-import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { eq } from "drizzle-orm";
 import {
   getServerSession,
   type DefaultSession,
   type NextAuthOptions,
 } from "next-auth";
-import { type Adapter } from "next-auth/adapters";
 import GoogleProvider from "next-auth/providers/google";
-import TwitterProvider from "next-auth/providers/twitter";
 
 import { env } from "~/env";
 import { db } from "~/server/db";
-import {
-  accounts,
-  galleries,
-  sessions,
-  users,
-  verificationTokens,
-} from "~/server/db/schema";
+import { sessions, users } from "~/server/db/schema";
+import { customDrizzleAdapter } from "./db/CustomDrizzleAdapter";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -80,67 +72,20 @@ export const authOptions: NextAuthOptions = {
     signOut: async ({ session }) => {
       await db.delete(users).where(eq(users.id, session.user.id));
     },
-    signIn: async ({ user, account }) => {
-      if (account) {
-        await db
-          .update(users)
-          .set({ provider: account.provider })
-          .where(eq(users.id, user.id));
-      }
-    },
-    createUser: async ({ user }) => {
-      const username = user?.email
-        ? user.email.split("@")[0]
-        : `user_${crypto.randomUUID()}`;
-      const [firstName, lastName] = user?.name?.split(" ") ?? ["", ""];
-      await db
-        .update(users)
-        .set({
-          createdAt: new Date(),
-          name: username,
-          firstName,
-          lastName,
-          image: {imageUrl: user?.image ?? "", imageKey: ""},
-        })
-        .where(eq(users.id, user.id));
-      try {
-        const account = await db.query.accounts.findFirst({
-          where: eq(accounts.userId, user.id),
-        });
-        if (account) {
-          await db
-            .update(users)
-            .set({
-              provider: account.provider,
-            })
-            .where(eq(users.id, user.id));
-        }
-        await db.insert(galleries).values({
-          createdById: user.id ?? "",
-        });
-      } catch (e) {
-        throw new Error("Error creating gallery for this user", e as Error);
-      }
-    },
   },
 
-  adapter: DrizzleAdapter(db, {
-    usersTable: users,
-    accountsTable: accounts,
-    sessionsTable: sessions,
-    verificationTokensTable: verificationTokens,
-  }) as Adapter,
+  adapter: customDrizzleAdapter,
 
   providers: [
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
     }),
-    TwitterProvider({
-      clientId: env.TWITTER_CLIENT_ID,
-      clientSecret: env.TWITTER_CLIENT_SECRET,
-      version: "2.0",
-    }),
+    // TwitterProvider({
+    //   clientId: env.TWITTER_CLIENT_ID,
+    //   clientSecret: env.TWITTER_CLIENT_SECRET,
+    //   version: "2.0",
+    // }),
     /**
      * ...add more providers here.
      *

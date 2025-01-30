@@ -331,6 +331,9 @@ export const userRouter = createTRPCRouter({
         firstName: z.string().min(1).optional(),
         lastName: z.string().min(1).optional(),
         bio: z.string().optional(),
+        socialUrls: z
+          .array(z.object({ platformIcon: z.string(), url: z.string() }))
+          .optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -349,6 +352,7 @@ export const userRouter = createTRPCRouter({
           firstName: input.firstName,
           lastName: input.lastName,
           bio: input.bio,
+          socialUrls: input.socialUrls,
         })
         .where(eq(users.id, ctx.user?.id));
     }),
@@ -430,6 +434,36 @@ export const userRouter = createTRPCRouter({
         })
         .where(eq(users.id, foundedUser.id));
     }),
+    // mentionSearch: protectedProcedure
+    // .input(z.object({ search: z.string().trim() }))
+    // .mutation(async ({ ctx, input }) => {
+    //   const existedUserFollowings = ctx.user?.followings?.map((following) => following.userId) ?? [];
+    //   const foundedUsers = await ctx.db.query.users.findMany({
+    //     where: like(users.name, `${input.search}%`),
+    //     with: {
+    //       files: {
+    //         with: {
+    //           user: true,
+    //           commentsInfo: {
+    //             with: {
+    //               user: true,
+    //             },
+    //           },
+    //         },
+    //       },
+    //     },
+    //   });
+    //   const foundedTag = await ctx.db.query.tags.findMany({
+    //     where: like(tags.tagName, `%${input.search}%`),
+    //   });
+    //   if (!foundedUsers || !foundedTag) {
+    //     throw new TRPCError({
+    //       code: "NOT_FOUND",
+    //       message: "User not found",
+    //     });
+    //   }
+    //   return { foundedUsers, foundedTag };
+    // }),
 
   usersSearch: protectedProcedure
     .input(z.object({ search: z.string().trim() }))

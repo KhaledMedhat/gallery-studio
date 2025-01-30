@@ -5,7 +5,7 @@ import {
   generateClientDropzoneAccept,
   generatePermittedFileTypes,
 } from "uploadthing/client";
-import { useFileStore } from "~/store";
+import { useFileStore, useUserStore } from "~/store";
 import { useCallback } from "react";
 import { deleteFileOnServer } from "~/app/actions";
 import type { AddShowcaseType } from "~/types/types";
@@ -20,6 +20,7 @@ export const useUploader = (
   UpdateUserProfile?: (data: {
     image: { imageUrl: string; imageKey: string };
   }) => void,
+  sendingOTP?: (data: { name: string; email: string }) => void,
 ) => {
   const {
     setIsUploading,
@@ -30,6 +31,9 @@ export const useUploader = (
     formData,
     setShowcaseUrl,
   } = useFileStore();
+  const { userRegistrationInfo, setUserImage } = useUserStore();
+  const fullName =
+    userRegistrationInfo.firstName + " " + userRegistrationInfo.lastName;
   const { startUpload, routeConfig } = useUploadThing("imageUploader", {
     onClientUploadComplete: async (res) => {
       if (res[0]) {
@@ -40,6 +44,10 @@ export const useUploader = (
         setFileUrl(res[0]?.url);
         setFileKey(res[0]?.key);
         setFileType(res[0]?.type);
+        if (sendingOTP) {
+          setUserImage({ imageKey: res[0]?.key, imageUrl: res[0]?.url });
+          sendingOTP({ name: fullName, email: userRegistrationInfo.email });
+        }
         if (UpdateUserCoverImage) {
           UpdateUserCoverImage({
             coverImage: {

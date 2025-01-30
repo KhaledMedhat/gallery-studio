@@ -350,7 +350,7 @@ const GalleryNavbar: React.FC<{
                 <Link href={"/"}>Home</Link>
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
-                Settings
+              <Link href={`/${user?.name}/settings`}>Settings</Link>
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
                 Support
