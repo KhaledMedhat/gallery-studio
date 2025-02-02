@@ -62,7 +62,10 @@ const Comments: React.FC<{
         <div className="max-w-full">
           <div className="flex items-start justify-start gap-6">
             <div
-              className={`flex items-start gap-1 ${isReply ? "max-w-[60%] lg:max-w-[70%]" : "max-w-[80%] lg:max-w-[90%]"}`}
+               style={{
+                maxWidth: imageWidth ? `${imageWidth}px` : "auto",
+              }}
+              className="flex items-start gap-1"
             >
               <div className="relative">
                 <Avatar className="h-8 w-8">
@@ -85,11 +88,8 @@ const Comments: React.FC<{
                   />
                 )}
               </div>
-              <div className="flex min-w-0 flex-1 flex-col gap-1">
+              <div className="flex flex-1 flex-col gap-1">
                 <div
-                  style={{
-                    maxWidth: imageWidth ? `${imageWidth}px` : "auto",
-                  }}
                   className={`${theme.resolvedTheme === "dark" ? "bg-accent" : "bg-gray-200"} flex flex-col gap-1 rounded-md px-2 py-1`}
                 >
                   <div className="flex items-center gap-8 justify-between">
