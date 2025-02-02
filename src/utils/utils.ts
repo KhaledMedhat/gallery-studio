@@ -80,6 +80,11 @@ export function extractUsername(comment: string) {
   const match = regex.exec(comment);
   return match ? match[0] : null;
 }
+export function getMention(text: string) {
+  const regex = /@(\w+)$/;
+  const match = regex.exec(text);
+  return match ? match[1] : null;
+}
 
 export function extractUsernameWithoutAt(comment: string) {
   const regex = /\w+/;

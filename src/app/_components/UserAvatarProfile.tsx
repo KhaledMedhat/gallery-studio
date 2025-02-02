@@ -75,7 +75,7 @@ const UserProfile: React.FC<{
           </DropdownMenuItem>
           <DropdownMenuItem className="cursor-pointer">
             <Settings size={16} className="mr-2" />
-            <span>Settings</span>
+            <Link href={`/${user.name}/settings`}>Settings</Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

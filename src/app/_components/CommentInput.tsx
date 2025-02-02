@@ -23,7 +23,7 @@ import Picker from "@emoji-mart/react";
 import { useRouter } from "next/navigation";
 import { useFileStore } from "~/store";
 import { extractUsername } from "~/utils/utils";
-import { EmojiSelectEvent } from "~/types/types";
+import type { EmojiSelectEvent } from "~/types/types";
 
 const CommentInput: React.FC<{
   fileId?: string;
@@ -169,7 +169,7 @@ const CommentInput: React.FC<{
           disabled={
             form.getValues("comment").trim().length === 0 ||
             form.getValues("comment").trim() ===
-              extractUsername(replyData.content) ||
+            extractUsername(replyData.content) ||
             isPostingComment ||
             isUpdatingComment ||
             isPostingReply

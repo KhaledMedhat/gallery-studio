@@ -12,7 +12,7 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { randomBytes } from "crypto";
 import { db } from "~/server/db";
 import { TRPCError } from "@trpc/server";
-import { eq, like } from "drizzle-orm";
+import { and, eq, inArray, like } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { Send, SendResetPasswordLink } from "~/app/api/send/route";
 import { hashPassword, generateOTP } from "~/utils/utils";
@@ -399,6 +399,7 @@ export const userRouter = createTRPCRouter({
         })
         .where(eq(users.id, foundedUser.id));
     }),
+
   unfollowUser: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
@@ -434,36 +435,27 @@ export const userRouter = createTRPCRouter({
         })
         .where(eq(users.id, foundedUser.id));
     }),
-    // mentionSearch: protectedProcedure
-    // .input(z.object({ search: z.string().trim() }))
-    // .mutation(async ({ ctx, input }) => {
-    //   const existedUserFollowings = ctx.user?.followings?.map((following) => following.userId) ?? [];
-    //   const foundedUsers = await ctx.db.query.users.findMany({
-    //     where: like(users.name, `${input.search}%`),
-    //     with: {
-    //       files: {
-    //         with: {
-    //           user: true,
-    //           commentsInfo: {
-    //             with: {
-    //               user: true,
-    //             },
-    //           },
-    //         },
-    //       },
-    //     },
-    //   });
-    //   const foundedTag = await ctx.db.query.tags.findMany({
-    //     where: like(tags.tagName, `%${input.search}%`),
-    //   });
-    //   if (!foundedUsers || !foundedTag) {
-    //     throw new TRPCError({
-    //       code: "NOT_FOUND",
-    //       message: "User not found",
-    //     });
-    //   }
-    //   return { foundedUsers, foundedTag };
-    // }),
+    
+  getFollowingUsersInMentionSearch: protectedProcedure
+    .input(z.object({ search: z.string().trim() }))
+    .mutation(async ({ ctx, input }) => {
+      const existedUserFollowings =
+        ctx.user?.followings?.map((following) => following.userId) ?? [];
+      const foundedUsers = await ctx.db.query.users.findMany({
+        where: and(
+          inArray(users.id, existedUserFollowings),
+          like(users.name, `%${input.search}%`),
+        ),
+      });
+
+      if (!foundedUsers) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User not found",
+        });
+      }
+      return foundedUsers;
+    }),
 
   usersSearch: protectedProcedure
     .input(z.object({ search: z.string().trim() }))

@@ -64,9 +64,6 @@ const SearchBar = () => {
         <Card className="flex w-full flex-col rounded-md bg-background p-2">
           {isPending ? (
             <LoaderCircle size={25} className="m-auto animate-spin" />
-          ) : searchResult?.foundedUsers.length ||
-            searchResult?.foundedTag.length === 0 ? (
-            <div className="text-center">No artists found</div>
           ) : (
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-4">
@@ -83,39 +80,39 @@ const SearchBar = () => {
                 ))}
               </div>
               {filteredSearch === SearchType.Accounts
-                ? searchResult?.foundedUsers.map((user) => (
-                    <Link
-                      key={user.id}
-                      className="flex w-full items-center gap-2 self-start rounded-md p-2 hover:bg-accent"
-                      href={`/${user.name}`}
-                    >
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={user?.profileImage?.imageUrl ?? ""} />
-                        <AvatarFallback>
-                          {getInitials(
-                            user?.firstName ?? "",
-                            user?.lastName ?? "",
-                          )}
-                        </AvatarFallback>
-                      </Avatar>
-                      <p className="text-sm font-bold">{user?.name}</p>
-                    </Link>
-                  ))
-                : searchResult?.foundedTag.map((tag) => (
-                    <Link
-                      key={tag.id}
-                      className="flex w-full items-center gap-2 self-start rounded-md p-2 hover:bg-accent"
-                      href={`/search?q=${tag.tagName.slice(1)}`}
-                    >
-                      <div className="flex w-full items-center justify-between">
-                        <p className="text-sm font-bold">{tag?.tagName}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {tag?.tagUsedCount} {tag.tagUsedCount > 100 && "+"}{" "}
-                          {tag.tagUsedCount > 1 ? "showcases" : "showcase"}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
+                ? searchResult?.foundedUsers.length === 0 ? <div className="text-center">No artists found</div> : searchResult?.foundedUsers.map((user) => (
+                  <Link
+                    key={user.id}
+                    className="flex w-full items-center gap-2 self-start rounded-md p-2 hover:bg-accent"
+                    href={`/${user.name}`}
+                  >
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user?.profileImage?.imageUrl ?? ""} />
+                      <AvatarFallback>
+                        {getInitials(
+                          user?.firstName ?? "",
+                          user?.lastName ?? "",
+                        )}
+                      </AvatarFallback>
+                    </Avatar>
+                    <p className="text-sm font-bold">{user?.name}</p>
+                  </Link>
+                ))
+                : searchResult?.foundedTag.length === 0 ? <div className="text-center">No tags found</div> : searchResult?.foundedTag.map((tag) => (
+                  <Link
+                    key={tag.id}
+                    className="flex w-full items-center gap-2 self-start rounded-md p-2 hover:bg-accent"
+                    href={`/search?q=${tag.tagName.slice(1)}`}
+                  >
+                    <div className="flex w-full items-center justify-between">
+                      <p className="text-sm font-bold">{tag?.tagName}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {tag?.tagUsedCount} {tag.tagUsedCount > 100 && "+"}{" "}
+                        {tag.tagUsedCount > 1 ? "showcases" : "showcase"}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
             </div>
           )}
         </Card>

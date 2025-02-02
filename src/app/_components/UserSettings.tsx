@@ -10,10 +10,15 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "~/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select"
 import { Separator } from "~/components/ui/separator"
-import { Textarea } from "~/components/ui/textarea"
 import { toast } from "~/hooks/use-toast"
 import { api } from "~/trpc/react"
 import type { User } from "~/types/types"
+import MentionSearchResult from "./MentionSearchResult"
+import { getMention } from "~/utils/utils"
+import { Label } from "~/components/ui/label"
+import { MentionsInput, Mention, SuggestionDataItem } from 'react-mentions'
+import * as React from "react"
+import classes from '../../styles/react-mentions.module.css'
 
 enum SettingTabs {
     Profile,
@@ -28,23 +33,28 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
     ]
     const router = useRouter()
     const [activeTab, setActiveTab] = useState<SettingTabs>(SettingTabs.Profile)
+    const [contentEditableValue, setContentEditableValue] = useState<string>(currentUser?.bio ?? "")
     const formSchema = z.object({
         username: z.string().optional(),
-        bio: z.string().optional(),
+        firstName: z.string().optional(),
+        lastName: z.string().optional(),
+        dateOfBirth: z.string().optional(),
         urls: z.array(z.object({
             platformIcon: z.string(),
             url: z.string().url(),
         })).optional(),
     });
-
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             username: currentUser?.name,
-            bio: currentUser?.bio ?? "",
             urls: currentUser?.socialUrls ?? [{ url: "", platformIcon: "" }],
         },
     });
+
+
+    const { mutate: mentionFollowingsSearch, data: followings, isPending: isMentionSearchPending } = api.user.getFollowingUsersInMentionSearch.useMutation()
+
     const { fields, append, remove } = useFieldArray({
         name: "urls",
         control: form.control,
@@ -69,7 +79,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
         console.log(data);
         updateUserSettings({
             username: data.username,
-            bio: data.bio,
+            bio: contentEditableValue,
             socialUrls: data.urls,
         })
     };
@@ -96,6 +106,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
         { value: "Twitter", label: "Twitter", icon: Twitter },
         { value: "Instagram", label: "Instagram", icon: Instagram },
     ]
+    console.log(contentEditableValue)
     const renderTabContent = () => {
         return (
             <Form {...form}>
@@ -122,24 +133,50 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                                     </FormItem>
                                 )}
                             />
-                            <FormField
-                                control={form.control}
-                                name="bio"
-                                render={({ field }) => (
-                                    <FormItem className="space-y-1">
-                                        <FormLabel>Bio</FormLabel>
-                                        <FormControl>
-                                            <Textarea
-                                                className="resize-none"
-                                                placeholder="Update your bio"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormDescription>You can @mention other users and organizations to link to them.</FormDescription>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            <div className="flex flex-col gap-1">
+                                <div className="flex flex-col gap-3">
+                                    <Label htmlFor="bio">Bio</Label>
+                                    <MentionsInput
+                                        placeholder="Update your bio."
+                                        className={`flex ${classes.react_mention} p-1 min-h-[80px] w-full rounded-md border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50`}
+                                        customSuggestionsContainer={(children: React.ReactNode) => {
+                                            return (
+                                                <div className="w-full h-full bg-background">
+                                                    {children}
+                                                </div>
+                                            )
+                                        }}
+                                        value={contentEditableValue} onChange={(event: { target: { value: string } }) => setContentEditableValue(event.target.value)}>
+                                        <Mention
+                                            className="bg-blue-500"
+                                            markup='[__display__]'
+                                            trigger="@"
+                                            data={(query, callback: (data: SuggestionDataItem[]) => void) => {
+                                                const mentionUser = getMention(contentEditableValue);
+                                                mentionFollowingsSearch({ search: mentionUser?.trim() ?? "" });
+                                                callback(followings?.map((following) => ({ display: `@${following.name}`, id: following.id })) ?? [])
+                                            }}
+                                            appendSpaceOnAdd={true}
+                                            renderSuggestion={() =>
+                                            (
+                                                <MentionSearchResult isMentionSearchPending={isMentionSearchPending} followings={followings} />
+                                            )
+
+                                            }
+
+
+                                        />
+                                        {/* <Mention
+                                            trigger="#"
+                                            data={this.requestTag}
+                                            renderSuggestion={this.renderTagSuggestion}
+                                        /> */}
+                                    </MentionsInput>
+                                </div>
+                                <p className="text-sm text-muted-foreground">You can @mention other users and organizations to link to them.</p>
+
+                            </div>
+
                             <FormField
                                 control={form.control}
                                 name="urls"
@@ -221,7 +258,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                         {activeTab === SettingTabs.Notifications && "Notifications"}
                     </Button>
                 </form>
-            </Form>
+            </Form >
         )
     }
     return (
@@ -233,15 +270,15 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                 </p>
             </div>
             <Separator />
-            <div className="flex w-full">
+            <div className="flex w-full gap-4">
                 <div className="flex flex-col items-start w-1/4">
                     {tabs.map((tab) => (
-                        <Button className="w-full justify-start" variant={tab.value === activeTab ? "ghost" : "link"} key={tab.value} onClick={() => setActiveTab(tab.value)}>
+                        <Button className="w-full p-0 justify-start" variant={tab.value === activeTab ? "ghost" : "link"} key={tab.value} onClick={() => setActiveTab(tab.value)}>
                             {tab.label}
                         </Button>
                     ))}
                 </div>
-                <div className="flex flex-col gap-6 w-1/2">
+                <div className="flex flex-col gap-6 w-full md:w-1/2">
                     {renderTabHeader()}
                     <Separator />
                     {renderTabContent()}
