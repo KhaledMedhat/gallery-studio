@@ -12,13 +12,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~
 import { Separator } from "~/components/ui/separator"
 import { toast } from "~/hooks/use-toast"
 import { api } from "~/trpc/react"
-import type { User } from "~/types/types"
-import MentionSearchResult from "./MentionSearchResult"
-import { getMention } from "~/utils/utils"
+import { ElementType, MentionType, type User } from "~/types/types"
 import { Label } from "~/components/ui/label"
-import { MentionsInput, Mention, SuggestionDataItem } from 'react-mentions'
 import * as React from "react"
-import classes from '../../styles/react-mentions.module.css'
+import MentionInput from "./MentionInput"
 
 enum SettingTabs {
     Profile,
@@ -33,7 +30,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
     ]
     const router = useRouter()
     const [activeTab, setActiveTab] = useState<SettingTabs>(SettingTabs.Profile)
-    const [contentEditableValue, setContentEditableValue] = useState<string>(currentUser?.bio ?? "")
+    const [mentionInputValue, setMentionInputValue] = useState<string>(currentUser?.bio ?? "")
     const formSchema = z.object({
         username: z.string().optional(),
         firstName: z.string().optional(),
@@ -53,7 +50,6 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
     });
 
 
-    const { mutate: mentionFollowingsSearch, data: followings, isPending: isMentionSearchPending } = api.user.getFollowingUsersInMentionSearch.useMutation()
 
     const { fields, append, remove } = useFieldArray({
         name: "urls",
@@ -76,10 +72,9 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
         },
     });
     const onSubmit = async (data: z.infer<typeof formSchema>) => {
-        console.log(data);
         updateUserSettings({
             username: data.username,
-            bio: contentEditableValue,
+            bio: mentionInputValue,
             socialUrls: data.urls,
         })
     };
@@ -106,7 +101,6 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
         { value: "Twitter", label: "Twitter", icon: Twitter },
         { value: "Instagram", label: "Instagram", icon: Instagram },
     ]
-    console.log(contentEditableValue)
     const renderTabContent = () => {
         return (
             <Form {...form}>
@@ -136,42 +130,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                             <div className="flex flex-col gap-1">
                                 <div className="flex flex-col gap-3">
                                     <Label htmlFor="bio">Bio</Label>
-                                    <MentionsInput
-                                        placeholder="Update your bio."
-                                        className={`flex ${classes.react_mention} p-1 min-h-[80px] w-full rounded-md border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50`}
-                                        customSuggestionsContainer={(children: React.ReactNode) => {
-                                            return (
-                                                <div className="w-full h-full bg-background">
-                                                    {children}
-                                                </div>
-                                            )
-                                        }}
-                                        value={contentEditableValue} onChange={(event: { target: { value: string } }) => setContentEditableValue(event.target.value)}>
-                                        <Mention
-                                            className="bg-blue-500"
-                                            markup='[__display__]'
-                                            trigger="@"
-                                            data={(query, callback: (data: SuggestionDataItem[]) => void) => {
-                                                const mentionUser = getMention(contentEditableValue);
-                                                mentionFollowingsSearch({ search: mentionUser?.trim() ?? "" });
-                                                callback(followings?.map((following) => ({ display: `@${following.name}`, id: following.id })) ?? [])
-                                            }}
-                                            appendSpaceOnAdd={true}
-                                            renderSuggestion={() =>
-                                            (
-                                                <MentionSearchResult isMentionSearchPending={isMentionSearchPending} followings={followings} />
-                                            )
-
-                                            }
-
-
-                                        />
-                                        {/* <Mention
-                                            trigger="#"
-                                            data={this.requestTag}
-                                            renderSuggestion={this.renderTagSuggestion}
-                                        /> */}
-                                    </MentionsInput>
+                                    <MentionInput mentionType={MentionType.FOLLOWINGS} inputType={ElementType.TEXTAREA} mentionInputValue={mentionInputValue} setMentionInputValue={setMentionInputValue} />
                                 </div>
                                 <p className="text-sm text-muted-foreground">You can @mention other users and organizations to link to them.</p>
 

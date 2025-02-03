@@ -12,6 +12,16 @@ export enum DrawerEnum {
   ADD_FEEDBACK,
   UPDATE_COMMENT,
 }
+
+export enum MentionType {
+  FOLLOWINGS,
+  TAGS,
+}
+
+export enum ElementType {
+  INPUT,
+  TEXTAREA,
+}
 export interface SocialMediaUrls {
   url: string;
   platformIcon: string;
