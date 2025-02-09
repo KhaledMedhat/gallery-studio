@@ -31,6 +31,7 @@ export default function RootLayout({
             <RouteChangeHandler />
             <TRPCReactProvider>{children}</TRPCReactProvider>
             <Toaster />
+
           </ThemeProvider>
         </AuthProvider>
       </body>

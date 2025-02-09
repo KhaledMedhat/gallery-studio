@@ -3,40 +3,67 @@ import { Mention, MentionsInput, type SuggestionDataItem } from "react-mentions"
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import { Button } from "~/components/ui/button"
 import { Card } from "~/components/ui/card"
-import { getInitials, getMention } from "~/utils/utils"
+import { extractUsername, getInitials, getMention } from "~/utils/utils"
 import classes from '../../styles/react-mentions.module.css'
 import { api } from "~/trpc/react"
 import { ElementType, MentionType } from "~/types/types"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import type { EmojiSelectEvent } from "~/types/types";
 import { useFileStore } from "~/store"
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover"
 import { useTheme } from "next-themes"
-import { Input } from "~/components/ui/input"
+import { useEffect, useRef, useState } from "react"
+import * as React from "react"
 
+interface inputContent {
+    isReplying: boolean;
+    commentId?: string;
+    content: string
+}
 const MentionInput: React.FC<{
     mentionType: MentionType;
     inputType: ElementType;
-    mentionInputValue: string;
+    mentionInputValue?: string;
     fileId?: string;
     commentId?: string;
     originalComment?: string;
     setOpen?: (open: boolean) => void;
-    setOpenDropDown?: (open: boolean) => void;
-    setMentionInputValue: (value: string) => void
-}> = ({ mentionType, inputType, mentionInputValue, setMentionInputValue, fileId, commentId, originalComment, setOpen, setOpenDropDown }) => {
+    // setOpenDropDown?: (open: boolean) => void;
+    setMentionInputValue?: (value: string) => void
+}> = ({ mentionType, inputType, mentionInputValue, setMentionInputValue, fileId, commentId, originalComment, setOpen }) => {
     const { replyData, setReplyData } = useFileStore();
+    const param = useParams()
+    const [popoverModality, setPopoverModality] = useState<boolean>(false)
+    const [commentMentionInputValue, setCommentMentionInputValue] = useState<inputContent>({ isReplying: false, commentId: commentId ? commentId : "", content: commentId && originalComment ? originalComment : "" })
+    useEffect(() => {
+        // if (commentId && originalComment) {
+        //     setCommentMentionInputValue({ isReplying: false, content: originalComment })
+        // }
+        if (replyData.isReplying && commentMentionInputValue?.content.trim().length === 0) {
+            setReplyData({
+                isReplying: false,
+                commentId: "",
+                content: "",
+            });
+        }
+        if (replyData.isReplying) {
+            setCommentMentionInputValue({ isReplying: true, commentId: replyData.commentId, content: replyData.content })
+        }
+
+    }, [commentId, commentMentionInputValue, originalComment, replyData.commentId, replyData.content, replyData.isReplying, setReplyData])
+    const [isFocused, setIsFocused] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
     const { resolvedTheme } = useTheme();
     const router = useRouter();
     const utils = api.useUtils();
     const { mutate: updateComment, isPending: isUpdatingComment } =
         api.comment.updateComment.useMutation({
             onSuccess: () => {
-                if (setOpen && setOpenDropDown) {
+                if (setOpen) {
                     setOpen(false);
-                    setOpenDropDown(false);
+                    // setOpenDropDown(false);
                 }
                 void utils.file.getFileById.invalidate();
                 void utils.file.getShowcaseFiles.invalidate();
@@ -49,16 +76,35 @@ const MentionInput: React.FC<{
                 void utils.file.getFileById.invalidate();
                 void utils.file.getShowcaseFiles.invalidate();
                 router.refresh();
-                // form.reset();
+                setCommentMentionInputValue({ isReplying: false, content: "" })
             },
         });
+    const handleClickOutside = (event: MouseEvent) => {
+        if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+            setIsFocused(false);
+        }
+    };
+
+    useEffect(() => {
+        if (param.fileId) {
+            setPopoverModality(true)
+        } else {
+            setPopoverModality(false)
+        }
+    }, [param.fileId])
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
     const { mutate: postReply, isPending: isPostingReply } =
         api.comment.postReply.useMutation({
             onSuccess: () => {
                 void utils.file.getFileById.invalidate();
                 void utils.file.getShowcaseFiles.invalidate();
                 router.refresh();
-                // form.reset();
+                setCommentMentionInputValue({ isReplying: false, commentId: "", content: "" })
                 setReplyData({
                     isReplying: false,
                     commentId: "",
@@ -66,28 +112,49 @@ const MentionInput: React.FC<{
                 });
             },
         });
+
     const onEmojiSelect = (emoji: EmojiSelectEvent) => {
-        console.log(emoji);
-        // const currentComment = form.getValues("comment");
-        // form.setValue("comment", currentComment + emoji.native);
-        // setReplyData({
-        //     ...replyData,
-        //     content: currentComment + emoji.native,
-        // });
+        const currentValue = mentionInputValue ?? commentMentionInputValue.content;
+        if (setMentionInputValue) {
+            setMentionInputValue(currentValue + emoji.native)
+        } else if (commentMentionInputValue.isReplying) {
+            setCommentMentionInputValue({ isReplying: true, commentId: commentMentionInputValue.commentId, content: currentValue + emoji.native });
+        } else {
+            setCommentMentionInputValue({ isReplying: false, content: currentValue + emoji.native });
+        }
     };
-
-    // investigate the mention input elements classes in inspect 
     const { mutate: mentionFollowingsSearch, data: mentionResult, isPending: isMentionSearchPending } = api.user.getFollowingUsersInMentionSearch.useMutation()
-    const weirdContainer = document.querySelector(".flex__control")
-    const weirdInputContainer = document.querySelector(".flex__input")
-    weirdContainer?.setAttribute("style", "width: 80%; focus-visible: none;")
-    weirdInputContainer?.setAttribute("style", "width: 100%; maxWidth:100%; resize: none; height: 100%; padding: 0.25rem 0.25rem; border: none; position: absolute; inset: 0;")
+    if (typeof document !== 'undefined') {
+        const mentionInputControl = document.querySelector(".flex__control")
+        const mentionInputInput = document.querySelector(".flex__input")
+        const mentionInputHighlighter = document.querySelector(".flex__highlighter")
+        mentionInputControl?.setAttribute("style", "max-width: 100%; outline: none;")
+        mentionInputInput?.setAttribute("style", "max-width: 90%; resize: none; height: 100%; padding: 0.25rem 0.25rem; border: none; position: absolute; inset: 0; outline: none;")
+        mentionInputHighlighter?.setAttribute("style", "width: 100%; position:relative; color:transparent;overflow:hidden; overflow-wrap: pre-wrap; word-wrap: break-word; text-align: start; outline: none;")
+    }
+    const handleInputSubmit = () => {
+        if (originalComment === commentMentionInputValue.content) {
+            return;
+        }
+        if (commentMentionInputValue.isReplying) {
+            postReply({ id: commentMentionInputValue.commentId ?? "", content: commentMentionInputValue.content });
+        } else if (commentId && originalComment) {
+            updateComment({ id: commentId, content: commentMentionInputValue.content });
+        } else {
+            postComment({ id: fileId ?? "", content: commentMentionInputValue.content });
+        }
 
+
+    }
     return (
-        <div className=" flex items-center w-full justify-between rounded-md border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+        <div
+            ref={containerRef}
+            className={`flex items-center max-w-full justify-between ${inputType === ElementType.TEXTAREA && 'rounded-md border border-input'}  bg-background text-sm ${isFocused && inputType === ElementType.TEXTAREA ? 'ring-offset-background outline-none ring-2 ring-ring ring-offset-2 ' : ''}`} // Add outline class conditionally
+            onClick={() => setIsFocused(true)}
+        >
             <MentionsInput
-                placeholder="Update your bio."
-                className={`flex ${classes.react_mention} p-1 ${inputType === ElementType.INPUT ? "h-10" : "min-h-[80px]"} w-full `}
+                placeholder={inputType === ElementType.INPUT ? "Write a comment ..." : "Update your bio."}
+                className={`${classes.react_mention} p-1 ${inputType === ElementType.INPUT ? "h-fit outline-none" : "min-h-[80px]"} w-full `}
                 customSuggestionsContainer={(children: React.ReactNode) => {
                     return (
                         <div className="w-full h-full bg-background">
@@ -96,18 +163,31 @@ const MentionInput: React.FC<{
                     )
                 }}
                 singleLine={inputType === ElementType.INPUT ? true : false}
-                value={mentionInputValue}
-                onChange={(event: { target: { value: string } }) => setMentionInputValue(event.target.value)}
-                >
-                
+                value={mentionInputValue ?? commentMentionInputValue.content}
+                onChange={(event: { target: { value: string } }) => {
+                    if (setMentionInputValue) {
+                        setMentionInputValue(event.target.value)
+                    } else if (commentMentionInputValue.isReplying) {
+                        setCommentMentionInputValue({ isReplying: true, commentId: commentMentionInputValue.commentId, content: event.target.value })
+                    } else {
+                        setCommentMentionInputValue({ isReplying: false, commentId: "", content: event.target.value })
+
+                    }
+
+                }}
+            >
+
                 <Mention
                     className="bg-blue-500"
                     markup='[__display__]'
                     trigger={mentionType === MentionType.FOLLOWINGS ? "@" : "#"}
                     data={(query, callback: (data: SuggestionDataItem[]) => void) => {
-                        const mentionUser = getMention(mentionInputValue);
-                        mentionFollowingsSearch({ search: mentionUser?.trim() ?? "" });
-                        callback(mentionResult?.map((result) => ({ display: `@${result.name}`, id: result.id })) ?? [])
+                        if (mentionInputValue || commentMentionInputValue) {
+                            const mentionUser = getMention(mentionInputValue ?? commentMentionInputValue.content);
+                            mentionFollowingsSearch({ search: mentionUser?.trim() ?? "" });
+                            callback(mentionResult?.map((result) => ({ display: `@${result.name}`, id: result.id })) ?? [])
+                        }
+
                     }}
                     appendSpaceOnAdd={true}
                     renderSuggestion={() =>
@@ -139,43 +219,43 @@ const MentionInput: React.FC<{
                     }
 
                 />
-                {/* <Mention
-                trigger="#"
-                data={this.requestTag}
-                renderSuggestion={this.renderTagSuggestion}
-            /> */}
 
             </MentionsInput>
-         <div className="flex items-center">
-         <Popover>
-                <PopoverTrigger className="hidden xl:block">
-                    <Smile size={20} />
-                </PopoverTrigger>
-                <PopoverContent className="w-fit">
-                    <Picker
-                        data={data}
-                        onEmojiSelect={onEmojiSelect}
-                        theme={resolvedTheme}
-                        previewPosition="none"
-                        skinTonePosition="none"
-                    />
-                </PopoverContent>
-            </Popover>
-            <Button
-                className="hover:bg-none"
-                variant="ghost"
-            // disabled={
-            //     form.getValues("comment").trim().length === 0 ||
-            //     form.getValues("comment").trim() ===
-            //     extractUsername(replyData.content) ||
-            //     isPostingComment ||
-            //     isUpdatingComment ||
-            //     isPostingReply
-            // }
-            >
-                <SendHorizontal size={20} />
-            </Button>
-         </div>
+            <div className="flex items-center">
+                <Popover modal={popoverModality}>
+                    <PopoverTrigger asChild className="hidden xl:block">
+                        <Button
+                            variant="ghost"
+                            onClick={(e) => e.stopPropagation()}>
+                            <Smile size={20} />
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                        onPointerDownOutside={() => {
+                            setPopoverModality(false)
+                        }}
+                        className="w-fit">
+                        <Picker
+                            data={data}
+                            onEmojiSelect={onEmojiSelect}
+                            theme={resolvedTheme}
+                            previewPosition="none"
+                            skinTonePosition="none"
+                        />
+                    </PopoverContent>
+                </Popover>
+                {ElementType.INPUT === inputType && <Button
+                    className="hover:bg-none"
+                    variant="ghost"
+                    onClick={handleInputSubmit}
+                    disabled={commentMentionInputValue.content?.trim().length === 0 || commentMentionInputValue.content?.trim() ===
+                        extractUsername(replyData.content) || isPostingComment ||
+                        isUpdatingComment ||
+                        isPostingReply}
+                >
+                    <SendHorizontal size={20} />
+                </Button>}
+            </div>
         </div>
 
     )

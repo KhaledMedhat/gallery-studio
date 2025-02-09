@@ -2,19 +2,20 @@ import dayjs from "dayjs";
 import { Earth, LockKeyhole, MessageCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Card, CardContent } from "~/components/ui/card";
-import type { User, Showcase } from "~/types/types";
+import { type User, type Showcase, MentionType, ElementType } from "~/types/types";
 import { calculateClosestAspectRatio, formatNumber, getInitials } from "~/utils/utils";
 import Video from "./Video";
 import { Button } from "~/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
-import CommentInput from "./CommentInput";
 import relativeTime from "dayjs/plugin/relativeTime";
 import LikeButton from "./LikeButton";
 import Comments from "./Comments";
 import FileOptions from "./FileOptions";
 import SharedHoverCard from "./SharedHoverCard";
 import { useEffect, useState } from "react";
+import MentionInput from "./MentionInput";
+import * as React from "react";
 
 dayjs.extend(relativeTime);
 
@@ -95,7 +96,7 @@ const Showcase: React.FC<{
         {file?.filePrivacy === "public" && (
           <Card className="sticky bottom-4 w-full">
             <CardContent className="p-2">
-              <CommentInput fileId={file?.id} />
+              <MentionInput fileId={file.id} mentionType={MentionType.FOLLOWINGS} inputType={ElementType.INPUT} />
             </CardContent>
           </Card>
         )}
@@ -113,7 +114,7 @@ const Showcase: React.FC<{
                 showcaseComments={file?.comments ?? []}
               />
             )}
-            <CommentInput fileId={file?.id} />
+            <MentionInput fileId={file.id} mentionType={MentionType.FOLLOWINGS} inputType={ElementType.INPUT} />
           </div>
         </div>
       )

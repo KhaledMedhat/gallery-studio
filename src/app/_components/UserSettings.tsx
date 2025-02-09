@@ -39,13 +39,14 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
         urls: z.array(z.object({
             platformIcon: z.string(),
             url: z.string().url(),
+            isNew: z.boolean().optional(),
         })).optional(),
     });
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             username: currentUser?.name,
-            urls: currentUser?.socialUrls ?? [{ url: "", platformIcon: "" }],
+            urls: currentUser?.socialUrls ?? [{ url: "", platformIcon: "", isNew: false }],
         },
     });
 
@@ -55,7 +56,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
         name: "urls",
         control: form.control,
     })
-    const { mutate: updateUserSettings } = api.user.updateUserProfile.useMutation({
+    const { mutate: updateUserSettings, isPending: isUpdatingUserSettingsPending } = api.user.updateUserProfile.useMutation({
         onSuccess: () => {
             router.refresh();
             toast({
@@ -87,7 +88,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                     {activeTab === SettingTabs.Account && "Account"}
                     {activeTab === SettingTabs.Notifications && "Notifications"}
                 </h2>
-                <p className="text-center text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                     {activeTab === SettingTabs.Profile && "This is how others will see you on the site."}
                     {activeTab === SettingTabs.Account && "Update your account settings. Set your preferred language and timezone."}
                     {activeTab === SettingTabs.Notifications && "Configure how you receive notifications."}
@@ -95,6 +96,14 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                 </p>
             </div>
         )
+    }
+    //fix the issue later
+    const urlRemoval = (index: number) => {
+        if (isUpdatingUserSettingsPending) {
+            return
+        } else {
+            remove(index)
+        }
     }
     const socialMediaOptions = [
         { value: "Facebook", label: "Facebook", icon: Facebook },
@@ -106,9 +115,9 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
             <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="h-fit space-y-8"
+                    className="h-fit space-y-8 "
                 >
-                    <div className="flex flex-col gap-6 ">
+                    <div className="flex flex-col gap-6">
                         {activeTab === SettingTabs.Profile && <>
                             <FormField
                                 control={form.control}
@@ -145,7 +154,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                                         <FormDescription>Add links to your website, blog, or social media profiles.</FormDescription>
                                         <div className="space-y-4">
                                             {fields.map((field, index) => (
-                                                <div key={field.id} className="flex items-end space-x-2">
+                                                <div key={field.id} className="flex gap-2">
                                                     <FormField
                                                         control={form.control}
                                                         name={`urls.${index}.platformIcon`}
@@ -154,15 +163,15 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                                                                 <FormLabel className="sr-only">Social Media Platform</FormLabel>
                                                                 <Select onValueChange={field.onChange} value={field.value}>
                                                                     <FormControl>
-                                                                        <SelectTrigger className="w-[140px]">
+                                                                        <SelectTrigger className="w-[130px]">
                                                                             <SelectValue placeholder="Select platform" />
                                                                         </SelectTrigger>
                                                                     </FormControl>
                                                                     <SelectContent>
                                                                         {socialMediaOptions.map((option) => (
                                                                             <SelectItem key={option.value} value={option.value}>
-                                                                                <div className="flex items-center">
-                                                                                    <option.icon className="mr-2 h-4 w-4" />
+                                                                                <div className="flex gap-1 items-center">
+                                                                                    <option.icon className="h-4 w-4" />
                                                                                     {option.label}
                                                                                 </div>
                                                                             </SelectItem>
@@ -177,7 +186,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                                                         control={form.control}
                                                         name={`urls.${index}.url`}
                                                         render={({ field }) => (
-                                                            <FormItem className="flex-grow">
+                                                            <FormItem className="flex-grow md:relative">
                                                                 <FormLabel className="sr-only">URL</FormLabel>
                                                                 <FormControl>
                                                                     <Input placeholder="https://example.com" {...field} />
@@ -190,7 +199,19 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                                                         type="button"
                                                         variant="outline"
                                                         size="icon"
-                                                        onClick={() => remove(index)}
+                                                        className="mt-2"
+                                                        onClick={() => {
+                                                            if (field.isNew) {
+                                                                urlRemoval(index)
+                                                            } else {
+                                                                const urls = form.getValues('urls')
+                                                                const updatedUrls = urls?.map(({ isNew, ...rest }) => rest);
+                                                                updateUserSettings({
+                                                                    socialUrls: updatedUrls,
+                                                                });
+                                                                urlRemoval(index)
+                                                            }
+                                                        }}
                                                     >
                                                         <Trash2 className="h-4 w-4" />
                                                     </Button>
@@ -200,12 +221,11 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                                                 type="button"
                                                 variant="outline"
                                                 className="h-fit text-xs"
-                                                onClick={() => append({ platformIcon: "", url: "" })}
+                                                onClick={() => append({ platformIcon: "", url: "", isNew: true })}
                                             >
                                                 Add URL
                                             </Button>
                                         </div>
-                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
@@ -229,10 +249,10 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                 </p>
             </div>
             <Separator />
-            <div className="flex w-full gap-4">
-                <div className="flex flex-col items-start w-1/4">
+            <div className="flex w-full flex-col md:flex-row items-center md:items-start gap-4">
+                <div className="flex flex-row md:flex-col items-start w-full md:w-1/4">
                     {tabs.map((tab) => (
-                        <Button className="w-full p-0 justify-start" variant={tab.value === activeTab ? "ghost" : "link"} key={tab.value} onClick={() => setActiveTab(tab.value)}>
+                        <Button className="w-full p-0 justify-center md:justify-start" variant={tab.value === activeTab ? "ghost" : "link"} key={tab.value} onClick={() => setActiveTab(tab.value)}>
                             {tab.label}
                         </Button>
                     ))}

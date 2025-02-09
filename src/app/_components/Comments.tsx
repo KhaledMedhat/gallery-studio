@@ -32,6 +32,8 @@ import {
 import { api } from "~/trpc/react";
 import SharedHoverCard from "./SharedHoverCard";
 import CustomDrawer from "./CustomDrawer";
+import FileOptions from "./FileOptions";
+import CommentOptions from "./CommentOptions";
 
 dayjs.extend(relativeTime);
 
@@ -44,14 +46,7 @@ const Comments: React.FC<{
 }> = ({ showcaseComments, currentUser, imageWidth, file, isFullView }) => {
   const { setReplyData } = useFileStore();
   const [openDropDown, setOpenDropDown] = useState<boolean>(false);
-  const utils = api.useUtils();
-  const { mutate: deleteComment, isPending: isDeletingComment } =
-    api.comment.deleteComment.useMutation({
-      onSuccess: () => {
-        void utils.file.getFileById.invalidate();
-        void utils.file.getShowcaseFiles.invalidate();
-      },
-    });
+
   const theme = useTheme();
   const renderComments = (comments: Comment[], isReply = false) => {
     return comments.map((comment) => (
@@ -95,50 +90,7 @@ const Comments: React.FC<{
                   <div className="flex items-center gap-8 justify-between">
                     <SharedHoverCard comment={comment} />
                     {currentUser?.id === comment.user?.id && (
-                      <DropdownMenu
-                        modal={false}
-                        open={openDropDown}
-                        onOpenChange={setOpenDropDown}
-                      >
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="h-fit p-0 hover:bg-transparent"
-                          >
-                            <Ellipsis size={30} />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-fit">
-                          <DropdownMenuGroup>
-                            <DropdownMenuItem
-                              asChild
-                              className="p-0 hover:outline-none"
-                            >
-                              <CustomDrawer
-                                drawerAppearance={DrawerEnum.UPDATE_COMMENT}
-                                btnTitle={"Edit"}
-                                drawerTitle={"Update comment"}
-                                drawerDescription={"Update your comment."}
-                                originalComment={comment.content}
-                                commentId={comment.id}
-                                setOpenDropDown={setOpenDropDown}
-                              />
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="cursor-pointer p-0 text-destructive hover:bg-transparent hover:outline-none">
-                              <Button
-                                onClick={() =>
-                                  deleteComment({ id: comment.id })
-                                }
-                                variant="ghost"
-                                className="w-full hover:text-[#d33939]"
-                                disabled={isDeletingComment}
-                              >
-                                Delete
-                              </Button>
-                            </DropdownMenuItem>
-                          </DropdownMenuGroup>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <CommentOptions commentContent={comment.content} commentId={comment.id} />
                     )}
                   </div>
 
