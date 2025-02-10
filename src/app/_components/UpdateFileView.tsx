@@ -1,6 +1,6 @@
 "use client";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
-import type { fileType } from "~/types/types";
+import type { fileType, Showcase } from "~/types/types";
 import Video from "./Video";
 import Image from "next/image";
 import { Input } from "~/components/ui/input";
@@ -19,7 +19,6 @@ import {
 import { Textarea } from "~/components/ui/textarea";
 import { api } from "~/trpc/react";
 import { toast } from "~/hooks/use-toast";
-import { useRouter } from "next/navigation";
 import {
   Select,
   SelectContent,
@@ -32,16 +31,15 @@ import { useState } from "react";
 import { typeOfFile } from "~/utils/utils";
 
 const UpdateFileView: React.FC<{
-  file: fileType;
+  file: fileType | Showcase;
   username?: string | null | undefined;
-  imageWanted: boolean;
-}> = ({ file, username, imageWanted }) => {
+  setIsUpdating: (isUpdating: boolean) => void;
+}> = ({ file, username, setIsUpdating }) => {
   const [privacy, setPrivacy] = useState<"public" | "private" | null>(
     file.filePrivacy,
   );
-  const { setIsUpdating, setIsUpdatingPending } = useFileStore();
+  const { setIsUpdatingPending } = useFileStore();
   const utils = api.useUtils();
-  const router = useRouter();
   const formSchema = z.object({
     caption: z.string().min(1, { message: "Caption cannot be empty" }),
     tags: z
@@ -100,7 +98,7 @@ const UpdateFileView: React.FC<{
         });
         void utils.file.getFileById.invalidate({ id: file.id });
         void utils.file.getFiles.invalidate();
-        if (!imageWanted) router.refresh();
+        void utils.file.getShowcaseFiles.invalidate();
       },
       onError: () => {
         toast({
@@ -116,13 +114,14 @@ const UpdateFileView: React.FC<{
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     const initialTags = file.tags?.toString().split(",").join(" ");
-    const isChanged =
-      data.caption !== (file.caption ?? "") || data.tags !== initialTags;
-    if (!isChanged && !privacy) {
+    const isDataNotChanged =
+      data.caption === (file.caption ?? "") && data.tags === initialTags && privacy === file.filePrivacy;
+    if (isDataNotChanged) {
       setIsUpdating(false);
       toast({
         description: `No changes made.`,
       });
+
     } else {
       const tags = data.tags
         ?.split(" ") // convert string to array as api expects
@@ -137,9 +136,10 @@ const UpdateFileView: React.FC<{
         });
       }
     }
+
   };
   return (
-    <section className="flex flex-col gap-4">
+    <section className="flex flex-col gap-4 w-full">
       <div className="flex flex-col gap-4">
         <Form {...form}>
           <form
@@ -186,25 +186,25 @@ const UpdateFileView: React.FC<{
           </form>
         </Form>
       </div>
-      {imageWanted && (
-        <div className="relative mx-auto flex w-full max-w-full flex-col gap-4">
-          {typeOfFile(file.fileType) === "Video" ? (
-            <Video url={file.url} className="rounded-lg" />
-          ) : (
-            <div className="aspect-w-16 aspect-h-9 relative h-auto w-full">
-              <AspectRatio ratio={16 / 9} className="bg-muted">
-                <Image
-                  src={file.url}
-                  alt={`One of ${username}'s images`}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="h-full w-full rounded-md object-cover"
-                />
-              </AspectRatio>
-            </div>
-          )}
-        </div>
-      )}
+
+      <div className="relative mx-auto flex w-full max-w-full flex-col gap-4">
+        {typeOfFile(file.fileType) === "Video" ? (
+          <Video url={file.url} className="rounded-lg" />
+        ) : (
+          <div className="aspect-w-16 aspect-h-9 relative h-auto w-full">
+            <AspectRatio ratio={16 / 9} className="bg-muted">
+              <Image
+                src={file.url}
+                alt={`One of ${username}'s images`}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="h-full w-full rounded-md object-contain"
+              />
+            </AspectRatio>
+          </div>
+        )}
+      </div>
+
       {privacy && (
         <Select
           value={privacy}

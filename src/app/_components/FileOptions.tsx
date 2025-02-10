@@ -12,11 +12,13 @@ import DeleteButton from "./DeleteButton";
 
 const FileOptions: React.FC<{
   handleOpenModalChange?: () => void;
+  isUpdating: boolean;
+  setIsUpdating: (isUpdating: boolean) => void;
   fileId: string | null;
   fileKey: string | null;
   fileType: string | null;
-}> = ({ fileId, fileKey, handleOpenModalChange, fileType }) => {
-  const { setIsUpdating, isUpdating, isUpdatingPending } = useFileStore();
+}> = ({ fileId, fileKey, setIsUpdating, isUpdating, handleOpenModalChange, fileType }) => {
+  const { isUpdatingPending } = useFileStore();
   return !isUpdating ? (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -29,7 +31,7 @@ const FileOptions: React.FC<{
           <DropdownMenuItem className="w-full p-0">
             <Button
               onClick={() => {
-                setIsUpdating(true);
+                setIsUpdating(true)
               }}
               variant="ghost"
               className="w-full cursor-pointer"
