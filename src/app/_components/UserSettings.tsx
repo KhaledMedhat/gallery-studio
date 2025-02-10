@@ -12,13 +12,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~
 import { Separator } from "~/components/ui/separator"
 import { toast } from "~/hooks/use-toast"
 import { api } from "~/trpc/react"
-import type { User } from "~/types/types"
-import MentionSearchResult from "./MentionSearchResult"
-import { getMention } from "~/utils/utils"
+import { ElementType, MentionType, type User } from "~/types/types"
 import { Label } from "~/components/ui/label"
-import { MentionsInput, Mention, SuggestionDataItem } from 'react-mentions'
 import * as React from "react"
-import classes from '../../styles/react-mentions.module.css'
+import MentionInput from "./MentionInput"
 
 enum SettingTabs {
     Profile,
@@ -33,7 +30,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
     ]
     const router = useRouter()
     const [activeTab, setActiveTab] = useState<SettingTabs>(SettingTabs.Profile)
-    const [contentEditableValue, setContentEditableValue] = useState<string>(currentUser?.bio ?? "")
+    const [mentionInputValue, setMentionInputValue] = useState<string>(currentUser?.bio ?? "")
     const formSchema = z.object({
         username: z.string().optional(),
         firstName: z.string().optional(),
@@ -42,24 +39,24 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
         urls: z.array(z.object({
             platformIcon: z.string(),
             url: z.string().url(),
+            isNew: z.boolean().optional(),
         })).optional(),
     });
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             username: currentUser?.name,
-            urls: currentUser?.socialUrls ?? [{ url: "", platformIcon: "" }],
+            urls: currentUser?.socialUrls ?? [{ url: "", platformIcon: "", isNew: false }],
         },
     });
 
 
-    const { mutate: mentionFollowingsSearch, data: followings, isPending: isMentionSearchPending } = api.user.getFollowingUsersInMentionSearch.useMutation()
 
     const { fields, append, remove } = useFieldArray({
         name: "urls",
         control: form.control,
     })
-    const { mutate: updateUserSettings } = api.user.updateUserProfile.useMutation({
+    const { mutate: updateUserSettings, isPending: isUpdatingUserSettingsPending } = api.user.updateUserProfile.useMutation({
         onSuccess: () => {
             router.refresh();
             toast({
@@ -76,10 +73,9 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
         },
     });
     const onSubmit = async (data: z.infer<typeof formSchema>) => {
-        console.log(data);
         updateUserSettings({
             username: data.username,
-            bio: contentEditableValue,
+            bio: mentionInputValue,
             socialUrls: data.urls,
         })
     };
@@ -92,7 +88,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                     {activeTab === SettingTabs.Account && "Account"}
                     {activeTab === SettingTabs.Notifications && "Notifications"}
                 </h2>
-                <p className="text-center text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                     {activeTab === SettingTabs.Profile && "This is how others will see you on the site."}
                     {activeTab === SettingTabs.Account && "Update your account settings. Set your preferred language and timezone."}
                     {activeTab === SettingTabs.Notifications && "Configure how you receive notifications."}
@@ -101,20 +97,27 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
             </div>
         )
     }
+    //fix the issue later
+    const urlRemoval = (index: number) => {
+        if (isUpdatingUserSettingsPending) {
+            return
+        } else {
+            remove(index)
+        }
+    }
     const socialMediaOptions = [
         { value: "Facebook", label: "Facebook", icon: Facebook },
         { value: "Twitter", label: "Twitter", icon: Twitter },
         { value: "Instagram", label: "Instagram", icon: Instagram },
     ]
-    console.log(contentEditableValue)
     const renderTabContent = () => {
         return (
             <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="h-fit space-y-8"
+                    className="h-fit space-y-8 "
                 >
-                    <div className="flex flex-col gap-6 ">
+                    <div className="flex flex-col gap-6">
                         {activeTab === SettingTabs.Profile && <>
                             <FormField
                                 control={form.control}
@@ -136,42 +139,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                             <div className="flex flex-col gap-1">
                                 <div className="flex flex-col gap-3">
                                     <Label htmlFor="bio">Bio</Label>
-                                    <MentionsInput
-                                        placeholder="Update your bio."
-                                        className={`flex ${classes.react_mention} p-1 min-h-[80px] w-full rounded-md border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50`}
-                                        customSuggestionsContainer={(children: React.ReactNode) => {
-                                            return (
-                                                <div className="w-full h-full bg-background">
-                                                    {children}
-                                                </div>
-                                            )
-                                        }}
-                                        value={contentEditableValue} onChange={(event: { target: { value: string } }) => setContentEditableValue(event.target.value)}>
-                                        <Mention
-                                            className="bg-blue-500"
-                                            markup='[__display__]'
-                                            trigger="@"
-                                            data={(query, callback: (data: SuggestionDataItem[]) => void) => {
-                                                const mentionUser = getMention(contentEditableValue);
-                                                mentionFollowingsSearch({ search: mentionUser?.trim() ?? "" });
-                                                callback(followings?.map((following) => ({ display: `@${following.name}`, id: following.id })) ?? [])
-                                            }}
-                                            appendSpaceOnAdd={true}
-                                            renderSuggestion={() =>
-                                            (
-                                                <MentionSearchResult isMentionSearchPending={isMentionSearchPending} followings={followings} />
-                                            )
-
-                                            }
-
-
-                                        />
-                                        {/* <Mention
-                                            trigger="#"
-                                            data={this.requestTag}
-                                            renderSuggestion={this.renderTagSuggestion}
-                                        /> */}
-                                    </MentionsInput>
+                                    <MentionInput mentionType={MentionType.FOLLOWINGS} inputType={ElementType.TEXTAREA} mentionInputValue={mentionInputValue} setMentionInputValue={setMentionInputValue} />
                                 </div>
                                 <p className="text-sm text-muted-foreground">You can @mention other users and organizations to link to them.</p>
 
@@ -186,7 +154,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                                         <FormDescription>Add links to your website, blog, or social media profiles.</FormDescription>
                                         <div className="space-y-4">
                                             {fields.map((field, index) => (
-                                                <div key={field.id} className="flex items-end space-x-2">
+                                                <div key={field.id} className="flex gap-2">
                                                     <FormField
                                                         control={form.control}
                                                         name={`urls.${index}.platformIcon`}
@@ -195,15 +163,15 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                                                                 <FormLabel className="sr-only">Social Media Platform</FormLabel>
                                                                 <Select onValueChange={field.onChange} value={field.value}>
                                                                     <FormControl>
-                                                                        <SelectTrigger className="w-[140px]">
+                                                                        <SelectTrigger className="w-[130px]">
                                                                             <SelectValue placeholder="Select platform" />
                                                                         </SelectTrigger>
                                                                     </FormControl>
                                                                     <SelectContent>
                                                                         {socialMediaOptions.map((option) => (
                                                                             <SelectItem key={option.value} value={option.value}>
-                                                                                <div className="flex items-center">
-                                                                                    <option.icon className="mr-2 h-4 w-4" />
+                                                                                <div className="flex gap-1 items-center">
+                                                                                    <option.icon className="h-4 w-4" />
                                                                                     {option.label}
                                                                                 </div>
                                                                             </SelectItem>
@@ -218,7 +186,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                                                         control={form.control}
                                                         name={`urls.${index}.url`}
                                                         render={({ field }) => (
-                                                            <FormItem className="flex-grow">
+                                                            <FormItem className="flex-grow md:relative">
                                                                 <FormLabel className="sr-only">URL</FormLabel>
                                                                 <FormControl>
                                                                     <Input placeholder="https://example.com" {...field} />
@@ -231,7 +199,19 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                                                         type="button"
                                                         variant="outline"
                                                         size="icon"
-                                                        onClick={() => remove(index)}
+                                                        className="mt-2"
+                                                        onClick={() => {
+                                                            if (field.isNew) {
+                                                                urlRemoval(index)
+                                                            } else {
+                                                                const urls = form.getValues('urls')
+                                                                const updatedUrls = urls?.map(({ isNew, ...rest }) => rest);
+                                                                updateUserSettings({
+                                                                    socialUrls: updatedUrls,
+                                                                });
+                                                                urlRemoval(index)
+                                                            }
+                                                        }}
                                                     >
                                                         <Trash2 className="h-4 w-4" />
                                                     </Button>
@@ -241,12 +221,11 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                                                 type="button"
                                                 variant="outline"
                                                 className="h-fit text-xs"
-                                                onClick={() => append({ platformIcon: "", url: "" })}
+                                                onClick={() => append({ platformIcon: "", url: "", isNew: true })}
                                             >
                                                 Add URL
                                             </Button>
                                         </div>
-                                        <FormMessage />
                                     </FormItem>
                                 )}
                             />
@@ -270,10 +249,10 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                 </p>
             </div>
             <Separator />
-            <div className="flex w-full gap-4">
-                <div className="flex flex-col items-start w-1/4">
+            <div className="flex w-full flex-col md:flex-row items-center md:items-start gap-4">
+                <div className="flex flex-row md:flex-col items-start w-full md:w-1/4">
                     {tabs.map((tab) => (
-                        <Button className="w-full p-0 justify-start" variant={tab.value === activeTab ? "ghost" : "link"} key={tab.value} onClick={() => setActiveTab(tab.value)}>
+                        <Button className="w-full p-0 justify-center md:justify-start" variant={tab.value === activeTab ? "ghost" : "link"} key={tab.value} onClick={() => setActiveTab(tab.value)}>
                             {tab.label}
                         </Button>
                     ))}

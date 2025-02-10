@@ -435,7 +435,7 @@ export const userRouter = createTRPCRouter({
         })
         .where(eq(users.id, foundedUser.id));
     }),
-    
+
   getFollowingUsersInMentionSearch: protectedProcedure
     .input(z.object({ search: z.string().trim() }))
     .mutation(async ({ ctx, input }) => {

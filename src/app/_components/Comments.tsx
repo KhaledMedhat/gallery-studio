@@ -1,4 +1,3 @@
-import { Ellipsis } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -6,7 +5,6 @@ import {
   type User,
   type Comment,
   type Showcase,
-  DrawerEnum,
 } from "~/types/types";
 import {
   extractComment,
@@ -21,17 +19,9 @@ import { Separator } from "~/components/ui/separator";
 import LikeButton from "./LikeButton";
 import { useFileStore } from "~/store";
 import { useTheme } from "next-themes";
-import React, { useState } from "react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import { api } from "~/trpc/react";
+import React from "react";
 import SharedHoverCard from "./SharedHoverCard";
-import CustomDrawer from "./CustomDrawer";
+import CommentOptions from "./CommentOptions";
 
 dayjs.extend(relativeTime);
 
@@ -43,15 +33,7 @@ const Comments: React.FC<{
   file: Showcase;
 }> = ({ showcaseComments, currentUser, imageWidth, file, isFullView }) => {
   const { setReplyData } = useFileStore();
-  const [openDropDown, setOpenDropDown] = useState<boolean>(false);
-  const utils = api.useUtils();
-  const { mutate: deleteComment, isPending: isDeletingComment } =
-    api.comment.deleteComment.useMutation({
-      onSuccess: () => {
-        void utils.file.getFileById.invalidate();
-        void utils.file.getShowcaseFiles.invalidate();
-      },
-    });
+
   const theme = useTheme();
   const renderComments = (comments: Comment[], isReply = false) => {
     return comments.map((comment) => (
@@ -62,7 +44,7 @@ const Comments: React.FC<{
         <div className="max-w-full">
           <div className="flex items-start justify-start gap-6">
             <div
-               style={{
+              style={{
                 maxWidth: imageWidth ? `${imageWidth}px` : "auto",
               }}
               className="flex items-start gap-1"
@@ -95,50 +77,7 @@ const Comments: React.FC<{
                   <div className="flex items-center gap-8 justify-between">
                     <SharedHoverCard comment={comment} />
                     {currentUser?.id === comment.user?.id && (
-                      <DropdownMenu
-                        modal={false}
-                        open={openDropDown}
-                        onOpenChange={setOpenDropDown}
-                      >
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="h-fit p-0 hover:bg-transparent"
-                          >
-                            <Ellipsis size={30} />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-fit">
-                          <DropdownMenuGroup>
-                            <DropdownMenuItem
-                              asChild
-                              className="p-0 hover:outline-none"
-                            >
-                              <CustomDrawer
-                                drawerAppearance={DrawerEnum.UPDATE_COMMENT}
-                                btnTitle={"Edit"}
-                                drawerTitle={"Update comment"}
-                                drawerDescription={"Update your comment."}
-                                originalComment={comment.content}
-                                commentId={comment.id}
-                                setOpenDropDown={setOpenDropDown}
-                              />
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="cursor-pointer p-0 text-destructive hover:bg-transparent hover:outline-none">
-                              <Button
-                                onClick={() =>
-                                  deleteComment({ id: comment.id })
-                                }
-                                variant="ghost"
-                                className="w-full hover:text-[#d33939]"
-                                disabled={isDeletingComment}
-                              >
-                                Delete
-                              </Button>
-                            </DropdownMenuItem>
-                          </DropdownMenuGroup>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <CommentOptions commentContent={comment.content} commentId={comment.id} />
                     )}
                   </div>
 
@@ -185,7 +124,7 @@ const Comments: React.FC<{
   return (
     <div className="flex flex-col gap-2">
       {renderComments(isFullView ? showcaseComments : topComment)}
-      {file.commentsCount > 2 && (
+      {file.commentsCount > 1 && !isFullView && (
         <Button variant="link" className="h-fit self-start p-0">
           <Link href={`/showcases/${file.id}`} className="h-full w-full">
             Show all comments

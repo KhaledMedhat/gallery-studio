@@ -9,7 +9,7 @@ export default async function UserSettingsPage({
 }) {
     const currentUser = await api.user.getUser();
     return (
-        <main className="m-4">
+        <main className="m-4 min-h-[110vh]">
             <UserSettings currentUser={currentUser} />
             <GalleryNavbar user={currentUser} />
         </main>

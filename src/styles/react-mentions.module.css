@@ -1,3 +1,14 @@
 .react_mention textarea {
     padding: 0.25rem 0.25rem;
+    background-color: transparent;
+    outline: none;
+}
+.react_mention  {
+    max-width: 90%;
+}
+
+.react_mention input {
+    padding: 0.25rem 0.25rem;
+    background-color: transparent;
+    outline: none;
 }

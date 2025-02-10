@@ -37,11 +37,16 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 import {
+  BadgeHelp,
   FolderOpen,
   FolderPlus,
+  House,
   Images,
   LoaderCircle,
+  LogOut,
+  Settings,
   Telescope,
+  User,
   X,
 } from "lucide-react";
 import {
@@ -61,12 +66,12 @@ import DeleteButton from "./DeleteButton";
 import ToAlbumButton from "./ToAlbumButton";
 import ChooseFilesModal from "./ChooseFilesModal";
 import { getInitials, isURLActive } from "~/utils/utils";
-import type { User, fileType } from "~/types/types";
+import type { User as UserType, fileType } from "~/types/types";
 import FromAlbumToAlbum from "./FromAlbumToAlbum";
 import { useState } from "react";
 
 const GalleryNavbar: React.FC<{
-  user: User | null | undefined;
+  user: UserType | null | undefined;
   files?: fileType[] | undefined;
 }> = ({ user, files }) => {
   const router = useRouter();
@@ -339,20 +344,31 @@ const GalleryNavbar: React.FC<{
               </Tooltip>
             </TooltipProvider>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">{user?.name}</p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {user?.email}
+                  </p>
+                </div>
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="cursor-pointer">
+                <User size={16} className="mr-2" />
                 <Link className="h-full w-full" href={`/${user?.name}`}>
                   Profile
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
+                <House size={16} className="mr-2" />
                 <Link href={"/"}>Home</Link>
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
-              <Link href={`/${user?.name}/settings`}>Settings</Link>
+                <Settings size={16} className="mr-2" />
+                <Link href={`/${user?.name}/settings`}>Settings</Link>
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
+                <BadgeHelp size={16} className="mr-2" />
                 Support
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -362,7 +378,8 @@ const GalleryNavbar: React.FC<{
                   await handleLogout();
                 }}
               >
-                Logout
+                <LogOut size={16} className="mr-2" />
+                <span>Log out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
