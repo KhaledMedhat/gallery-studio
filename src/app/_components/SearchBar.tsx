@@ -39,7 +39,7 @@ const SearchBar = () => {
   };
 
   return (
-    <div className="fixed top-2 z-10 flex w-1/2 flex-col gap-1">
+    <div className=" fixed top-2 z-10 w-full lg:w-3/5 container flex flex-col gap-1">
       <div className="relative">
         <div className="absolute inset-y-0 start-0 flex items-center ps-3">
           <Search size={20} />

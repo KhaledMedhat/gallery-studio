@@ -33,7 +33,7 @@ const DeleteButton: React.FC<{
   isFileModal?: boolean;
   isAlbum?: boolean;
   albumId?: number;
-  commentId: string;
+  commentId?: string;
   handleOpenModalChange?: () => void;
 }> = ({
   fileId,

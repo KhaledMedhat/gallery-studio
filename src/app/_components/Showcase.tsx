@@ -16,14 +16,18 @@ import SharedHoverCard from "./SharedHoverCard";
 import { useEffect, useState } from "react";
 import MentionInput from "./MentionInput";
 import * as React from "react";
+import UpdateFileView from "./UpdateFileView";
 
 dayjs.extend(relativeTime);
 
 const Showcase: React.FC<{
+  // isUpdating: boolean;
+  // setIsUpdating: (isUpdating: boolean) => void;
   file: Showcase | undefined;
   currentUser: User | undefined | null;
   isFullView: boolean;
 }> = ({ file, currentUser, isFullView }) => {
+  const [isShowcaseUpdating, setIsShowcaseUpdating] = useState<boolean>(false);
   const sameUser = currentUser?.id === file?.createdById;
   const [dimensions, setDimensions] = useState({
     width: 0,
@@ -44,7 +48,6 @@ const Showcase: React.FC<{
     // Calculate the closest aspect ratio
     const { width, height } = calculateClosestAspectRatio(clientWidth, clientHeight);
 
-    // Update the dimensions state
     setDimensions({ width, height });
 
   };
@@ -140,72 +143,78 @@ const Showcase: React.FC<{
         </div>
         {sameUser && (
           <FileOptions
+            setIsUpdating={setIsShowcaseUpdating}
+            isUpdating={isShowcaseUpdating}
             fileId={file?.id ?? ""}
             fileKey={file?.fileKey ?? ""}
             fileType={file?.fileType ?? ""}
           />
         )}
       </div>
-
-      <div className="flex w-full flex-col gap-1">
-        <p>{file?.caption}</p>
-        <div className="flex items-center gap-1">
-          {file?.tags?.map((tag) => (
-            <Button key={tag} variant="link" className="text-bold h-fit p-0">
-              <Link href={`/search?q=${tag.slice(1)}`}>{tag}</Link>
-            </Button>
-          ))}
-        </div>
-        <Link href={`/showcases/${file?.id}`}>
-          {file?.fileType?.includes("video") ? (
-            <Video url={file.url} className="rounded-lg xl:h-[752px]" />
-          ) :
-            <div id={file?.id} className={`relative w-full`} style={{ height: `${isEquivalent ? 'auto' : `${imageDimensions.height}px`}`, aspectRatio: `${dimensions.width} / ${dimensions.height}` }}>
-              <Image
-                priority
-                src={file?.url ?? ""}
-                alt={`One of ${file?.user?.name}'s images`}
-                fill
-                onChange={(e) => console.log(e)}
-                onLoad={handleImageLoad}
-                className={`rounded-md !h-auto ${isEquivalent ? 'object-fit  !absolute !top-[50%] !-translate-y-[50%] !left-[50%] !-translate-x-[50%]' : 'object-cover'}`}
-              />
+      {isShowcaseUpdating && sameUser ?
+        <UpdateFileView setIsUpdating={setIsShowcaseUpdating} file={file ?? {} as Showcase} username={file?.user?.name} /> :
+        <div className="flex w-full flex-col gap-1">
+          <div className="flex w-full flex-col gap-1">
+            <p>{file?.caption}</p>
+            <div className="flex items-center gap-1">
+              {file?.tags?.map((tag) => (
+                <Button key={tag} variant="link" className="text-bold h-fit p-0">
+                  <Link href={`/search?q=${tag.slice(1)}`}>{tag}</Link>
+                </Button>
+              ))}
             </div>
-          }
-        </Link >
-      </div >
+            <Link href={`/showcases/${file?.id}`}>
+              {file?.fileType?.includes("video") ? (
+                <Video url={file.url} className="rounded-lg xl:h-[752px]" />
+              ) :
+                <div id={file?.id} className={`relative w-full`} style={{ height: `${isEquivalent ? 'auto' : `${imageDimensions.height}px`}`, aspectRatio: `${dimensions.width} / ${dimensions.height}` }}>
+                  <Image
+                    priority
+                    src={file?.url ?? ""}
+                    alt={`One of ${file?.user?.name}'s images`}
+                    fill
+                    onChange={(e) => console.log(e)}
+                    onLoad={handleImageLoad}
+                    className={`rounded-md !h-auto ${isEquivalent ? 'object-fit  !absolute !top-[50%] !-translate-y-[50%] !left-[50%] !-translate-x-[50%]' : 'object-cover'}`}
+                  />
+                </div>
+              }
+            </Link >
+          </div >
 
-      <div className="flex w-full items-center justify-between">
-        <div className="flex items-center gap-2">
-          <p className="text-sm text-accent-foreground">
-            {dayjs(file?.createdAt).fromNow()}
-          </p>
-          <span className="block h-1 w-1 rounded-full bg-accent-foreground"></span>
-          {file?.filePrivacy === "private" ? (
-            <LockKeyhole size={16} className="text-accent-foreground" />
-          ) : (
-            <Earth size={16} className="text-accent-foreground" />
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          <LikeButton
-            fileId={file?.id}
-            userId={currentUser?.id}
-            likesCount={file?.likesInfo?.length}
-            fileLikesInfo={file?.likesInfo}
-            likedUsers={file?.likedUsers}
-          />
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" className="p-0 hover:bg-transparent">
-              <Link href={`/showcases/${file?.id}`}>
-                <MessageCircle size={22} />
-              </Link>
-            </Button>
-            <p>{formatNumber(file?.commentsCount ?? 0)}</p>
+          <div className="flex w-full items-center justify-between">
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-accent-foreground">
+                {dayjs(file?.createdAt).fromNow()}
+              </p>
+              <span className="block h-1 w-1 rounded-full bg-accent-foreground"></span>
+              {file?.filePrivacy === "private" ? (
+                <LockKeyhole size={16} className="text-accent-foreground" />
+              ) : (
+                <Earth size={16} className="text-accent-foreground" />
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <LikeButton
+                fileId={file?.id}
+                userId={currentUser?.id}
+                likesCount={file?.likesInfo?.length}
+                fileLikesInfo={file?.likesInfo}
+                likedUsers={file?.likedUsers}
+              />
+              <div className="flex items-center gap-1">
+                <Button variant="ghost" className="p-0 hover:bg-transparent">
+                  <Link href={`/showcases/${file?.id}`}>
+                    <MessageCircle size={22} />
+                  </Link>
+                </Button>
+                <p>{formatNumber(file?.commentsCount ?? 0)}</p>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      {renderCommentSection(isFullView, file ?? ({} as Showcase), currentUser)}
+        </div>}
+
+      {!isShowcaseUpdating && renderCommentSection(isFullView, file ?? ({} as Showcase), currentUser)}
     </div >
   );
 };
