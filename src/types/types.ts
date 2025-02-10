@@ -7,7 +7,11 @@ export const enum SearchType {
   Accounts,
   Tags,
 }
-
+export interface inputContent {
+    isReplying: boolean;
+    commentId?: string;
+    content: string
+}
 export enum DrawerEnum {
   ADD_FEEDBACK,
   UPDATE_COMMENT,

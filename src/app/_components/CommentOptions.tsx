@@ -3,62 +3,59 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 import CustomDrawer from "./CustomDrawer"
 import { Ellipsis } from "lucide-react"
 import { DrawerEnum } from "~/types/types"
-import { api } from "~/trpc/react"
+import { Drawer, DrawerTrigger } from "~/components/ui/drawer"
+import DeleteButton from "./DeleteButton"
+import * as React from "react"
+import { useEffect, useState } from "react"
+import { useParams } from "next/navigation"
 
 const CommentOptions: React.FC<{ commentId: string, commentContent: string }> = ({ commentId, commentContent }) => {
-    const utils = api.useUtils();
-    const { mutate: deleteComment, isPending: isDeletingComment } =
-        api.comment.deleteComment.useMutation({
-            onSuccess: () => {
-                void utils.file.getFileById.invalidate();
-                void utils.file.getShowcaseFiles.invalidate();
-            },
-        });
+    const param = useParams()
+    const [dropdownModality, setDropdownModality] = useState<boolean>(false)
+    useEffect(() => {
+        if (param.fileId) {
+            setDropdownModality(true)
+        } else {
+            setDropdownModality(false)
+        }
+    }, [param.fileId])
     return (
-        <DropdownMenu
-        // modal={true}
-        // open={openDropDown}
-        // onOpenChange={setOpenDropDown}
-        >
-            <DropdownMenuTrigger asChild>
-                <Button
-                    variant="ghost"
-                    className="h-fit p-0 hover:bg-transparent"
-                >
-                    <Ellipsis size={30} />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-fit">
-                <DropdownMenuGroup>
-                    <DropdownMenuItem
-                        asChild
-                        className="p-0 hover:outline-none"
+        <Drawer>
+            <DropdownMenu modal={dropdownModality}>
+                <DropdownMenuTrigger asChild>
+                    <Button
+                        variant="ghost"
+                        className="h-fit p-0 hover:bg-transparent"
                     >
-                        <CustomDrawer
-                            drawerAppearance={DrawerEnum.UPDATE_COMMENT}
-                            btnTitle={"Edit"}
-                            drawerTitle={"Update comment"}
-                            drawerDescription={"Update your comment."}
-                            originalComment={commentContent}
-                            commentId={commentId}
-                        // setOpenDropDown={setOpenDropDown}
-                        />
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer p-0 text-destructive hover:bg-transparent hover:outline-none">
-                        <Button
-                            onClick={() =>
-                                deleteComment({ id: commentId })
-                            }
-                            variant="ghost"
-                            className="w-full hover:text-[#d33939]"
-                            disabled={isDeletingComment}
+                        <Ellipsis size={30} />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-fit">
+                    <DropdownMenuGroup>
+                        <DropdownMenuItem
+                            className="p-0 hover:outline-none"
                         >
-                            Delete
-                        </Button>
-                    </DropdownMenuItem>
-                </DropdownMenuGroup>
-            </DropdownMenuContent>
-        </DropdownMenu>
+                            <DrawerTrigger asChild>
+                                <Button variant="ghost" className="w-full">
+                                    Edit
+                                </Button>
+                            </DrawerTrigger>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className=" p-0 " asChild>
+                            <DeleteButton commentId={commentId} />
+                        </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <CustomDrawer
+                drawerAppearance={DrawerEnum.UPDATE_COMMENT}
+                drawerTitle={"Update comment"}
+                drawerDescription={"Update your comment."}
+                originalComment={commentContent}
+                commentId={commentId}
+            />
+
+        </Drawer>
     )
 }
 export default CommentOptions

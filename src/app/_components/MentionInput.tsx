@@ -10,18 +10,14 @@ import { ElementType, MentionType } from "~/types/types"
 import { useParams, useRouter } from "next/navigation"
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
-import type { EmojiSelectEvent } from "~/types/types";
+import type { EmojiSelectEvent, inputContent } from "~/types/types";
 import { useFileStore } from "~/store"
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover"
 import { useTheme } from "next-themes"
 import { useEffect, useRef, useState } from "react"
 import * as React from "react"
 
-interface inputContent {
-    isReplying: boolean;
-    commentId?: string;
-    content: string
-}
+
 const MentionInput: React.FC<{
     mentionType: MentionType;
     inputType: ElementType;
@@ -29,18 +25,13 @@ const MentionInput: React.FC<{
     fileId?: string;
     commentId?: string;
     originalComment?: string;
-    setOpen?: (open: boolean) => void;
-    // setOpenDropDown?: (open: boolean) => void;
     setMentionInputValue?: (value: string) => void
-}> = ({ mentionType, inputType, mentionInputValue, setMentionInputValue, fileId, commentId, originalComment, setOpen }) => {
+}> = ({ mentionType, inputType, mentionInputValue, setMentionInputValue, fileId, commentId, originalComment }) => {
     const { replyData, setReplyData } = useFileStore();
     const param = useParams()
     const [popoverModality, setPopoverModality] = useState<boolean>(false)
     const [commentMentionInputValue, setCommentMentionInputValue] = useState<inputContent>({ isReplying: false, commentId: commentId ? commentId : "", content: commentId && originalComment ? originalComment : "" })
     useEffect(() => {
-        // if (commentId && originalComment) {
-        //     setCommentMentionInputValue({ isReplying: false, content: originalComment })
-        // }
         if (replyData.isReplying && commentMentionInputValue?.content.trim().length === 0) {
             setReplyData({
                 isReplying: false,
@@ -61,10 +52,6 @@ const MentionInput: React.FC<{
     const { mutate: updateComment, isPending: isUpdatingComment } =
         api.comment.updateComment.useMutation({
             onSuccess: () => {
-                if (setOpen) {
-                    setOpen(false);
-                    // setOpenDropDown(false);
-                }
                 void utils.file.getFileById.invalidate();
                 void utils.file.getShowcaseFiles.invalidate();
             },
@@ -86,12 +73,12 @@ const MentionInput: React.FC<{
     };
 
     useEffect(() => {
-        if (param.fileId) {
+        if (param.fileId || commentId && originalComment) {
             setPopoverModality(true)
         } else {
             setPopoverModality(false)
         }
-    }, [param.fileId])
+    }, [commentId, originalComment, param.fileId])
     useEffect(() => {
         document.addEventListener('mousedown', handleClickOutside);
         return () => {

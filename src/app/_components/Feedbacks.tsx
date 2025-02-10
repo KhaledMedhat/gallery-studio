@@ -1,6 +1,6 @@
 "use client";
 import BlurFade from "~/components/ui/blur-fade";
-import { ArrowDown, Plus } from "lucide-react";
+import { ArrowDown } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
@@ -51,7 +51,6 @@ const Feedbacks = () => {
           <div className="flex w-full flex-col flex-wrap items-center gap-8">
             <CustomDrawer
               drawerAppearance={DrawerEnum.ADD_FEEDBACK}
-              btnTitle="Add"
               drawerTitle="Add Feedback"
               drawerDescription="Add feedback to help us improve"
             />
