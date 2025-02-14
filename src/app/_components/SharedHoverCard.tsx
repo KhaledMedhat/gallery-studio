@@ -12,10 +12,11 @@ import { api } from "~/trpc/react";
 import type { Comment, Showcase } from "~/types/types";
 import { getInitials } from "~/utils/utils";
 const SharedHoverCard: React.FC<{
+  isCommentOrReply: boolean;
   comment?: Comment;
   reply?: string | null;
   file?: Showcase;
-}> = ({ comment, reply, file }) => {
+}> = ({ comment, reply, isCommentOrReply, file }) => {
   const { data } = api.user.getUserByUsername.useQuery(
     {
       username: reply ?? "",
@@ -29,9 +30,10 @@ const SharedHoverCard: React.FC<{
       <HoverCardTrigger asChild>
         <Button tabIndex={-1} variant="link" className="h-fit p-0 font-bold">
           <Link
+          className={`${isCommentOrReply && "text-blue-800"}`}
             href={`/${comment?.user?.name ?? data?.name ?? file?.user?.name}`}
           >
-            {comment?.user?.name ?? data?.name ?? file?.user?.name}
+            {isCommentOrReply && '@'}{comment?.user?.name ?? data?.name ?? file?.user?.name}
           </Link>
         </Button>
       </HoverCardTrigger>
@@ -49,13 +51,13 @@ const SharedHoverCard: React.FC<{
             <AvatarFallback>
               {getInitials(
                 comment?.user?.firstName ??
-                  data?.firstName ??
-                  file?.user?.firstName ??
-                  "",
+                data?.firstName ??
+                file?.user?.firstName ??
+                "",
                 comment?.user?.lastName ??
-                  data?.lastName ??
-                  file?.user?.lastName ??
-                  "",
+                data?.lastName ??
+                file?.user?.lastName ??
+                "",
               )}
             </AvatarFallback>
           </Avatar>

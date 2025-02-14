@@ -7,7 +7,7 @@ export default async function FeedbackPage() {
   return (
     <div className="container mx-auto flex h-screen flex-col items-center gap-6">
       <Navbar currentUser={currentUser} />
-      <Feedbacks />
+      <Feedbacks currentUser={currentUser} />
     </div>
   );
 }

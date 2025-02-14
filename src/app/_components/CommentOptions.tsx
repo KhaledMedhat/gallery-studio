@@ -2,14 +2,14 @@ import { Button } from "~/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "~/components/ui/dropdown-menu"
 import CustomDrawer from "./CustomDrawer"
 import { Ellipsis } from "lucide-react"
-import { DrawerEnum } from "~/types/types"
+import { DrawerEnum, type User } from "~/types/types"
 import { Drawer, DrawerTrigger } from "~/components/ui/drawer"
 import DeleteButton from "./DeleteButton"
 import * as React from "react"
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 
-const CommentOptions: React.FC<{ commentId: string, commentContent: string }> = ({ commentId, commentContent }) => {
+const CommentOptions: React.FC<{ commentId: string, currentUser: User | undefined | null, commentContent: string }> = ({ commentId, currentUser, commentContent }) => {
     const param = useParams()
     const [dropdownModality, setDropdownModality] = useState<boolean>(false)
     useEffect(() => {
@@ -48,6 +48,7 @@ const CommentOptions: React.FC<{ commentId: string, commentContent: string }> = 
                 </DropdownMenuContent>
             </DropdownMenu>
             <CustomDrawer
+                currentUser={currentUser}
                 drawerAppearance={DrawerEnum.UPDATE_COMMENT}
                 drawerTitle={"Update comment"}
                 drawerDescription={"Update your comment."}

@@ -4,12 +4,15 @@ import {
   albums,
   albumFiles,
   users,
+  notifications,
 } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { z } from "zod";
 import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { buildCommentHierarchy } from "~/utils/utils";
+import { NotificationTypeEnum } from "~/types/types";
+import { createCaller } from "../root";
 
 export const fileRouter = createTRPCRouter({
   unlikeFile: protectedProcedure
@@ -48,7 +51,7 @@ export const fileRouter = createTRPCRouter({
       const foundedFile = await ctx.db.query.files.findFirst({
         where: eq(files.id, input.id),
       });
-
+      const caller = createCaller(ctx);
       if (foundedFile) {
         const updatedLikesInfo = [
           ...(foundedFile.likesInfo ?? []),
@@ -59,7 +62,20 @@ export const fileRouter = createTRPCRouter({
           .set({
             likesInfo: updatedLikesInfo,
           })
+
           .where(eq(files.id, input.id));
+        await caller.notification.sendNotification({
+          notificationType: NotificationTypeEnum.LIKE_SHOWCASE,
+          fileId: foundedFile.id,
+          commentId: null,
+          notificationReceiverId: [foundedFile?.createdById],
+          isRead: false,
+          notificationContent: {
+            sender: ctx.user.name,
+            title: "liked your showcase.",
+            content: "",
+          },
+        });
       }
     }),
 
@@ -71,7 +87,7 @@ export const fileRouter = createTRPCRouter({
       });
     }
     const followedUserIds =
-      ctx.user?.followings?.map((following) => following.userId) ?? [];
+      ctx.user?.followings?.map((following) => following.id) ?? [];
 
     const showcaseFiles = await ctx.db.query.files.findMany({
       where: and(
@@ -225,6 +241,25 @@ export const fileRouter = createTRPCRouter({
           galleryId: gallery.id,
         })
         .returning();
+
+      const followers = ctx.user.followers?.map((follower) => follower.id);
+      for (const follower of followers ?? []) {
+        if (newFile?.filePrivacy === "public") {
+          await ctx.db.insert(notifications).values({
+            notificationReceiverId: follower,
+            senderId: ctx.user.id,
+            fileId: newFile?.id,
+            commentId: null,
+            notificationType: NotificationTypeEnum.SHOWCASE,
+            isRead: false,
+            notificationContent: {
+              sender: ctx.user.name,
+              title: "added a new showcase.",
+              content: "",
+            },
+          });
+        }
+      }
 
       return newFile;
     }),

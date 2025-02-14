@@ -96,7 +96,11 @@ export const customDrizzleAdapter: Adapter = {
 
     if (!account) return null;
 
-    return this.getUser?.(account.userId) ?? null;
+    return await (
+      customDrizzleAdapter.getUser as (
+        id: string,
+      ) => Promise<AdapterUser | null>
+    )(account.userId);
   },
 
   async updateUser(

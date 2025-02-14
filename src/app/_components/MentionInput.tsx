@@ -1,32 +1,33 @@
-import { LoaderCircle, SendHorizontal, Smile } from "lucide-react"
+import { SendHorizontal, Smile } from "lucide-react"
 import { Mention, MentionsInput, type SuggestionDataItem } from "react-mentions"
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
 import { Button } from "~/components/ui/button"
-import { Card } from "~/components/ui/card"
-import { extractUsername, getInitials, getMention } from "~/utils/utils"
-import classes from '../../styles/react-mentions.module.css'
+import { getInitials } from "~/utils/utils"
 import { api } from "~/trpc/react"
 import { ElementType, MentionType } from "~/types/types"
 import { useParams, useRouter } from "next/navigation"
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
-import type { EmojiSelectEvent, inputContent } from "~/types/types";
+import type { EmojiSelectEvent, inputContent, User } from "~/types/types";
 import { useFileStore } from "~/store"
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover"
 import { useTheme } from "next-themes"
 import { useEffect, useRef, useState } from "react"
 import * as React from "react"
+import { ScrollArea } from "~/components/ui/scroll-area"
+import { Separator } from "~/components/ui/separator"
 
 
 const MentionInput: React.FC<{
     mentionType: MentionType;
+    currentUser: User | undefined | null;
     inputType: ElementType;
     mentionInputValue?: string;
     fileId?: string;
     commentId?: string;
     originalComment?: string;
     setMentionInputValue?: (value: string) => void
-}> = ({ mentionType, inputType, mentionInputValue, setMentionInputValue, fileId, commentId, originalComment }) => {
+}> = ({ mentionType, currentUser, inputType, mentionInputValue, setMentionInputValue, fileId, commentId, originalComment }) => {
     const { replyData, setReplyData } = useFileStore();
     const param = useParams()
     const [popoverModality, setPopoverModality] = useState<boolean>(false)
@@ -60,6 +61,7 @@ const MentionInput: React.FC<{
     const { mutate: postComment, isPending: isPostingComment } =
         api.comment.postComment.useMutation({
             onSuccess: () => {
+                void utils.notification.getNotifications.invalidate();
                 void utils.file.getFileById.invalidate();
                 void utils.file.getShowcaseFiles.invalidate();
                 router.refresh();
@@ -88,6 +90,7 @@ const MentionInput: React.FC<{
     const { mutate: postReply, isPending: isPostingReply } =
         api.comment.postReply.useMutation({
             onSuccess: () => {
+                void utils.notification.getNotifications.invalidate();
                 void utils.file.getFileById.invalidate();
                 void utils.file.getShowcaseFiles.invalidate();
                 router.refresh();
@@ -110,15 +113,6 @@ const MentionInput: React.FC<{
             setCommentMentionInputValue({ isReplying: false, content: currentValue + emoji.native });
         }
     };
-    const { mutate: mentionFollowingsSearch, data: mentionResult, isPending: isMentionSearchPending } = api.user.getFollowingUsersInMentionSearch.useMutation()
-    if (typeof document !== 'undefined') {
-        const mentionInputControl = document.querySelector(".flex__control")
-        const mentionInputInput = document.querySelector(".flex__input")
-        const mentionInputHighlighter = document.querySelector(".flex__highlighter")
-        mentionInputControl?.setAttribute("style", "max-width: 100%; outline: none;")
-        mentionInputInput?.setAttribute("style", "max-width: 90%; resize: none; height: 100%; padding: 0.25rem 0.25rem; border: none; position: absolute; inset: 0; outline: none;")
-        mentionInputHighlighter?.setAttribute("style", "width: 100%; position:relative; color:transparent;overflow:hidden; overflow-wrap: pre-wrap; word-wrap: break-word; text-align: start; outline: none;")
-    }
     const handleInputSubmit = () => {
         if (originalComment === commentMentionInputValue.content) {
             return;
@@ -130,26 +124,46 @@ const MentionInput: React.FC<{
         } else {
             postComment({ id: fileId ?? "", content: commentMentionInputValue.content });
         }
-
-
     }
     return (
         <div
             ref={containerRef}
-            className={`flex items-center max-w-full justify-between ${inputType === ElementType.TEXTAREA && 'rounded-md border border-input'}  bg-background text-sm ${isFocused && inputType === ElementType.TEXTAREA ? 'ring-offset-background outline-none ring-2 ring-ring ring-offset-2 ' : ''}`} // Add outline class conditionally
+            className={`flex gap-2 items-center max-w-full justify-between ${inputType === ElementType.TEXTAREA && 'rounded-md border border-input'}  bg-background text-sm ${isFocused && inputType === ElementType.TEXTAREA ? 'ring-offset-background outline-none ring-2 ring-ring ring-offset-2 ' : ''}`}
             onClick={() => setIsFocused(true)}
         >
             <MentionsInput
-                placeholder={inputType === ElementType.INPUT ? "Write a comment ..." : "Update your bio."}
-                className={`${classes.react_mention} p-1 ${inputType === ElementType.INPUT ? "h-fit outline-none" : "min-h-[80px]"} w-full `}
-                customSuggestionsContainer={(children: React.ReactNode) => {
-                    return (
-                        <div className="w-full h-full bg-background">
-                            {children}
-                        </div>
-                    )
+                style={{
+                    control: {
+                        maxWidth: '100%',
+                        outline: 'none',
+                    },
+                    input: {
+                        backgroundColor: 'transparent',
+                        padding: '0.25rem 0.25rem',
+                        outline: 'none',
+                    },
+                    suggestions: {
+                        borderRadius: '6px',
+                        backgroundColor: 'transparent',
+                    }
                 }}
-                singleLine={inputType === ElementType.INPUT ? true : false}
+                disabled={isPostingComment ||
+                    isUpdatingComment ||
+                    isPostingReply}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                        handleInputSubmit()
+                    }
+                }
+                }
+                placeholder={inputType === ElementType.INPUT ? "Write a comment ..." : "Update your bio."}
+                className={`p-1 max-w-[90%] ${inputType === ElementType.INPUT ? "h-fit outline-none" : "min-h-[80px]"} w-full `}
+                customSuggestionsContainer={(children: React.ReactNode) => (
+                    <ScrollArea className="max-h-72 h-fit w-48 flex flex-col gap-4 bg-background border rounded-md p-2">
+                        {children}
+                    </ScrollArea>
+                )}
+                forceSuggestionsAboveCursor={true}
                 value={mentionInputValue ?? commentMentionInputValue.content}
                 onChange={(event: { target: { value: string } }) => {
                     if (setMentionInputValue) {
@@ -169,50 +183,68 @@ const MentionInput: React.FC<{
                     markup='[__display__]'
                     trigger={mentionType === MentionType.FOLLOWINGS ? "@" : "#"}
                     data={(query, callback: (data: SuggestionDataItem[]) => void) => {
-                        if (mentionInputValue || commentMentionInputValue) {
-                            const mentionUser = getMention(mentionInputValue ?? commentMentionInputValue.content);
-                            mentionFollowingsSearch({ search: mentionUser?.trim() ?? "" });
-                            callback(mentionResult?.map((result) => ({ display: `@${result.name}`, id: result.id })) ?? [])
+                        const filteredFollowings = currentUser?.followings
+                            ?.filter(following =>
+                                following.name.includes(query))
+                            ?.map((following) => ({
+                                display: `@${following.name}`,
+                                id: following.id
+                            })) ?? [];
+                        if (filteredFollowings.length === 0) {
+                            filteredFollowings.push({
+                                id: "no-result",
+                                display: "No results found"
+                            });
+                        }
+                        callback(filteredFollowings);
+                    }}
+
+                    appendSpaceOnAdd={true}
+                    renderSuggestion={(
+                        suggestion: SuggestionDataItem,
+                        search: string,
+                        highlightedDisplay: React.ReactNode,
+                        index: number,
+                        focused: boolean) => {
+                        if (suggestion.id === "no-result") {
+                            return (
+                                <div className="p-2 text-sm text-muted-foreground">
+                                    No results found
+                                </div>
+                            );
                         }
 
+                        return (
+                            <div className="flex flex-col gap-1 ">
+                                <Button
+                                    variant='ghost'
+                                    className="flex w-full items-center justify-start gap-2 rounded-md p-2  hover:bg-muted-foreground"
+                                >
+                                    <Avatar className="h-8 w-8">
+                                        <AvatarImage src={currentUser?.followings?.[index]?.profileImage?.imageUrl ?? ""} />
+                                        <AvatarFallback>
+                                            {getInitials(
+                                                currentUser?.followings?.[index]?.firstName ?? "",
+                                                currentUser?.followings?.[index]?.lastName ?? "",
+                                            )}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <p className="text-sm font-bold text-accent-foreground">{currentUser?.followings?.[index]?.name}</p>
+                                </Button>
+                                {index < (currentUser?.followings?.length ?? 0) - 1 && <Separator />}
+                            </div>
+                        )
                     }}
-                    appendSpaceOnAdd={true}
-                    renderSuggestion={() =>
-                    (
-                        <Card className="flex w-full flex-col rounded-md p-2">
-                            {isMentionSearchPending ?
-                                <LoaderCircle size={25} className="m-auto animate-spin" />
-                                : mentionResult?.length === 0 ? <div className="text-center">You haven&apos;t followed anyone yet.</div> : mentionResult?.map((result) => (
-                                    <Button
-                                        key={result.id}
-                                        variant='ghost'
-                                        className="flex w-full items-center justify-start gap-2 rounded-md p-2 hover:bg-accent"
-                                    >
-                                        <Avatar className="h-8 w-8">
-                                            <AvatarImage src={result?.profileImage?.imageUrl ?? ""} />
-                                            <AvatarFallback>
-                                                {getInitials(
-                                                    result?.firstName ?? "",
-                                                    result?.lastName ?? "",
-                                                )}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <p className="text-sm font-bold">{result?.name}</p>
-                                    </Button>
-                                ))}
-                        </Card>
-                    )
-
-                    }
 
                 />
 
             </MentionsInput>
-            <div className="flex items-center">
+            <div className="flex gap-4 items-center pl-2">
                 <Popover modal={popoverModality}>
                     <PopoverTrigger asChild className="hidden xl:block">
                         <Button
                             variant="ghost"
+                            className="p-0"
                             onClick={(e) => e.stopPropagation()}>
                             <Smile size={20} />
                         </Button>
@@ -232,11 +264,10 @@ const MentionInput: React.FC<{
                     </PopoverContent>
                 </Popover>
                 {ElementType.INPUT === inputType && <Button
-                    className="hover:bg-none"
+                    className="hover:bg-none p-0"
                     variant="ghost"
                     onClick={handleInputSubmit}
-                    disabled={commentMentionInputValue.content?.trim().length === 0 || commentMentionInputValue.content?.trim() ===
-                        extractUsername(replyData.content) || isPostingComment ||
+                    disabled={commentMentionInputValue.content?.trim().length === 0 || isPostingComment ||
                         isUpdatingComment ||
                         isPostingReply}
                 >

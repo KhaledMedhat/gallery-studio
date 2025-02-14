@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import BlurFade from "~/components/ui/blur-fade";
-import { User } from "~/types/types";
+import type { User } from "~/types/types";
 import Navbar from "./Navbar";
 import { AlertCircle, ArrowLeft, Home } from "lucide-react";
 import { Button } from "~/components/ui/button";

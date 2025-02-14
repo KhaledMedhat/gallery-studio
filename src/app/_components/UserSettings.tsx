@@ -139,7 +139,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                             <div className="flex flex-col gap-1">
                                 <div className="flex flex-col gap-3">
                                     <Label htmlFor="bio">Bio</Label>
-                                    <MentionInput mentionType={MentionType.FOLLOWINGS} inputType={ElementType.TEXTAREA} mentionInputValue={mentionInputValue} setMentionInputValue={setMentionInputValue} />
+                                    <MentionInput currentUser={currentUser} mentionType={MentionType.FOLLOWINGS} inputType={ElementType.TEXTAREA} mentionInputValue={mentionInputValue} setMentionInputValue={setMentionInputValue} />
                                 </div>
                                 <p className="text-sm text-muted-foreground">You can @mention other users and organizations to link to them.</p>
 

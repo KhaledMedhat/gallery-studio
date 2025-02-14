@@ -7,9 +7,7 @@ import {
   type Showcase,
 } from "~/types/types";
 import {
-  extractComment,
-  extractUsername,
-  extractUsernameWithoutAt,
+  extractUsernameAndText,
   getCommentWithHighestRatio,
   getInitials,
 } from "~/utils/utils";
@@ -75,19 +73,21 @@ const Comments: React.FC<{
                   className={`${theme.resolvedTheme === "dark" ? "bg-accent" : "bg-gray-200"} flex flex-col gap-1 rounded-md px-2 py-1`}
                 >
                   <div className="flex items-center gap-8 justify-between">
-                    <SharedHoverCard comment={comment} />
+                    <SharedHoverCard comment={comment} isCommentOrReply={false} />
                     {currentUser?.id === comment.user?.id && (
-                      <CommentOptions commentContent={comment.content} commentId={comment.id} />
+                      <CommentOptions currentUser={currentUser} commentContent={comment.content} commentId={comment.id} />
                     )}
                   </div>
 
                   <p className="break-words text-sm">
-                    {extractUsername(comment.content) && (
+                    {extractUsernameAndText(comment.content)?.previousText}{" "}
+                    {extractUsernameAndText(comment.content)?.username && (
                       <SharedHoverCard
-                        reply={extractUsernameWithoutAt(comment.content)}
+                        isCommentOrReply={true}
+                        reply={extractUsernameAndText(comment.content)?.username}
                       />
                     )}{" "}
-                    {extractComment(comment.content)}
+                    {extractUsernameAndText(comment.content)?.followingText}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">

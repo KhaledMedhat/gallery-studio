@@ -34,6 +34,7 @@ const LikeButton: React.FC<{
       onSuccess: () => {
         void utils.file.getFileById.invalidate();
         void utils.file.getShowcaseFiles.invalidate();
+        void utils.notification.getNotifications.invalidate();
       },
     });
   const { mutate: unlikeFile, isPending: isUnlikePending } =
@@ -47,6 +48,7 @@ const LikeButton: React.FC<{
   const { mutate: likeComment, isPending: isCommentLikePending } =
     api.comment.likeComment.useMutation({
       onSuccess: () => {
+        void utils.notification.getNotifications.invalidate();
         void utils.file.getFileById.invalidate();
         void utils.file.getShowcaseFiles.invalidate();
       },

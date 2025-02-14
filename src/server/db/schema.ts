@@ -25,6 +25,15 @@ import type { Follower, SocialMediaUrls, UserImage } from "~/types/types";
  */
 
 export const privacyEnum = pgEnum("privacy", ["private", "public"]);
+export const notificationEnum = pgEnum("notification", [
+  "comment",
+  "reply",
+  "mention",
+  "follow",
+  "likeShowcase",
+  "likeComment",
+  "showcase",
+]);
 
 export const createTable = pgTableCreator((name) => `gallery-studio_${name}`);
 
@@ -163,6 +172,31 @@ export const users = createTable("user", {
   updatedAt: timestamp("updated_at", { withTimezone: true }),
 });
 
+export const notifications = createTable("notifications", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  notificationReceiverId: varchar("notification_receiver_id", {
+    length: 255,
+  }).notNull(), // The user to notify
+  senderId: varchar("user_id", { length: 255 })
+    .notNull()
+    .references(() => users.id), // Who triggered the notification
+  fileId: varchar("file_id", { length: 255 }).references(() => files.id), // File related to the comment
+  commentId: varchar("comment_id", { length: 255 }).references(
+    () => comments.id,
+  ), // Related comment
+  notificationContent: json("notification_content").$type<{
+    sender: string;
+    title: string;
+    content: string;
+  }>(),
+  notificationType: notificationEnum("notification_type").default("comment"), // "comment" or "reply"
+  isRead: boolean("is_read").default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+});
+
 export const accounts = createTable(
   "account",
   {
@@ -244,8 +278,24 @@ export const verificationTokens = createTable(
   }),
 );
 
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  sender: one(users, {
+    fields: [notifications.senderId],
+    references: [users.id],
+  }),
+  comment: one(comments, {
+    fields: [notifications.commentId],
+    references: [comments.id],
+  }),
+  showcase: one(files, {
+    fields: [notifications.fileId],
+    references: [files.id],
+  }),
+}));
+
 export const usersRelations = relations(users, ({ many, one }) => ({
   files: many(files),
+  notifications: many(notifications),
   feedbacks: many(feedbacks),
   accounts: many(accounts),
   comments: many(comments),

@@ -8,13 +8,23 @@ export const enum SearchType {
   Tags,
 }
 export interface inputContent {
-    isReplying: boolean;
-    commentId?: string;
-    content: string
+  isReplying: boolean;
+  commentId?: string;
+  content: string;
 }
 export enum DrawerEnum {
   ADD_FEEDBACK,
   UPDATE_COMMENT,
+}
+
+export enum NotificationTypeEnum {
+  COMMENT = "comment",
+  REPLY = "reply",
+  MENTION = "mention",
+  FOLLOW = "follow",
+  LIKE_SHOWCASE = "likeShowcase",
+  LIKE_COMMENT = "likeComment",
+  SHOWCASE = "showcase",
 }
 
 export enum MentionType {
@@ -102,9 +112,18 @@ export interface LikesInfo {
   userId: string;
 }
 
-export interface Follower {
-  followed: boolean;
-  userId: string;
+export interface Follower
+  extends Omit<
+    User,
+    | "email"
+    | "createdAt"
+    | "updatedAt"
+    | "emailVerified"
+    | "password"
+    | "gallery"
+    | "socialUrls"
+  > {
+  followedAt: Date;
 }
 
 export interface UserProfileType {

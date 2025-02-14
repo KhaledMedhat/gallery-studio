@@ -37,16 +37,22 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 import {
+  AtSign,
   BadgeHelp,
+  Bell,
   FolderOpen,
   FolderPlus,
+  Heart,
   House,
+  ImagePlus,
   Images,
   LoaderCircle,
   LogOut,
+  MessageCircle,
   Settings,
   Telescope,
   User,
+  UserCheck,
   X,
 } from "lucide-react";
 import {
@@ -66,15 +72,22 @@ import DeleteButton from "./DeleteButton";
 import ToAlbumButton from "./ToAlbumButton";
 import ChooseFilesModal from "./ChooseFilesModal";
 import { getInitials, isURLActive } from "~/utils/utils";
-import type { User as UserType, fileType } from "~/types/types";
+import { NotificationTypeEnum, type User as UserType, type fileType } from "~/types/types";
 import FromAlbumToAlbum from "./FromAlbumToAlbum";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "~/components/ui/sheet";
+import { useTheme } from "next-themes";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
 
 const GalleryNavbar: React.FC<{
   user: UserType | null | undefined;
   files?: fileType[] | undefined;
 }> = ({ user, files }) => {
   const router = useRouter();
+  const { resolvedTheme } = useTheme();
   const pathname = usePathname();
   const utils = api.useUtils();
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
@@ -93,6 +106,29 @@ const GalleryNavbar: React.FC<{
     defaultValues: {
       albumTitle: "",
     },
+  });
+  const { data: notifications, isPending: isFetchNotificationPending } = api.notification.getNotifications.useQuery();
+  const lastNotificationRef = useRef<string | undefined | null>(null);
+
+  useEffect(() => {
+    if (!notifications || notifications.length === 0) return;
+
+    const latestNotification = notifications[0];
+    if (latestNotification?.id !== lastNotificationRef.current) {
+      toast({
+        title: `${latestNotification?.notificationContent?.sender} ${latestNotification?.notificationContent?.title}`,
+        description: latestNotification?.notificationContent?.content,
+        duration: 5000,
+      })
+      lastNotificationRef.current = latestNotification?.id;
+    }
+  }, [notifications]);
+
+  const notificationCounter = notifications?.filter((notification) => !notification.isRead).length;
+  const { mutate: updateNotificationIsRead } = api.notification.updateNotificationIsRead.useMutation({
+    onSuccess: () => {
+      void utils.notification.getNotifications.invalidate();
+    }
   });
   const { mutate: addAlbum, isPending: isAddAlbumPending } =
     api.album.createAlbum.useMutation({
@@ -126,6 +162,7 @@ const GalleryNavbar: React.FC<{
     await deleteCookie();
     router.refresh();
   };
+
   return (
     <div
       className={`pointer-events-none fixed inset-x-0 ${pathname.includes("/images") ? "top-0 mt-4" : "bottom-0 mb-4"} z-30 mx-auto flex h-full max-h-14 origin-bottom`}
@@ -135,7 +172,7 @@ const GalleryNavbar: React.FC<{
       )}
       <Dock
         direction="middle"
-        className="pointer-events-auto relative bottom-8 z-50 mx-auto mb-4 flex origin-bottom gap-2 rounded-3xl bg-background"
+        className="pointer-events-auto relative bottom-8 z-50 mx-auto mb-4 flex origin-bottom gap-1 rounded-3xl bg-background"
       >
         <DockIcon>
           <TooltipProvider>
@@ -303,6 +340,75 @@ const GalleryNavbar: React.FC<{
           </DockIcon>
         )}
         <DockIcon>
+          <Sheet>
+            <SheetTrigger className="relative">
+              <Bell size={20} />
+              <div className={`${notifications?.length === 0 || isFetchNotificationPending ? "hidden" : "flex"} ${notificationCounter && notificationCounter > 9 ? 'h-5 w-7 -top-4 -right-4' : 'h-5 w-6 -top-4 -right-4'} rounded-full absolute z-50  bg-[#a52626]  items-center justify-center text-white text-[0.6rem] font-bold `}>
+                {notificationCounter && notificationCounter > 99 ? "99+" : notificationCounter}
+              </div>
+            </SheetTrigger>
+            <SheetContent className="overflow-y-auto p-4">
+              <SheetHeader>
+                <SheetTitle>Notifications</SheetTitle>
+              </SheetHeader>
+              <div className="mt-6 flex flex-col gap-2 w-full">
+                {notifications?.map((notification) => (
+                  <div key={notification.id} className={`flex flex-col cursor-pointer ${notification.isRead ? 'bg-transparent border ' : 'bg-input hover:bg-muted-foreground'} rounded-lg gap-2 h-fit p-2`} onClick={() => {
+                    if (notification.notificationType === NotificationTypeEnum.FOLLOW) {
+                      router.push(`${notification.sender.name}`)
+                    } else {
+                      router.push(`/showcases/${notification.fileId}`)
+
+                    }
+                    updateNotificationIsRead({ isRead: true, notificationId: notification.id })
+                  }}>
+                    <div className="flex items-center gap-2">
+                      <div className="relative">
+                        <Avatar className="h-14 w-14">
+                          <AvatarImage
+                            src={notification.sender.profileImage?.imageUrl ?? ""}
+                            alt={notification.sender.name ?? "Avatar"}
+                            className="object-cover"
+                          />
+                          <AvatarFallback
+                            className={`${resolvedTheme === "dark" ? "border-2 border-solid border-white" : "border-2 border-solid border-black"} text-sm`}
+                          >
+                            {getInitials(
+                              notification.sender.firstName ?? "",
+                              notification.sender.lastName ?? "",
+                            )}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="absolute -bottom-1 -right-1">
+                          {notification.notificationType === NotificationTypeEnum.COMMENT && <MessageCircle fill={resolvedTheme === "dark" ? "#171717" : "#FFFFFF"} />}
+                          {notification.notificationType === NotificationTypeEnum.FOLLOW && <UserCheck fill={resolvedTheme === "dark" ? "#171717" : "#FFFFFF"} />}
+                          {notification.notificationType === NotificationTypeEnum.SHOWCASE && <ImagePlus fill={resolvedTheme === "dark" ? "#171717" : "#FFFFFF"} />}
+                          {notification.notificationType === NotificationTypeEnum.LIKE_COMMENT && <Heart fill={resolvedTheme === "dark" ? "#171717" : "#FFFFFF"} />}
+                          {notification.notificationType === NotificationTypeEnum.LIKE_SHOWCASE && <Heart fill={resolvedTheme === "dark" ? "#171717" : "#FFFFFF"} />}
+                          {notification.notificationType === NotificationTypeEnum.REPLY && <MessageCircle fill={resolvedTheme === "dark" ? "#171717" : "#FFFFFF"} />}
+                          {notification.notificationType === NotificationTypeEnum.MENTION && <AtSign />}
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1 w-full">
+                        <div className="text-sm font-semibold flex flex-col items-start">
+                          {notification.notificationContent?.sender} {notification.notificationContent?.title}
+                          <div className="text-xs w-fit font-semibold">
+                            {dayjs(notification?.createdAt).fromNow().replace('ago', '').replace('an', '1')}
+                          </div>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {notification.notificationContent?.content}
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                ))}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </DockIcon>
+        <DockIcon>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -313,7 +419,8 @@ const GalleryNavbar: React.FC<{
           </TooltipProvider>
         </DockIcon>
         <Separator orientation="vertical" className="h-full py-2" />
-        <DockIcon>
+        <DockIcon className="relative">
+
           <DropdownMenu>
             <TooltipProvider>
               <Tooltip>

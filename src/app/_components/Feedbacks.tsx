@@ -17,9 +17,9 @@ import { Card } from "~/components/ui/card";
 import { getInitials, windowSize } from "~/utils/utils";
 import { Skeleton } from "~/components/ui/skeleton";
 import CustomDrawer from "./CustomDrawer";
-import { DrawerEnum } from "~/types/types";
+import { DrawerEnum, type User } from "~/types/types";
 
-const Feedbacks = () => {
+const Feedbacks: React.FC<{ currentUser: User | null | undefined }> = ({ currentUser }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 5;
 
@@ -50,6 +50,7 @@ const Feedbacks = () => {
         <div className="flex h-full flex-col items-center justify-between">
           <div className="flex w-full flex-col flex-wrap items-center gap-8">
             <CustomDrawer
+              currentUser={currentUser}
               drawerAppearance={DrawerEnum.ADD_FEEDBACK}
               drawerTitle="Add Feedback"
               drawerDescription="Add feedback to help us improve"

@@ -1,5 +1,4 @@
 import FileModalView from "~/app/_components/FileModalView";
-import { Modal } from "~/app/_components/Modal";
 import { api } from "~/trpc/server";
 
 export default async function ShowCasesFilePage({

@@ -6,7 +6,7 @@ import { LockIcon, ArrowLeft, Home } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import BlurFade from "~/components/ui/blur-fade";
 import Navbar from "./Navbar";
-import { User } from "~/types/types";
+import type { User } from "~/types/types";
 
 const PrivateGalleryAccessDenied: React.FC<{
   currentUser: User | null | undefined;

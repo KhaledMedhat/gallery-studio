@@ -32,7 +32,7 @@ const UserProfile: React.FC<{
   const router = useRouter();
   const sameUser = currentUser?.id === user?.id;
   const isInFollowing = currentUser?.followings?.find(
-    (following) => following.userId === user?.id,
+    (following) => following.id === user?.id,
   );
   const { setIsUserUpdating, isUserUpdating } = useUserStore();
   const utils = api.useUtils();
@@ -40,6 +40,7 @@ const UserProfile: React.FC<{
     api.user.followUser.useMutation({
       onSuccess: () => {
         router.refresh();
+        void utils.notification.getNotifications.invalidate();
         void utils.file.getShowcaseFiles.invalidate();
       },
     });

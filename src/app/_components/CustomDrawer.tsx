@@ -10,7 +10,7 @@ import {
   DrawerTrigger,
 } from "~/components/ui/drawer";
 import FeedbackForm from "./FeedbackForm";
-import { DrawerEnum, ElementType, MentionType } from "~/types/types";
+import { DrawerEnum, ElementType, MentionType, type User } from "~/types/types";
 import MentionInput from "./MentionInput";
 
 const CustomDrawerWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -36,11 +36,13 @@ const CustomDrawerWrapper: React.FC<{ children: React.ReactNode }> = ({ children
 const CustomDrawer: React.FC<{
   drawerAppearance: DrawerEnum;
   drawerTitle: string;
+  currentUser: User | undefined | null;
   drawerDescription: string;
   originalComment?: string;
   commentId?: string;
 }> = ({
   drawerTitle,
+  currentUser,
   drawerDescription,
   drawerAppearance,
   originalComment,
@@ -73,6 +75,7 @@ const CustomDrawer: React.FC<{
             </DrawerHeader>
 
             <MentionInput
+              currentUser={currentUser}
               originalComment={originalComment}
               commentId={commentId}
               mentionType={MentionType.FOLLOWINGS}

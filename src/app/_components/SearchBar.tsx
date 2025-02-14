@@ -45,7 +45,7 @@ const SearchBar = () => {
           <Search size={20} />
         </div>
         <Input
-          placeholder="Search for Artists or Showcases through tags ..."
+          placeholder="Search for Artists or Tags ..."
           value={searchValue}
           onChange={handleChange}
           className="w-full ps-10 focus-visible:ring-0 focus-visible:ring-offset-0"

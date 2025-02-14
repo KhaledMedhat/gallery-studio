@@ -21,8 +21,6 @@ import UpdateFileView from "./UpdateFileView";
 dayjs.extend(relativeTime);
 
 const Showcase: React.FC<{
-  // isUpdating: boolean;
-  // setIsUpdating: (isUpdating: boolean) => void;
   file: Showcase | undefined;
   currentUser: User | undefined | null;
   isFullView: boolean;
@@ -97,9 +95,9 @@ const Showcase: React.FC<{
           </div>
         )}
         {file?.filePrivacy === "public" && (
-          <Card className="sticky bottom-4 w-full">
+          <Card className="sticky w-full">
             <CardContent className="p-2">
-              <MentionInput fileId={file.id} mentionType={MentionType.FOLLOWINGS} inputType={ElementType.INPUT} />
+              <MentionInput currentUser={currentUser} fileId={file.id} mentionType={MentionType.FOLLOWINGS} inputType={ElementType.INPUT} />
             </CardContent>
           </Card>
         )}
@@ -117,7 +115,7 @@ const Showcase: React.FC<{
                 showcaseComments={file?.comments ?? []}
               />
             )}
-            <MentionInput fileId={file.id} mentionType={MentionType.FOLLOWINGS} inputType={ElementType.INPUT} />
+            <MentionInput currentUser={currentUser} fileId={file.id} mentionType={MentionType.FOLLOWINGS} inputType={ElementType.INPUT} />
           </div>
         </div>
       )
@@ -139,7 +137,7 @@ const Showcase: React.FC<{
               )}
             </AvatarFallback>
           </Avatar>
-          <SharedHoverCard file={file} />
+          <SharedHoverCard isCommentOrReply={false} file={file} />
         </div>
         {sameUser && (
           <FileOptions

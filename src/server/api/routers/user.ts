@@ -1,6 +1,5 @@
 import { z } from "zod";
 import {
-  accounts,
   files,
   galleries,
   otp,
@@ -12,11 +11,13 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { randomBytes } from "crypto";
 import { db } from "~/server/db";
 import { TRPCError } from "@trpc/server";
-import { and, eq, inArray, like } from "drizzle-orm";
+import { eq, like } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { Send, SendResetPasswordLink } from "~/app/api/send/route";
 import { hashPassword, generateOTP } from "~/utils/utils";
 import CryptoJS from "crypto-js";
+import { createCaller } from "../root";
+import { NotificationTypeEnum } from "~/types/types";
 export const userRouter = createTRPCRouter({
   resetPassword: publicProcedure
     .input(z.object({ id: z.string().min(1), password: z.string().min(1) }))
@@ -290,16 +291,6 @@ export const userRouter = createTRPCRouter({
       return existedUser;
     }),
 
-  getProvidedUserRoute: protectedProcedure.query(async ({ ctx }) => {
-    const existedUserAccount = await ctx.db.query.accounts.findFirst({
-      where: eq(accounts.userId, ctx.user?.id ?? ""),
-    });
-    if (existedUserAccount) {
-      return existedUserAccount;
-    }
-    return null;
-  }),
-
   getFileUser: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
@@ -369,6 +360,7 @@ export const userRouter = createTRPCRouter({
       const foundedUser = await ctx.db.query.users.findFirst({
         where: eq(users.id, input.id),
       });
+      const caller = createCaller(ctx);
 
       if (!foundedUser) {
         throw new TRPCError({
@@ -378,12 +370,36 @@ export const userRouter = createTRPCRouter({
       }
       const updateFollowingUsers = [
         ...(ctx.user?.followings ?? []),
-        { followed: true, userId: foundedUser.id },
+        {
+          id: foundedUser.id,
+          name: foundedUser.name,
+          followedAt: new Date(),
+          firstName: foundedUser.firstName,
+          lastName: foundedUser.lastName,
+          coverImage: foundedUser.coverImage,
+          profileImage: foundedUser.profileImage,
+          followers: foundedUser.followers,
+          followings: foundedUser.followings,
+          bio: foundedUser.bio,
+          provider: foundedUser.provider,
+        },
       ];
 
       const updateFollowersForTheFollowedUser = [
         ...(foundedUser.followers ?? []),
-        { followed: true, userId: ctx.user.id },
+        {
+          id: ctx.user.id,
+          name: ctx.user.name,
+          followedAt: new Date(),
+          firstName: ctx.user.firstName,
+          lastName: ctx.user.lastName,
+          coverImage: ctx.user.coverImage,
+          profileImage: foundedUser.profileImage,
+          followers: ctx.user.followers,
+          followings: ctx.user.followings,
+          bio: ctx.user.bio,
+          provider: ctx.user.provider,
+        },
       ];
       await ctx.db
         .update(users)
@@ -398,6 +414,19 @@ export const userRouter = createTRPCRouter({
           followers: updateFollowersForTheFollowedUser,
         })
         .where(eq(users.id, foundedUser.id));
+
+      await caller.notification.sendNotification({
+        notificationType: NotificationTypeEnum.FOLLOW,
+        fileId: null,
+        commentId: null,
+        notificationReceiverId: [foundedUser.id],
+        isRead: false,
+        notificationContent: {
+          sender: ctx.user.name,
+          title: "followed you.",
+          content: "",
+        },
+      });
     }),
 
   unfollowUser: protectedProcedure
@@ -422,7 +451,7 @@ export const userRouter = createTRPCRouter({
         .update(users)
         .set({
           followings: ctx.user?.followings?.filter(
-            (follow) => follow.userId !== foundedUser.id,
+            (follow) => follow.id !== foundedUser.id,
           ),
         })
         .where(eq(users.id, ctx.user.id));
@@ -430,31 +459,10 @@ export const userRouter = createTRPCRouter({
         .update(users)
         .set({
           followers: foundedUser?.followers?.filter(
-            (follow) => follow.userId !== ctx.user?.id,
+            (follow) => follow.id !== ctx.user?.id,
           ),
         })
         .where(eq(users.id, foundedUser.id));
-    }),
-
-  getFollowingUsersInMentionSearch: protectedProcedure
-    .input(z.object({ search: z.string().trim() }))
-    .mutation(async ({ ctx, input }) => {
-      const existedUserFollowings =
-        ctx.user?.followings?.map((following) => following.userId) ?? [];
-      const foundedUsers = await ctx.db.query.users.findMany({
-        where: and(
-          inArray(users.id, existedUserFollowings),
-          like(users.name, `%${input.search}%`),
-        ),
-      });
-
-      if (!foundedUsers) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "User not found",
-        });
-      }
-      return foundedUsers;
     }),
 
   usersSearch: protectedProcedure

@@ -86,16 +86,19 @@ export function getMention(text: string) {
   return match ? match[1] : null;
 }
 
-export function extractUsernameWithoutAt(comment: string) {
-  const regex = /\w+/;
+export function extractUsernameAndText(comment: string) {
+  const regex = /^(.*?)\s*\[?@(\w+)\]?\s*(.*)$/;
   const match = regex.exec(comment);
-  return match ? match[0] : null;
-}
+  if (match) {
+    return {
+      previousText: match[1] ?? null,
+      username: match[2],
+      followingText: match[3] ?? null,
+    };
+  }
 
-export function extractComment(comment: string) {
-  const regex = /@\w+\s*(.*)/;
-  const match = regex.exec(comment);
-  return match ? match[1] : comment;
+  // If no mention exists, return the entire input as followingText
+  return { previousText: null, username: null, followingText: comment };
 }
 
 export function buildCommentHierarchy(
