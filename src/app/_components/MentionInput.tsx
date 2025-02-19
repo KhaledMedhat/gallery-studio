@@ -20,6 +20,7 @@ import { Separator } from "~/components/ui/separator"
 
 const MentionInput: React.FC<{
     mentionType: MentionType;
+    isUpdatingUserSettingsPending?: boolean,
     currentUser: User | undefined | null;
     inputType: ElementType;
     mentionInputValue?: string;
@@ -27,7 +28,7 @@ const MentionInput: React.FC<{
     commentId?: string;
     originalComment?: string;
     setMentionInputValue?: (value: string) => void
-}> = ({ mentionType, currentUser, inputType, mentionInputValue, setMentionInputValue, fileId, commentId, originalComment }) => {
+}> = ({ mentionType, currentUser, isUpdatingUserSettingsPending, inputType, mentionInputValue, setMentionInputValue, fileId, commentId, originalComment }) => {
     const { replyData, setReplyData } = useFileStore();
     const param = useParams()
     const [popoverModality, setPopoverModality] = useState<boolean>(false)
@@ -147,8 +148,8 @@ const MentionInput: React.FC<{
                         backgroundColor: 'transparent',
                     }
                 }}
-                disabled={isPostingComment ||
-                    isUpdatingComment ||
+                disabled={isUpdatingUserSettingsPending ?? isPostingComment ??
+                    isUpdatingComment ??
                     isPostingReply}
                 onKeyDown={(e) => {
                     if (e.key === "Enter") {
@@ -157,7 +158,7 @@ const MentionInput: React.FC<{
                 }
                 }
                 placeholder={inputType === ElementType.INPUT ? "Write a comment ..." : "Update your bio."}
-                className={`p-1 max-w-[90%] ${inputType === ElementType.INPUT ? "h-fit outline-none" : "min-h-[80px]"} w-full `}
+                className={`p-1 max-w-[90%] ${isUpdatingUserSettingsPending && 'text-muted-foreground'}  ${inputType === ElementType.INPUT ? "h-fit outline-none" : "min-h-[80px]"} w-full disabled:cursor-not-allowed disabled:opacity-50`}
                 customSuggestionsContainer={(children: React.ReactNode) => (
                     <ScrollArea className="max-h-72 h-fit w-48 flex flex-col gap-4 bg-background border rounded-md p-2">
                         {children}

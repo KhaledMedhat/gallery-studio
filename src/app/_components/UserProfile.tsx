@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import Image from "next/image";
-import { Camera, ImageIcon, LoaderCircle } from "lucide-react";
+import { LoaderCircle, Facebook, Twitter, Instagram } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -14,7 +14,7 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { type Showcase as showcaseType, type User } from "~/types/types";
-import { getInitials, typeOfFile } from "~/utils/utils";
+import { extractUsernameAndText, getInitials, typeOfFile } from "~/utils/utils";
 import BlurFade from "~/components/ui/blur-fade";
 import Link from "next/link";
 import Video from "./Video";
@@ -23,6 +23,7 @@ import { UpdateUserCoverImage, UpdateUserInfo } from "./UpdateUserProfile";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
+import SharedHoverCard from "./SharedHoverCard";
 
 const UserProfile: React.FC<{
   user: User | null;
@@ -51,6 +52,12 @@ const UserProfile: React.FC<{
         void utils.file.getShowcaseFiles.invalidate();
       },
     });
+  const iconMap: Record<string, React.FC> = {
+    Facebook: Facebook,
+    Twitter: Twitter,
+    Instagram: Instagram,
+    // Add other icons as needed
+  };
   return (
     <div className="min-h-screen">
       {/* Cover Photo */}
@@ -104,16 +111,26 @@ const UserProfile: React.FC<{
                     {user?.firstName} {user?.lastName}
                   </h1>
                   <p className="text-muted-foreground">@{user?.name}</p>
-                  <p className="mt-2">{user?.bio}</p>
-                  <div className="mt-4 flex flex-wrap justify-center gap-2 md:justify-start">
-                    <Badge variant="secondary">
-                      <Camera className="mr-1 h-4 w-4" />
-                      Photographer
-                    </Badge>
-                    <Badge variant="secondary">
-                      <ImageIcon className="mr-1 h-4 w-4" />
-                      Digital Artist
-                    </Badge>
+                  <p className="mt-2">
+                    {extractUsernameAndText(user?.bio).previousText}
+                    {" "}
+                    <SharedHoverCard
+                      reply={extractUsernameAndText(user?.bio).username}
+                      isCommentOrReply={true}
+                    />
+                    {" "}
+                    {extractUsernameAndText(user?.bio).followingText}
+
+                  </p>                  <div className="mt-4 flex flex-wrap justify-center gap-2 md:justify-start">
+                    {user?.socialUrls?.map((socialUrl, idx) => (
+                      <Badge key={idx} variant="secondary" className="rounded-full p-1">
+                        <Link href={socialUrl.url}>
+                          {iconMap[socialUrl.platformIcon] ? (
+                            React.createElement(iconMap[socialUrl.platformIcon]!)
+                          ) : null}
+                        </Link>
+                      </Badge>
+                    ))}
                   </div>
                 </div>
                 <Button
@@ -165,7 +182,7 @@ const UserProfile: React.FC<{
           </CardContent>
         </Card>
 
-        {/* Tabs for different sections */}
+        {/* showcases tab section */}
         <Tabs defaultValue="showcases" className="mt-8">
           <TabsList className="grid w-full grid-cols-1">
             <TabsTrigger value="showcases" className="cursor-auto">
@@ -223,7 +240,7 @@ const UserProfile: React.FC<{
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </div >
   );
 };
 

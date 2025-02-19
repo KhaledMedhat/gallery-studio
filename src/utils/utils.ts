@@ -86,9 +86,9 @@ export function getMention(text: string) {
   return match ? match[1] : null;
 }
 
-export function extractUsernameAndText(comment: string) {
+export function extractUsernameAndText(comment: string | undefined | null) {
   const regex = /^(.*?)\s*\[?@(\w+)\]?\s*(.*)$/;
-  const match = regex.exec(comment);
+  const match = regex.exec(comment ?? "");
   if (match) {
     return {
       previousText: match[1] ?? null,

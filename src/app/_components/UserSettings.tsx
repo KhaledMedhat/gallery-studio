@@ -1,6 +1,6 @@
 'use client'
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Facebook, Instagram, Trash2, Twitter } from "lucide-react"
+import { Facebook, Instagram, LoaderCircle, Trash2, Twitter } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
@@ -23,6 +23,8 @@ enum SettingTabs {
     Notifications,
 }
 const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ currentUser }) => {
+    const utils = api.useUtils();
+
     const tabs = [
         { label: "Profile", value: SettingTabs.Profile },
         { label: "Account", value: SettingTabs.Account },
@@ -59,6 +61,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
     const { mutate: updateUserSettings, isPending: isUpdatingUserSettingsPending } = api.user.updateUserProfile.useMutation({
         onSuccess: () => {
             router.refresh();
+            void utils.user.getUser.invalidate()
             toast({
                 title: "Updated Successfully.",
                 description: `Your profile has been updated successfully.`,
@@ -97,14 +100,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
             </div>
         )
     }
-    //fix the issue later
-    const urlRemoval = (index: number) => {
-        if (isUpdatingUserSettingsPending) {
-            return
-        } else {
-            remove(index)
-        }
-    }
+
     const socialMediaOptions = [
         { value: "Facebook", label: "Facebook", icon: Facebook },
         { value: "Twitter", label: "Twitter", icon: Twitter },
@@ -127,6 +123,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                                         <FormLabel>Username</FormLabel>
                                         <FormControl>
                                             <Input
+                                                disabled={isUpdatingUserSettingsPending}
                                                 placeholder="Username"
                                                 {...field}
                                             />
@@ -139,7 +136,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                             <div className="flex flex-col gap-1">
                                 <div className="flex flex-col gap-3">
                                     <Label htmlFor="bio">Bio</Label>
-                                    <MentionInput currentUser={currentUser} mentionType={MentionType.FOLLOWINGS} inputType={ElementType.TEXTAREA} mentionInputValue={mentionInputValue} setMentionInputValue={setMentionInputValue} />
+                                    <MentionInput isUpdatingUserSettingsPending={isUpdatingUserSettingsPending} currentUser={currentUser} mentionType={MentionType.FOLLOWINGS} inputType={ElementType.TEXTAREA} mentionInputValue={mentionInputValue} setMentionInputValue={setMentionInputValue} />
                                 </div>
                                 <p className="text-sm text-muted-foreground">You can @mention other users and organizations to link to them.</p>
 
@@ -161,7 +158,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                                                         render={({ field }) => (
                                                             <FormItem className="flex-grow-0">
                                                                 <FormLabel className="sr-only">Social Media Platform</FormLabel>
-                                                                <Select onValueChange={field.onChange} value={field.value}>
+                                                                <Select disabled={isUpdatingUserSettingsPending} onValueChange={field.onChange} value={field.value}>
                                                                     <FormControl>
                                                                         <SelectTrigger className="w-[130px]">
                                                                             <SelectValue placeholder="Select platform" />
@@ -189,7 +186,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                                                             <FormItem className="flex-grow md:relative">
                                                                 <FormLabel className="sr-only">URL</FormLabel>
                                                                 <FormControl>
-                                                                    <Input placeholder="https://example.com" {...field} />
+                                                                    <Input disabled={isUpdatingUserSettingsPending} placeholder="https://example.com" {...field} />
                                                                 </FormControl>
                                                                 <FormMessage />
                                                             </FormItem>
@@ -200,16 +197,20 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                                                         variant="outline"
                                                         size="icon"
                                                         className="mt-2"
+                                                        disabled={isUpdatingUserSettingsPending}
                                                         onClick={() => {
-                                                            if (field.isNew) {
-                                                                urlRemoval(index)
-                                                            } else {
-                                                                const urls = form.getValues('urls')
-                                                                const updatedUrls = urls?.map(({ isNew, ...rest }) => rest);
+
+                                                            const urls = form.getValues('urls')
+                                                            const currentUrl = urls?.[index]?.url ?? ""
+                                                            if (currentUser?.socialUrls?.[index]?.url.includes(currentUrl)) {
+                                                                const existedUrls = urls?.map(({ isNew, ...rest }) => rest);
+                                                                const updatedUrls = existedUrls?.filter((url) => url.url !== currentUrl);
                                                                 updateUserSettings({
                                                                     socialUrls: updatedUrls,
                                                                 });
-                                                                urlRemoval(index)
+                                                                remove(index)
+                                                            } else {
+                                                                remove(index)
                                                             }
                                                         }}
                                                     >
@@ -221,6 +222,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                                                 type="button"
                                                 variant="outline"
                                                 className="h-fit text-xs"
+                                                disabled={isUpdatingUserSettingsPending}
                                                 onClick={() => append({ platformIcon: "", url: "", isNew: true })}
                                             >
                                                 Add URL
@@ -231,10 +233,12 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                             />
                         </>}
                     </div>
-                    <Button type="submit">Update {""}
-                        {activeTab === SettingTabs.Profile && "Profile"}
-                        {activeTab === SettingTabs.Account && "Account"}
-                        {activeTab === SettingTabs.Notifications && "Notifications"}
+                    <Button type="submit" disabled={isUpdatingUserSettingsPending}>
+                        {isUpdatingUserSettingsPending && <LoaderCircle size={20} className="animate-spin" />}
+                        {activeTab === SettingTabs.Profile && "Update Profile"}
+                        {activeTab === SettingTabs.Account && "Update Account"}
+                        {activeTab === SettingTabs.Notifications && "Update Notifications"}
+
                     </Button>
                 </form>
             </Form >
@@ -252,7 +256,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
             <div className="flex w-full flex-col md:flex-row items-center md:items-start gap-4">
                 <div className="flex flex-row md:flex-col items-start w-full md:w-1/4">
                     {tabs.map((tab) => (
-                        <Button className="w-full p-0 justify-center md:justify-start" variant={tab.value === activeTab ? "ghost" : "link"} key={tab.value} onClick={() => setActiveTab(tab.value)}>
+                        <Button className="w-full p-0 justify-center md:justify-start hover:bg-transparent" variant={tab.value === activeTab ? "ghost" : "link"} key={tab.value} onClick={() => setActiveTab(tab.value)}>
                             {tab.label}
                         </Button>
                     ))}
