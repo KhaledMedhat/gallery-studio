@@ -37,9 +37,9 @@ const SharedHoverCard: React.FC<{
           </Link>
         </Button>
       </HoverCardTrigger>
-      <HoverCardContent side="right" className="w-80">
-        <div className="z-50 flex items-center justify-start space-x-4">
-          <Avatar className="h-16 w-16 md:h-20 md:w-20">
+      <HoverCardContent side="right" className="w-80 p-2">
+        <div className="flex items-center justify-start space-x-4">
+          <Avatar className="h-16 w-16 flex items-center justify-center">
             <AvatarImage
               className="rounded-full"
               src={
@@ -48,7 +48,7 @@ const SharedHoverCard: React.FC<{
                 file?.user?.profileImage?.imageUrl
               }
             />
-            <AvatarFallback>
+            <AvatarFallback className="bg-muted flex w-1/2 h-1/2 rounded-full items-center justify-center">
               {getInitials(
                 comment?.user?.firstName ??
                 data?.firstName ??
@@ -61,7 +61,7 @@ const SharedHoverCard: React.FC<{
               )}
             </AvatarFallback>
           </Avatar>
-          <div className="space-y-1">
+          <div className="space-y-1 ml-0">
             <h4 className="text-sm font-semibold">
               @{comment?.user?.name ?? data?.name ?? file?.user?.name}
             </h4>

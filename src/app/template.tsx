@@ -1,33 +1,28 @@
 "use client";
 
-import { useTheme } from "next-themes";
-import { useEffect } from "react";
-import { animatePageIn } from "~/utils/routeAnimation";
+import { useRef, useState } from "react";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+export default function Template({ children }: { children: React.ReactElement }) {
 
-export default function Template({ children }: { children: React.ReactNode }) {
-  const { resolvedTheme } = useTheme();
-  useEffect(() => {
-    animatePageIn();
-  }, []);
+  const [displayChildren, setDisplayChildren] = useState(children);
+  const container = useRef<HTMLDivElement>(null);
+  useGSAP(async () => {
+    if (children?.key !== displayChildren?.key) {
+      await gsap.to(container?.current, { opacity: 0 }).then(() => {
+        setDisplayChildren(children)
+        window.scrollTo(0, 0)
+        gsap.to(container?.current, { opacity: 1 })
+      })
+    }
+  }, [children])
+
+  useGSAP(() => {
+    gsap.to(container?.current, { opacity: 1 })
+  })
   return (
-    <div>
-      <div
-        id="banner-1"
-        className={`fixed left-0 top-0 z-10 min-h-screen w-1/4 ${resolvedTheme === "dark" ? "bg-white" : "bg-neutral-950"}`}
-      />
-      <div
-        id="banner-2"
-        className={`fixed left-1/4 top-0 z-10 min-h-screen w-1/4 ${resolvedTheme === "dark" ? "bg-white" : "bg-neutral-950"}`}
-      />
-      <div
-        id="banner-3"
-        className={`fixed left-2/4 top-0 z-10 min-h-screen w-1/4 ${resolvedTheme === "dark" ? "bg-white" : "bg-neutral-950"}`}
-      />
-      <div
-        id="banner-4"
-        className={`fixed left-3/4 top-0 z-10 min-h-screen w-1/4 ${resolvedTheme === "dark" ? "bg-white" : "bg-neutral-950"}`}
-      />
-      {children}
+    <div ref={container} style={{ opacity: 0 }}>
+      {displayChildren}
     </div>
   );
 }

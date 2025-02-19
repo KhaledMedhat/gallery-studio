@@ -5,7 +5,6 @@ import Image from "next/legacy/image";
 import { featuredArtworks } from "~/constants/Images";
 import Navbar from "./_components/Navbar";
 import ParticlesWrapper from "./_components/ParticlesWrapper";
-import BlurFade from "~/components/ui/blur-fade";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { Input } from "~/components/ui/input";
 import dayjs from "dayjs";
@@ -17,7 +16,6 @@ export default async function Home() {
       <div className="bg-accent-foreground w-fit fixed top-1/2 -right-10 text-accent px-6 py-2 rounded-br-md rounded-bl-md rotate-90 z-40">
         <Link href="/feedback">Feedback</Link>
       </div>
-      <BlurFade delay={0.6} inView>
         <ParticlesWrapper>
           <Navbar currentUser={currentUser} />
           <main>
@@ -104,7 +102,6 @@ export default async function Home() {
             </div>
           </footer>
         </ParticlesWrapper>
-      </BlurFade>
     </HydrateClient>
   );
 }
