@@ -16,10 +16,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Smile, SendHorizontal } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import data, { type Emoji } from "@emoji-mart/data";
+import data from "@emoji-mart/data";
 import { useTheme } from "next-themes";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import type { EmojiSelectEvent } from "~/types/types";
 
 const CommentUpdate: React.FC<{
   commentId: string;
@@ -45,7 +46,7 @@ const CommentUpdate: React.FC<{
         void utils.file.getShowcaseFiles.invalidate();
       },
     });
-  const onEmojiSelect = (emoji: Emoji) => {
+  const onEmojiSelect = (emoji: EmojiSelectEvent) => {
     const currentComment = form.getValues("comment");
     form.setValue("comment", currentComment + emoji.native);
   };
