@@ -37,6 +37,10 @@ export const env = createEnv({
   client: {
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
     NEXT_PUBLIC_ENCRYPTION_SECRET_KEY: z.string(),
+    NEXT_PUBLIC_PUSHER_APP_ID: z.string(),
+    NEXT_PUBLIC_PUSHER_KEY: z.string(),
+    NEXT_PUBLIC_PUSHER_SECRET: z.string(),
+    NEXT_PUBLIC_PUSHER_CLUSTER: z.string(),
   },
 
   /**
@@ -55,7 +59,12 @@ export const env = createEnv({
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     NEXT_PUBLIC_ENCRYPTION_SECRET_KEY:
       process.env.NEXT_PUBLIC_ENCRYPTION_SECRET_KEY,
+    NEXT_PUBLIC_PUSHER_APP_ID: process.env.NEXT_PUBLIC_PUSHER_APP_ID,
+    NEXT_PUBLIC_PUSHER_KEY: process.env.NEXT_PUBLIC_PUSHER_KEY,
+    NEXT_PUBLIC_PUSHER_SECRET: process.env.NEXT_PUBLIC_PUSHER_SECRET,
+    NEXT_PUBLIC_PUSHER_CLUSTER: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
   },
+
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
    * useful for Docker builds.

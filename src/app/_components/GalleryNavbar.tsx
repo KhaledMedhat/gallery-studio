@@ -74,12 +74,12 @@ import ChooseFilesModal from "./ChooseFilesModal";
 import { getInitials, isURLActive } from "~/utils/utils";
 import { NotificationTypeEnum, type User as UserType, type fileType } from "~/types/types";
 import FromAlbumToAlbum from "./FromAlbumToAlbum";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "~/components/ui/sheet";
 import { useTheme } from "next-themes";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-
+import Pusher from 'pusher-js'
 dayjs.extend(relativeTime);
 
 const GalleryNavbar: React.FC<{
@@ -107,22 +107,7 @@ const GalleryNavbar: React.FC<{
       albumTitle: "",
     },
   });
-  const { data: notifications, isPending: isFetchNotificationPending } = api.notification.getNotifications.useQuery();
-  const lastNotificationRef = useRef<string | undefined | null>(null);
-
-  useEffect(() => {
-    if (!notifications || notifications.length === 0) return;
-
-    const latestNotification = notifications[0];
-    if (latestNotification?.id !== lastNotificationRef.current) {
-      toast({
-        title: `${latestNotification?.notificationContent?.sender} ${latestNotification?.notificationContent?.title}`,
-        description: latestNotification?.notificationContent?.content,
-        duration: 5000,
-      })
-      lastNotificationRef.current = latestNotification?.id;
-    }
-  }, [notifications]);
+  const { data: notifications, isPending: isFetchNotificationPending, refetch } = api.notification.getNotifications.useQuery();
 
   const notificationCounter = notifications?.filter((notification) => !notification.isRead).length;
   const { mutate: updateNotificationIsRead } = api.notification.updateNotificationIsRead.useMutation({
@@ -162,6 +147,24 @@ const GalleryNavbar: React.FC<{
     await deleteCookie();
     router.refresh();
   };
+  useEffect(() => {
+    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
+      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+    })
+    const channel = pusher.subscribe(`notification-${user?.id}`)
+    channel.bind('notification-event', async (newNotification: { content: string, sender: string, title: string }) => {
+      await refetch()
+      toast({
+        title: `${newNotification.sender} ${newNotification.title}`,
+        description: newNotification.content,
+        duration: 5000,
+      })
+    })
+    return () => {
+      channel.unsubscribe()
+      pusher.disconnect()
+    }
+  }, [refetch, user?.id])
 
   return (
     <div
@@ -382,7 +385,7 @@ const GalleryNavbar: React.FC<{
                         <div className="absolute -bottom-1 -right-1">
                           {notification.notificationType === NotificationTypeEnum.COMMENT && <MessageCircle fill={resolvedTheme === "dark" ? "#171717" : "#FFFFFF"} />}
                           {notification.notificationType === NotificationTypeEnum.FOLLOW && <UserCheck fill={resolvedTheme === "dark" ? "#171717" : "#FFFFFF"} />}
-                          {notification.notificationType === NotificationTypeEnum.SHOWCASE && <ImagePlus fill={resolvedTheme === "dark" ? "#171717" : "#FFFFFF"} />}
+                          {notification.notificationType === NotificationTypeEnum.ADD_SHOWCASE && <ImagePlus fill={resolvedTheme === "dark" ? "#171717" : "#FFFFFF"} />}
                           {notification.notificationType === NotificationTypeEnum.LIKE_COMMENT && <Heart fill={resolvedTheme === "dark" ? "#171717" : "#FFFFFF"} />}
                           {notification.notificationType === NotificationTypeEnum.LIKE_SHOWCASE && <Heart fill={resolvedTheme === "dark" ? "#171717" : "#FFFFFF"} />}
                           {notification.notificationType === NotificationTypeEnum.REPLY && <MessageCircle fill={resolvedTheme === "dark" ? "#171717" : "#FFFFFF"} />}

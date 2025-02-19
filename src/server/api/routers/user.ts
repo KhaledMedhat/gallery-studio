@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   files,
   galleries,
+  notifications,
   otp,
   sessions,
   tags,
@@ -16,8 +17,8 @@ import { cookies } from "next/headers";
 import { Send, SendResetPasswordLink } from "~/app/api/send/route";
 import { hashPassword, generateOTP } from "~/utils/utils";
 import CryptoJS from "crypto-js";
-import { createCaller } from "../root";
 import { NotificationTypeEnum } from "~/types/types";
+import { pusher } from "~/server/pusher";
 export const userRouter = createTRPCRouter({
   resetPassword: publicProcedure
     .input(z.object({ id: z.string().min(1), password: z.string().min(1) }))
@@ -360,7 +361,6 @@ export const userRouter = createTRPCRouter({
       const foundedUser = await ctx.db.query.users.findFirst({
         where: eq(users.id, input.id),
       });
-      const caller = createCaller(ctx);
 
       if (!foundedUser) {
         throw new TRPCError({
@@ -415,18 +415,32 @@ export const userRouter = createTRPCRouter({
         })
         .where(eq(users.id, foundedUser.id));
 
-      await caller.notification.sendNotification({
-        notificationType: NotificationTypeEnum.FOLLOW,
-        fileId: null,
-        commentId: null,
-        notificationReceiverId: [foundedUser.id],
-        isRead: false,
-        notificationContent: {
-          sender: ctx.user.name,
-          title: "followed you.",
-          content: "",
+      const [notification] = await ctx.db
+        .insert(notifications)
+        .values({
+          notificationType: NotificationTypeEnum.FOLLOW,
+          fileId: null,
+          commentId: null,
+          notificationReceiverId: foundedUser.id,
+          senderId: ctx.user.id,
+          isRead: false,
+          notificationContent: {
+            sender: ctx.user.name,
+            title: "followed you.",
+            content: "",
+          },
+        })
+        .returning();
+      await pusher.trigger(
+        `notification-${foundedUser.id}`,
+        "notification-event",
+        {
+          title: notification?.notificationContent?.title,
+          sender: notification?.notificationContent?.sender,
+          content: notification?.notificationContent?.content,
         },
-      });
+      );
+      return { success: true };
     }),
 
   unfollowUser: protectedProcedure

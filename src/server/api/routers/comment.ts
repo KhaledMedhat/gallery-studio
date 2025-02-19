@@ -1,11 +1,11 @@
-import { comments, files } from "~/server/db/schema";
+import { comments, files, notifications } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
-import { createCaller } from "../root";
 import { NotificationTypeEnum } from "~/types/types";
 import { extractUsernameAndText } from "~/utils/utils";
+import { pusher } from "~/server/pusher";
 
 export const commentRouter = createTRPCRouter({
   unlikeComment: protectedProcedure
@@ -41,7 +41,6 @@ export const commentRouter = createTRPCRouter({
           message: "Unauthorized",
         });
       }
-      const caller = createCaller(ctx);
       const foundedComment = await ctx.db.query.comments.findFirst({
         where: eq(files.id, input.id),
       });
@@ -58,19 +57,35 @@ export const commentRouter = createTRPCRouter({
           })
           .where(eq(comments.id, input.id));
 
-        await caller.notification.sendNotification({
-          notificationType: NotificationTypeEnum.LIKE_COMMENT,
-          fileId: foundedComment.fileId,
-          commentId: foundedComment.id,
-          notificationReceiverId: [foundedComment.userId],
-          isRead: false,
-          notificationContent: {
-            sender: ctx.user.name,
-            title: "liked your comment.",
-            content: "",
-          },
-        });
+        if (foundedComment.userId !== ctx.user.id) {
+          const [notification] = await ctx.db
+            .insert(notifications)
+            .values({
+              notificationType: NotificationTypeEnum.LIKE_COMMENT,
+              fileId: foundedComment.fileId,
+              commentId: foundedComment.id,
+              notificationReceiverId: foundedComment.userId,
+              senderId: ctx.user.id,
+              isRead: false,
+              notificationContent: {
+                sender: ctx.user.name,
+                title: "liked your comment.",
+                content: "",
+              },
+            })
+            .returning();
+          await pusher.trigger(
+            `notification-${foundedComment.userId}`,
+            "notification-event",
+            {
+              title: notification?.notificationContent?.title,
+              sender: notification?.notificationContent?.sender,
+              content: notification?.notificationContent?.content,
+            },
+          );
+        }
       }
+      return { success: true };
     }),
 
   postComment: protectedProcedure
@@ -85,7 +100,6 @@ export const commentRouter = createTRPCRouter({
       const foundedFile = await ctx.db.query.files.findFirst({
         where: eq(files.id, input.id),
       });
-      const caller = createCaller(ctx);
       const isAMention = extractUsernameAndText(input.content).username;
       if (foundedFile) {
         await ctx.db.insert(comments).values({
@@ -100,23 +114,40 @@ export const commentRouter = createTRPCRouter({
             commentsCount: foundedFile?.commentsCount + 1,
           })
           .where(eq(files.id, input.id));
-        await caller.notification.sendNotification({
-          notificationType: isAMention
-            ? NotificationTypeEnum.MENTION
-            : NotificationTypeEnum.COMMENT,
-          fileId: foundedFile.id,
-          commentId: null,
-          notificationReceiverId: [foundedFile?.createdById],
-          isRead: false,
-          notificationContent: {
-            sender: ctx.user.name,
-            title: isAMention
-              ? "mentioned you in a comment."
-              : "commented on your showcase.",
-            content: input.content,
-          },
-        });
+        if (foundedFile.createdById !== ctx.user.id) {
+          const [notification] = await ctx.db
+            .insert(notifications)
+            .values({
+              notificationType: isAMention
+                ? NotificationTypeEnum.MENTION
+                : NotificationTypeEnum.COMMENT,
+              fileId: foundedFile.id,
+              commentId: null,
+              notificationReceiverId: foundedFile?.createdById,
+              senderId: ctx.user.id,
+              isRead: false,
+              notificationContent: {
+                sender: ctx.user.name,
+                title: isAMention
+                  ? "mentioned you in a comment."
+                  : "commented on your showcase.",
+                content: input.content,
+              },
+            })
+            .returning();
+
+          await pusher.trigger(
+            `notification-${foundedFile.createdById}`,
+            "notification-event",
+            {
+              title: notification?.notificationContent?.title,
+              sender: notification?.notificationContent?.sender,
+              content: notification?.notificationContent?.content,
+            },
+          );
+        }
       }
+      return { success: true };
     }),
 
   postReply: protectedProcedure
@@ -131,7 +162,6 @@ export const commentRouter = createTRPCRouter({
       const foundedComment = await ctx.db.query.comments.findFirst({
         where: eq(comments.id, input.id),
       });
-      const caller = createCaller(ctx);
       const isAMention = extractUsernameAndText(input.content).username;
 
       if (!foundedComment) {
@@ -148,22 +178,38 @@ export const commentRouter = createTRPCRouter({
         createdAt: new Date(),
         isReply: true,
       });
-      await caller.notification.sendNotification({
-        notificationType: isAMention
-          ? NotificationTypeEnum.MENTION
-          : NotificationTypeEnum.REPLY,
-        fileId: foundedComment.fileId,
-        commentId: foundedComment.id,
-        notificationReceiverId: [foundedComment.userId],
-        isRead: false,
-        notificationContent: {
-          sender: ctx.user.name,
-          title: isAMention
-            ? "mentioned you in a reply."
-            : "replied to your comment.",
-          content: input.content,
-        },
-      });
+      if (foundedComment.userId !== ctx.user.id) {
+        const [notification] = await ctx.db
+          .insert(notifications)
+          .values({
+            notificationType: isAMention
+              ? NotificationTypeEnum.MENTION
+              : NotificationTypeEnum.REPLY,
+            fileId: foundedComment.fileId,
+            commentId: foundedComment.id,
+            notificationReceiverId: foundedComment.userId,
+            senderId: ctx.user.id,
+            isRead: false,
+            notificationContent: {
+              sender: ctx.user.name,
+              title: isAMention
+                ? "mentioned you in a reply."
+                : "replied to your comment.",
+              content: input.content,
+            },
+          })
+          .returning();
+        await pusher.trigger(
+          `notification-${foundedComment.userId}`,
+          "notification-event",
+          {
+            title: notification?.notificationContent?.title,
+            sender: notification?.notificationContent?.sender,
+            content: notification?.notificationContent?.content,
+          },
+        );
+      }
+      return { success: true };
     }),
 
   updateComment: protectedProcedure
