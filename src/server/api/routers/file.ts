@@ -289,8 +289,7 @@ export const fileRouter = createTRPCRouter({
           );
         }
       }
-
-      return { success: true };
+      return newFile;
     }),
 
   getFileById: protectedProcedure
