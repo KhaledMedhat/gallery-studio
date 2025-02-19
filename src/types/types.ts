@@ -24,7 +24,7 @@ export enum NotificationTypeEnum {
   FOLLOW = "follow",
   LIKE_SHOWCASE = "likeShowcase",
   LIKE_COMMENT = "likeComment",
-  SHOWCASE = "showcase",
+  ADD_SHOWCASE = "addShowcase",
 }
 
 export enum MentionType {

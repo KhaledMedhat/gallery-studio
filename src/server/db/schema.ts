@@ -32,7 +32,7 @@ export const notificationEnum = pgEnum("notification", [
   "follow",
   "likeShowcase",
   "likeComment",
-  "showcase",
+  "addShowcase",
 ]);
 
 export const createTable = pgTableCreator((name) => `gallery-studio_${name}`);

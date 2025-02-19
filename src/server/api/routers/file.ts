@@ -12,7 +12,7 @@ import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { buildCommentHierarchy } from "~/utils/utils";
 import { NotificationTypeEnum } from "~/types/types";
-import { createCaller } from "../root";
+import { pusher } from "~/server/pusher";
 
 export const fileRouter = createTRPCRouter({
   unlikeFile: protectedProcedure
@@ -51,7 +51,6 @@ export const fileRouter = createTRPCRouter({
       const foundedFile = await ctx.db.query.files.findFirst({
         where: eq(files.id, input.id),
       });
-      const caller = createCaller(ctx);
       if (foundedFile) {
         const updatedLikesInfo = [
           ...(foundedFile.likesInfo ?? []),
@@ -64,19 +63,36 @@ export const fileRouter = createTRPCRouter({
           })
 
           .where(eq(files.id, input.id));
-        await caller.notification.sendNotification({
-          notificationType: NotificationTypeEnum.LIKE_SHOWCASE,
-          fileId: foundedFile.id,
-          commentId: null,
-          notificationReceiverId: [foundedFile?.createdById],
-          isRead: false,
-          notificationContent: {
-            sender: ctx.user.name,
-            title: "liked your showcase.",
-            content: "",
-          },
-        });
+        if (foundedFile.createdById !== ctx.user?.id) {
+          const [notification] = await ctx.db
+            .insert(notifications)
+            .values({
+              notificationType: NotificationTypeEnum.LIKE_SHOWCASE,
+              fileId: foundedFile.id,
+              commentId: null,
+              senderId: ctx.user.id,
+              notificationReceiverId: foundedFile.createdById,
+              isRead: false,
+              notificationContent: {
+                sender: ctx.user.name,
+                title: "liked your showcase.",
+                content: "",
+              },
+            })
+            .returning();
+
+          await pusher.trigger(
+            `notification-${foundedFile.createdById}`,
+            "notification-event",
+            {
+              title: notification?.notificationContent?.title,
+              sender: notification?.notificationContent?.sender,
+              content: notification?.notificationContent?.content,
+            },
+          );
+        }
       }
+      return { success: true };
     }),
 
   getShowcaseFiles: protectedProcedure.query(async ({ ctx }) => {
@@ -245,23 +261,36 @@ export const fileRouter = createTRPCRouter({
       const followers = ctx.user.followers?.map((follower) => follower.id);
       for (const follower of followers ?? []) {
         if (newFile?.filePrivacy === "public") {
-          await ctx.db.insert(notifications).values({
-            notificationReceiverId: follower,
-            senderId: ctx.user.id,
-            fileId: newFile?.id,
-            commentId: null,
-            notificationType: NotificationTypeEnum.SHOWCASE,
-            isRead: false,
-            notificationContent: {
-              sender: ctx.user.name,
-              title: "added a new showcase.",
-              content: "",
+          const [notification] = await ctx.db
+            .insert(notifications)
+            .values({
+              notificationReceiverId: follower,
+              senderId: ctx.user.id,
+              fileId: newFile?.id,
+              commentId: null,
+              notificationType: NotificationTypeEnum.ADD_SHOWCASE,
+              isRead: false,
+              notificationContent: {
+                sender: ctx.user.name,
+                title: "added a new showcase.",
+                content: "",
+              },
+            })
+            .returning();
+
+          await pusher.trigger(
+            `notification-${follower}`,
+            "notification-event",
+            {
+              title: notification?.notificationContent?.title,
+              sender: notification?.notificationContent?.sender,
+              content: notification?.notificationContent?.content,
             },
-          });
+          );
         }
       }
 
-      return newFile;
+      return { success: true };
     }),
 
   getFileById: protectedProcedure
