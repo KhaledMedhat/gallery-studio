@@ -111,17 +111,18 @@ const UserProfile: React.FC<{
                     {user?.firstName} {user?.lastName}
                   </h1>
                   <p className="text-muted-foreground">@{user?.name}</p>
-                  <p className="mt-2">
+                  <div className="mt-2">
                     {extractUsernameAndText(user?.bio).previousText}
                     {" "}
-                    <SharedHoverCard
+                    {extractUsernameAndText(user?.bio).username && <SharedHoverCard
                       reply={extractUsernameAndText(user?.bio).username}
                       isCommentOrReply={true}
-                    />
+                    />}
                     {" "}
                     {extractUsernameAndText(user?.bio).followingText}
 
-                  </p>                  <div className="mt-4 flex flex-wrap justify-center gap-2 md:justify-start">
+                  </div>
+                  <div className="mt-4 flex flex-wrap justify-center gap-2 md:justify-start">
                     {user?.socialUrls?.map((socialUrl, idx) => (
                       <Badge key={idx} variant="secondary" className="rounded-full p-1">
                         <Link href={socialUrl.url}>

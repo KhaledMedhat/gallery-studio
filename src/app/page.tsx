@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { api, HydrateClient } from "~/trpc/server";
+import { HydrateClient } from "~/trpc/server";
 import { Button } from "~/components/ui/button";
 import Image from "next/legacy/image";
 import { featuredArtworks } from "~/constants/Images";
@@ -8,100 +8,102 @@ import ParticlesWrapper from "./_components/ParticlesWrapper";
 import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { Input } from "~/components/ui/input";
 import dayjs from "dayjs";
+import { getServerSession } from "next-auth";
+import { authOptions } from "~/server/auth";
 
 export default async function Home() {
-  const currentUser = await api.user.getUser();
+  const currentUser = await getServerSession(authOptions)
   return (
     <HydrateClient>
       <div className="bg-accent-foreground w-fit fixed top-1/2 -right-10 text-accent px-6 py-2 rounded-br-md rounded-bl-md rotate-90 z-40">
         <Link href="/feedback">Feedback</Link>
       </div>
-        <ParticlesWrapper>
-          <Navbar currentUser={currentUser} />
-          <main>
-            <section className="py-12 md:py-24">
-              <div className="container mx-auto px-4 text-center">
-                <div className="flex flex-col gap-6">
-                  <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-                    Welcome to GalleryStudio
-                  </h1>
-                  <p className="mt-4 text-xl text-muted-foreground">
-                    Discover a world of captivating artworks Create your
-                    personal gallery, Discover a world of captivating artworks,
-                    explore other&apos;s collections, and share your favorite
-                    moments. Easily upload your own images and discover stunning
-                    visuals from a community of creators. Join and showcase your
-                    creativity!
-                  </p>
-                </div>
-                <Button asChild className="mt-8" size="lg">
-                  <Link href={'/showcases'}>
-                    Explore Showcases
+      <ParticlesWrapper>
+        <Navbar currentUser={currentUser?.user} />
+        <main>
+          <section className="py-12 md:py-24">
+            <div className="container mx-auto px-4 text-center">
+              <div className="flex flex-col gap-6">
+                <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
+                  Welcome to GalleryStudio
+                </h1>
+                <p className="mt-4 text-xl text-muted-foreground">
+                  Discover a world of captivating artworks Create your
+                  personal gallery, Discover a world of captivating artworks,
+                  explore other&apos;s collections, and share your favorite
+                  moments. Easily upload your own images and discover stunning
+                  visuals from a community of creators. Join and showcase your
+                  creativity!
+                </p>
+              </div>
+              <Button asChild className="mt-8" size="lg">
+                <Link href={'/showcases'}>
+                  Explore Showcases
+                </Link>
+              </Button>
+            </div>
+          </section>
+
+          <section className="py-12">
+            <div className="container mx-auto px-4">
+              <h2 className="mb-8 text-center text-3xl font-bold">
+                Publish Your Artworks
+              </h2>
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+                {featuredArtworks.map((artwork) => (
+                  <div
+                    key={artwork.id}
+                    className="overflow-hidden rounded-lg shadow-sm"
+                  >
+                    <AspectRatio ratio={4 / 3}>
+                      <Image
+                        src={artwork.imageUrl}
+                        alt={artwork.title}
+                        layout="fill"
+                        className="h-full w-full cursor-pointer rounded-lg object-cover"
+                      />
+                    </AspectRatio>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-8 text-center">
+                <Button variant="outline">
+                  <Link
+                    href={
+                      currentUser
+                        ? `/galleries/${currentUser?.user.gallery?.slug}`
+                        : "/sign-in"
+                    }
+                  >
+                    {currentUser ? "Go to your gallery" : "Join GalleryStudio"}
                   </Link>
                 </Button>
               </div>
-            </section>
-
-            <section className="py-12">
-              <div className="container mx-auto px-4">
-                <h2 className="mb-8 text-center text-3xl font-bold">
-                  Publish Your Artworks
-                </h2>
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-                  {featuredArtworks.map((artwork) => (
-                    <div
-                      key={artwork.id}
-                      className="overflow-hidden rounded-lg shadow-sm"
-                    >
-                      <AspectRatio ratio={4 / 3}>
-                        <Image
-                          src={artwork.imageUrl}
-                          alt={artwork.title}
-                          layout="fill"
-                          className="h-full w-full cursor-pointer rounded-lg object-cover"
-                        />
-                      </AspectRatio>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-8 text-center">
-                  <Button variant="outline">
-                    <Link
-                      href={
-                        currentUser
-                          ? `/galleries/${currentUser.gallery.slug}`
-                          : "/sign-in"
-                      }
-                    >
-                      {currentUser ? "Go to your gallery" : "Join GalleryStudio"}
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            </section>
-          </main>
-          <footer className="py-12 md:py-24">
-            <div className="container mx-auto px-4 text-center">
-              <h2 className="mb-4 text-3xl font-bold">Join Our Studio Community</h2>
-              <p className="mb-8 text-xl text-muted-foreground">
-                Get updates on new Galleries, exhibitions, and exclusive events
-              </p>
-              <div className="flex items-center justify-center gap-4">
-                <Input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="w-auto"
-                />
-                <Button className="animate-bounce">Subscribe</Button>
-              </div>
-              <div className="container mx-auto mt-12 px-4 text-center">
-                <p className="text-muted-foreground">
-                  &copy;{dayjs().format("YYYY")} GalleryStudio. All rights reserved.
-                </p>
-              </div>
             </div>
-          </footer>
-        </ParticlesWrapper>
+          </section>
+        </main>
+        <footer className="py-12 md:py-24">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="mb-4 text-3xl font-bold">Join Our Studio Community</h2>
+            <p className="mb-8 text-xl text-muted-foreground">
+              Get updates on new Galleries, exhibitions, and exclusive events
+            </p>
+            <div className="flex items-center justify-center gap-4">
+              <Input
+                type="email"
+                placeholder="Enter your email"
+                className="w-auto"
+              />
+              <Button className="animate-bounce">Subscribe</Button>
+            </div>
+            <div className="container mx-auto mt-12 px-4 text-center">
+              <p className="text-muted-foreground">
+                &copy;{dayjs().format("YYYY")} GalleryStudio. All rights reserved.
+              </p>
+            </div>
+          </div>
+        </footer>
+      </ParticlesWrapper>
     </HydrateClient>
   );
 }

@@ -10,7 +10,7 @@ import {
 } from "~/components/ui/hover-card";
 import { api } from "~/trpc/react";
 import type { Comment, Showcase } from "~/types/types";
-import { getInitials } from "~/utils/utils";
+import { extractUsernameAndText, getInitials } from "~/utils/utils";
 const SharedHoverCard: React.FC<{
   isCommentOrReply: boolean;
   comment?: Comment;
@@ -30,7 +30,7 @@ const SharedHoverCard: React.FC<{
       <HoverCardTrigger asChild>
         <Button tabIndex={-1} variant="link" className="h-fit p-0 font-bold">
           <Link
-          className={`${isCommentOrReply && "text-blue-800"}`}
+            className={`${isCommentOrReply && "text-blue-800"}`}
             href={`/${comment?.user?.name ?? data?.name ?? file?.user?.name}`}
           >
             {isCommentOrReply && '@'}{comment?.user?.name ?? data?.name ?? file?.user?.name}
@@ -65,9 +65,24 @@ const SharedHoverCard: React.FC<{
             <h4 className="text-sm font-semibold">
               @{comment?.user?.name ?? data?.name ?? file?.user?.name}
             </h4>
-            <p className="text-sm">
-              {comment?.user?.bio ?? data?.bio ?? file?.user?.bio ?? ""}
-            </p>
+            <div className="text-sm">
+              {extractUsernameAndText(comment?.user.bio ?? data?.bio ?? file?.user?.bio).previousText}
+              {" "}
+              {extractUsernameAndText(comment?.user.bio ?? data?.bio ?? file?.user?.bio).username &&
+                <Button tabIndex={-1} variant="link" className="h-fit p-0 font-bold">
+                  <Link
+                    className="text-blue-800 text-xs"
+                    href={`/${extractUsernameAndText(comment?.user.bio ?? data?.bio ?? file?.user?.bio).username}`}
+                  >
+                    {'@' + extractUsernameAndText(comment?.user.bio ?? data?.bio ?? file?.user?.bio).username}
+                  </Link>
+                </Button>
+              }
+
+              {" "}
+              {extractUsernameAndText(comment?.user.bio ?? data?.bio ?? file?.user?.bio).followingText}
+
+            </div>
             <div className="flex items-center pt-2">
               <CalendarIcon className="mr-2 h-4 w-4 opacity-70" />
               <span className="text-xs text-muted-foreground">

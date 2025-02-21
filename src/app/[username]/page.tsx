@@ -9,6 +9,8 @@ import { AlertCircle, Home, Telescope } from "lucide-react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { TRPCError } from "@trpc/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "~/server/auth";
 
 export default async function UserPage({
     params: { username: username },
@@ -17,21 +19,21 @@ export default async function UserPage({
 }) {
     const headersList = headers()
     const url = headersList.get('referer')
-    const currentUser = await api.user.getUser();
+    const currentUser = await getServerSession(authOptions)
     try {
         const user = await api.user.getUserByUsername({ username });
         const files = await api.file.getUserFiles({ id: user.id });
         return (
             <main>
-                <GalleryNavbar user={currentUser} files={files} />
-                <UserProfile user={user} files={files} currentUser={currentUser} />
+                <GalleryNavbar user={currentUser?.user} files={files} />
+                <UserProfile user={user} files={files} currentUser={currentUser?.user} />
             </main>
         );
     } catch (error) {
         if (error instanceof TRPCError && error.code === "NOT_FOUND") {
             return (
                 <BlurFade delay={0.6} inView className="flex flex-col gap-40 md:gap-96">
-                    <Navbar currentUser={currentUser} />
+                    <Navbar currentUser={currentUser?.user} />
                     <div className='flex items-center justify-center'>
                         <div className='flex flex-col items-center gap-6'>
                             <div className="flex items-center justify-center w-16 h-16 rounded-full bg-yellow-100 mx-auto mb-4">

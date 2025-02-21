@@ -1,14 +1,16 @@
+import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Files from "~/app/_components/Files";
-import { api } from "~/trpc/server";
+import { authOptions } from "~/server/auth";
 
 export default async function UserGalleryPage({
   params: { id: gallerySlug },
 }: {
   params: { id: string };
 }) {
-  const user = await api.user.getUser();
-  if (user?.gallery.slug !== gallerySlug) {
+  const currentUser = await getServerSession(authOptions)
+
+  if (currentUser?.user.gallery?.slug !== gallerySlug) {
     redirect("/access-denied");
   }
 

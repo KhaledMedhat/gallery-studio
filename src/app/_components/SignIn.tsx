@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { api } from "~/trpc/react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { Button } from "~/components/ui/button";
@@ -23,6 +22,7 @@ import { useToast } from "~/hooks/use-toast";
 import ResetPassword from "./ResetPassword";
 import ForgetPassword from "./ForgetPassword";
 import { useState } from "react";
+import { signIn } from "next-auth/react";
 
 const SignIn = () => {
   const router = useRouter();
@@ -44,25 +44,27 @@ const SignIn = () => {
     },
   });
 
-  const { mutate: userLogin, isPending: isPendingLogin } =
-    api.user.login.useMutation({
-      onSuccess: () => {
+  const [isPendingLogin, setIsPendingLogin] = useState<boolean>(false);
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    setIsPendingLogin(true)
+    await signIn('credentials', {
+      email: data.email,
+      password: data.password,
+      redirect: false,
+    }
+    ).then((response) => {
+      if (response?.ok) {
+        setIsPendingLogin(false)
         router.push("/showcases");
-      },
-      onError: (error) => {
+      } else {
+        setIsPendingLogin(false)
         toast({
           variant: "destructive",
           title: "Uh oh! Something went wrong.",
-          description: error.message,
+          description: response?.error,
         });
-      },
-    });
-
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    userLogin({
-      email: data.email,
-      password: data.password,
-    });
+      }
+    })
   };
   return (
     <div className="flex min-h-screen">
@@ -129,11 +131,10 @@ const SignIn = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel
-                          className={`${
-                            form.formState.errors.email
-                              ? "text-red-500"
-                              : "text-gray-100"
-                          }`}
+                          className={`${form.formState.errors.email
+                            ? "text-red-500"
+                            : "text-gray-100"
+                            }`}
                         >
                           Email
                         </FormLabel>
@@ -158,11 +159,10 @@ const SignIn = () => {
                       <FormItem className="w-full">
                         <div className="flex items-center justify-between">
                           <FormLabel
-                            className={`${
-                              form.formState.errors.password
-                                ? "text-red-500"
-                                : "text-gray-100"
-                            }`}
+                            className={`${form.formState.errors.password
+                              ? "text-red-500"
+                              : "text-gray-100"
+                              }`}
                           >
                             Password
                           </FormLabel>

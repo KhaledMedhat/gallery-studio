@@ -37,7 +37,6 @@ const SearchBar = () => {
       search({ search: value });
     }
   };
-
   return (
     <div className=" fixed top-2 z-10 w-full lg:w-3/5 container flex flex-col gap-1">
       <div className="relative">

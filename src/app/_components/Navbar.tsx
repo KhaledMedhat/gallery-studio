@@ -15,6 +15,7 @@ import UserAvatarProfile from "./UserAvatarProfile";
 import { isURLActive } from "~/utils/utils";
 import ModeToggle from "./ModeToggle";
 import { type User } from "~/types/types";
+import { signIn } from "next-auth/react";
 
 const Navbar: React.FC<{ currentUser: User | null | undefined }> = ({
   currentUser,
@@ -45,22 +46,22 @@ const Navbar: React.FC<{ currentUser: User | null | undefined }> = ({
               Home
             </Link>
             <Link
-              href="#"
+              href="/search"
               className={` ${isURLActive(pathname, "/artists") ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
             >
               Artists
             </Link>
             <Link
-              href="#"
+              href="/about"
               className={` ${isURLActive(pathname, "/about") ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
             >
               About
             </Link>
             <Link
-              href="#"
-              className={` ${isURLActive(pathname, "/contact") ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
+              href="/support"
+              className={` ${isURLActive(pathname, "/support") ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
             >
-              Contact
+              Support
             </Link>
           </nav>
         </div>
@@ -68,8 +69,8 @@ const Navbar: React.FC<{ currentUser: User | null | undefined }> = ({
           {currentUser ? (
             <UserAvatarProfile user={currentUser} />
           ) : (
-            <Button variant="default" className="m-0 px-4 py-0">
-              <Link href="/sign-in">Login</Link>
+            <Button variant="default" className="m-0 px-4 py-0" onClick={() => signIn()}>
+              Login
             </Button>
           )}
           <ModeToggle />

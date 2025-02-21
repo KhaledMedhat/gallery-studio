@@ -479,7 +479,7 @@ const GalleryNavbar: React.FC<{
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
                 <BadgeHelp size={16} className="mr-2" />
-                Support
+                <Link href={`/support`}>Support</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem

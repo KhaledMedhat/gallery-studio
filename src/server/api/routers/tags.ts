@@ -29,13 +29,4 @@ export const tagsRouter = createTRPCRouter({
       return addedTags;
     }),
 
-  getTags: protectedProcedure
-    .input(z.object({ tagName: z.string() }))
-    .query(async ({ ctx, input }) => {
-      const foundedTags = await ctx.db.query.tags.findMany({
-        where: eq(tags.tagName, input.tagName),
-        orderBy: (tags, { desc }) => [desc(tags.tagUsedCount)],
-      });
-      return foundedTags;
-    }),
 });

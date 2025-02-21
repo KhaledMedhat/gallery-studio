@@ -8,14 +8,11 @@
  */
 
 import { initTRPC, TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
-import { sessions, users } from "../db/schema";
-import { cookies } from "next/headers";
 /**
  * 1. CONTEXT
  *
@@ -30,39 +27,11 @@ import { cookies } from "next/headers";
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await getServerAuthSession();
-  const cookieStore = cookies();
-
-  let user = null;
-  const sessionToken = cookieStore.get("sessionToken");
-
-  if (session) {
-    // Use the session user as a base
-    const userFromSession = session.user;
-
-    // Fetch full user data from the database
-    user = await db.query.users.findFirst({
-      where: eq(users.email, userFromSession.email ?? ""), // Assuming email is unique
-    });
-  } else if (sessionToken) {
-    // Fetch the session from the database using the session token
-    const customSession = await db.query.sessions.findFirst({
-      where: eq(sessions.sessionToken, sessionToken.value),
-      with: {
-        user: true, // Ensure to fetch the associated user
-      },
-    });
-
-    if (customSession?.user) {
-      // Fetch full user data from the database
-      user = await db.query.users.findFirst({
-        where: eq(users.id, customSession.user.id),
-      });
-    }
-  }
 
   return {
     db,
-    user, // This will include the full user schema data
+    session,
+    user: session?.user, // This will include the full user schema data
   };
 };
 
@@ -151,37 +120,12 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)
   .use(async ({ ctx, next }) => {
-    const cookieStore = cookies();
-    const normalUser = cookieStore.get("sessionToken");
-    const nextAuthUserDev = cookieStore.get("next-auth.session-token"); // development
-    const nextAuthUserProd = cookieStore.get(
-      "__Secure-next-auth.session-token",
-    ); // production
-
-    const foundedUser = await ctx.db.query.sessions.findFirst({
-      where: eq(
-        sessions.sessionToken,
-        normalUser?.value ??
-          nextAuthUserDev?.value ??
-          nextAuthUserProd?.value ??
-          "",
-      ),
-    });
-    if (!foundedUser) {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "You need to be logged in to access this.",
-      });
+    if (!ctx.user || !ctx.session) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
     }
-    const existedUser = await ctx.db.query.users.findFirst({
-      where: eq(users.id, foundedUser.userId),
-      with: {
-        gallery: true,
-      },
-    });
     return next({
       ctx: {
-        user: existedUser,
+        user: ctx.user,
       },
     });
   });

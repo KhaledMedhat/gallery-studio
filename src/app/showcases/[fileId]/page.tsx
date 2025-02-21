@@ -1,12 +1,13 @@
 import { TRPCError } from "@trpc/server";
 import { AlertCircle, Home, Telescope } from "lucide-react";
+import { getServerSession } from "next-auth";
 import { headers } from "next/headers";
 import Link from "next/link";
 import FileFullView from "~/app/_components/FileFullView";
 import Navbar from "~/app/_components/Navbar";
 import BlurFade from "~/components/ui/blur-fade";
 import { Button } from "~/components/ui/button";
-import { api } from "~/trpc/server";
+import { authOptions } from "~/server/auth";
 
 export default async function ShowCasesFilePage({
   params: { fileId: fileId },
@@ -15,15 +16,16 @@ export default async function ShowCasesFilePage({
 }) {
   const headersList = headers();
   const url = headersList.get("referer");
-  const currentUser = await api.user.getUser();
+  const currentUser = await getServerSession(authOptions)
+
 
   try {
-    return <FileFullView user={currentUser} imageId={fileId} />;
+    return <FileFullView user={currentUser?.user} imageId={fileId} />;
   } catch (error) {
     if (error instanceof TRPCError && error.code === "NOT_FOUND") {
       return (
         <BlurFade delay={0.6} inView className="flex flex-col gap-40 md:gap-96">
-          <Navbar currentUser={currentUser} />
+          <Navbar currentUser={currentUser?.user} />
           <div className="flex items-center justify-center">
             <div className="flex flex-col items-center gap-6">
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100">

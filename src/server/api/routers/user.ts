@@ -4,16 +4,12 @@ import {
   galleries,
   notifications,
   otp,
-  sessions,
   tags,
   users,
 } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-import { randomBytes } from "crypto";
-import { db } from "~/server/db";
 import { TRPCError } from "@trpc/server";
 import { eq, like } from "drizzle-orm";
-import { cookies } from "next/headers";
 import { Send, SendResetPasswordLink } from "~/app/api/send/route";
 import { hashPassword, generateOTP } from "~/utils/utils";
 import CryptoJS from "crypto-js";
@@ -175,92 +171,6 @@ export const userRouter = createTRPCRouter({
         });
       }
     }),
-
-  login: publicProcedure
-    .input(
-      z.object({
-        email: z.string().min(1).toLowerCase(),
-        password: z.string().min(1),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      const foundedUser = await ctx.db.query.users.findFirst({
-        where: eq(users.email, input.email),
-      });
-      if (!foundedUser) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Email not found",
-        });
-      }
-      const hashedPassword = hashPassword(input.password);
-      const cookieStore = cookies();
-      const user = await ctx.db.query.users.findFirst({
-        where: eq(users.email, input.email),
-      });
-
-      if (!user || user.password !== hashedPassword) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "Invalid email or password",
-        });
-      }
-      const existingSession = await ctx.db.query.sessions.findFirst({
-        where: eq(sessions.userId, user.id),
-        orderBy: (sessions, { desc }) => [desc(sessions.expires)],
-      });
-
-      if (existingSession && existingSession.expires > new Date()) {
-        cookieStore.set("sessionToken", existingSession.sessionToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production", // Use secure cookie in production
-          expires: existingSession.expires,
-        });
-        return { user, sessionToken: existingSession.sessionToken };
-      }
-      const sessionToken = randomBytes(32).toString("hex");
-      const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
-
-      await db.insert(sessions).values({
-        sessionToken,
-        userId: user.id,
-        expires,
-      });
-      const session = {
-        user: {
-          id: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          name: user.name,
-          email: user.email,
-        },
-        expires: expires.toISOString(),
-      };
-
-      cookieStore.set("sessionToken", sessionToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production", // Use secure cookie in production
-        expires,
-      });
-      const gallery = await ctx.db.query.galleries.findFirst({
-        where: eq(galleries.createdById, user.id),
-      });
-      if (gallery) {
-        return { session, sessionToken, gallery };
-      }
-      return { session, sessionToken };
-    }),
-
-  getUser: publicProcedure.query(async ({ ctx }) => {
-    const existedUser = await ctx.db.query.users.findFirst({
-      where: eq(users.id, ctx.user?.id ?? ""),
-      with: {
-        gallery: true,
-      },
-    });
-    return existedUser;
-  }),
-
   getUserByUsername: protectedProcedure
     .input(
       z.object({
@@ -361,7 +271,6 @@ export const userRouter = createTRPCRouter({
       const foundedUser = await ctx.db.query.users.findFirst({
         where: eq(users.id, input.id),
       });
-
       if (!foundedUser) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -506,12 +415,7 @@ export const userRouter = createTRPCRouter({
       const foundedTag = await ctx.db.query.tags.findMany({
         where: like(tags.tagName, `%${input.search}%`),
       });
-      if (!foundedUsers || !foundedTag) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "User not found",
-        });
-      }
+
       return { foundedUsers, foundedTag };
     }),
 });

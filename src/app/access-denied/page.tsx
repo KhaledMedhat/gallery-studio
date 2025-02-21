@@ -1,9 +1,11 @@
-import { api } from "~/trpc/server";
 import PrivateGalleryAccessDenied from "../_components/PrivateGalleryAccessDenied";
+import { getServerSession } from "next-auth";
+import { authOptions } from "~/server/auth";
 
 export default async function AccessDeniedPage() {
-    const currentUser = await api.user.getUser()
+    const currentUser = await getServerSession(authOptions)
+
     return (
-        <PrivateGalleryAccessDenied currentUser={currentUser} />
+        <PrivateGalleryAccessDenied currentUser={currentUser?.user} />
     )
 }

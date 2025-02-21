@@ -54,6 +54,7 @@ const ChooseFilesModal: React.FC<{ isInsideAlbum?: boolean }> = ({
         });
         setSelectedFiles([]);
         void utils.file.getAlbumFiles.invalidate();
+        void utils.album.getAlbumById.invalidate();
       },
       onError: () => {
         toast({

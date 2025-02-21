@@ -171,7 +171,6 @@ const Showcase: React.FC<{
                     src={file?.url ?? ""}
                     alt={`One of ${file?.user?.name}'s images`}
                     fill
-                    onChange={(e) => console.log(e)}
                     onLoad={handleImageLoad}
                     className={`rounded-md !h-auto ${isEquivalent ? 'object-fit  !absolute !top-[50%] !-translate-y-[50%] !left-[50%] !-translate-x-[50%]' : 'object-cover'}`}
                   />

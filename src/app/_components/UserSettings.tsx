@@ -61,7 +61,6 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
     const { mutate: updateUserSettings, isPending: isUpdatingUserSettingsPending } = api.user.updateUserProfile.useMutation({
         onSuccess: () => {
             router.refresh();
-            void utils.user.getUser.invalidate()
             toast({
                 title: "Updated Successfully.",
                 description: `Your profile has been updated successfully.`,
