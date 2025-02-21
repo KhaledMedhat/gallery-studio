@@ -5,6 +5,7 @@ import {
   albumFiles,
   users,
   notifications,
+  tags,
 } from "~/server/db/schema";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { z } from "zod";
@@ -257,6 +258,26 @@ export const fileRouter = createTRPCRouter({
           galleryId: gallery.id,
         })
         .returning();
+      if (newFile?.tags) {
+        await Promise.all(
+          newFile?.tags?.map(async (tag) => {
+            const existedTag = await ctx.db.query.tags.findFirst({
+              where: eq(tags.tagName, tag),
+            });
+            if (existedTag) {
+              await ctx.db
+                .update(tags)
+                .set({ tagUsedCount: existedTag.tagUsedCount + 1 })
+                .where(eq(tags.tagName, tag));
+            } else {
+              await ctx.db
+                .insert(tags)
+                .values({ tagName: tag, tagUsedCount: 1 })
+                .returning();
+            }
+          }),
+        );
+      }
 
       const followers = ctx.user.followers?.map((follower) => follower.id);
       for (const follower of followers ?? []) {

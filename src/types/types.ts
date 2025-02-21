@@ -243,6 +243,8 @@ export interface FileStore {
   isSelecting: boolean;
   isCommenting: boolean;
   progress: number;
+  isUploadedShowcaseEditing: boolean;
+  setIsUploadedShowcaseEditing: () => void;
   selectedFiles: selectedFiles[];
   setCommentInfo: (commentInfo: CommentInfo) => void;
   setReplyData: (replyData: ReplyData) => void;

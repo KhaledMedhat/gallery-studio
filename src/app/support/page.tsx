@@ -166,7 +166,7 @@ export default async function SupportPage() {
                                     </CardContent>
                                     <CardFooter>
                                         <Button variant="outline" asChild>
-                                            <Link href="/user-guide">Read Guide</Link>
+                                            <Link href="support/user-guide">Read Guide</Link>
                                         </Button>
                                     </CardFooter>
                                 </Card>
@@ -180,7 +180,7 @@ export default async function SupportPage() {
                                     </CardContent>
                                     <CardFooter>
                                         <Button variant="outline" asChild>
-                                            <Link href="/troubleshooting">View Solutions</Link>
+                                            <Link href="support/troubleshooting">View Solutions</Link>
                                         </Button>
                                     </CardFooter>
                                 </Card>
@@ -194,7 +194,7 @@ export default async function SupportPage() {
                                     </CardContent>
                                     <CardFooter>
                                         <Button variant="outline" asChild>
-                                            <Link href="/forum">Join Discussion</Link>
+                                            <Link href="support/forum">Join Discussion</Link>
                                         </Button>
                                     </CardFooter>
                                 </Card>

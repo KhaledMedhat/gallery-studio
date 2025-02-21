@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useDropzone } from "@uploadthing/react";
-import { Upload } from "lucide-react";
+import { Pencil, Upload, X } from "lucide-react";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { useFileStore } from "~/store";
@@ -10,6 +10,8 @@ import { typeOfFile } from "~/utils/utils";
 import Video from "./Video";
 import { toast } from "~/hooks/use-toast";
 import type { ControllerRenderProps, UseFormReturn } from "react-hook-form";
+import Image from "next/image";
+import { Button } from "~/components/ui/button";
 
 const UploadthingButton: React.FC<{
   isImageComponent?: boolean;
@@ -31,7 +33,7 @@ const UploadthingButton: React.FC<{
   isProfile,
   isCircle,
 }) => {
-    const { setShowcaseOriginalName, setShowcaseUrl, showcaseUrl } =
+    const { setShowcaseOriginalName, setShowcaseUrl, setIsUploadedShowcaseEditing, isUploadedShowcaseEditing, showcaseUrl } =
       useFileStore();
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files.length > 1) {
@@ -67,11 +69,45 @@ const UploadthingButton: React.FC<{
 
     return (formShowcaseUrl?.url ?? showcaseUrl.url) ? (
       typeOfFile(formShowcaseUrl?.type ?? showcaseUrl.type) === "Image" ? (
-        <CustomCropper
-          form={form}
-          showcase={formShowcaseUrl?.url ?? showcaseUrl.url}
-          isCircle={isCircle}
-        />
+        <div className="relative w-full h-full">
+          <Button className=" flex z-50 gap-2 absolute left-0 top-0 items-center"
+            variant='secondary'
+            type="button"
+            onClick={() => setIsUploadedShowcaseEditing()}
+          > {!isUploadedShowcaseEditing ? <Pencil size={20} /> : <X size={20} />} {!isUploadedShowcaseEditing ? "Edit" : "Cancel Edit"}
+          </Button>
+          <div className="absolute right-0 top-0 z-10">
+            <Button
+              type="button"
+              className="py-0 hover:bg-transparent"
+              variant="ghost"
+              onClick={async () => {
+                form?.unregister("showcaseFile");
+                await form?.trigger("showcaseFile");
+                setShowcaseUrl({ url: "", type: "" });
+              }}
+            >
+              <X size={30} color="white" />
+            </Button>
+          </div>
+          {
+            isUploadedShowcaseEditing ? <CustomCropper
+              form={form}
+              showcase={formShowcaseUrl?.url ?? showcaseUrl.url}
+              isCircle={isCircle}
+            /> : <div className="relative w-full h-[300px]">
+
+
+              <Image
+                priority
+                className="w-full h-full object-contain"
+                src={formShowcaseUrl.url ?? showcaseUrl.url} alt={formShowcaseUrl.url ?? showcaseUrl.url} fill />
+            </div>
+          }
+        </div>
+
+
+
       ) : (
         <Video url={formShowcaseUrl?.url ?? showcaseUrl.url} />
       )

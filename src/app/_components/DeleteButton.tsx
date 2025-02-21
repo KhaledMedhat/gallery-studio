@@ -183,9 +183,9 @@ const DeleteButton: React.FC<{
                     albumId: Number(param.albumId),
                     id: selectedFiles.map((file) => file.id),
                   });
-                } else if (fileId && selectedFiles.length === 0) {
+                } else if (fileId && fileKey && selectedFiles.length === 0) {
                   deleteFile({ id: [fileId] });
-                  if (fileKey) await deleteFileOnServer(fileKey);
+                  await deleteFileOnServer(fileKey);
                 } else {
                   deleteFile({
                     id: selectedFiles.map((file) => file.id),

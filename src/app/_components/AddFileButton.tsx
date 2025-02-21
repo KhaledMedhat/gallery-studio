@@ -58,9 +58,8 @@ const AddFileButton: React.FC<{
 }> = ({ files, gallerySlug, isEmptyPage, isTabs, albumId }) => {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const router = useRouter();
-  const { fileKey, isUploading, setFileUrl, setFileKey } = useFileStore();
+  const { fileKey, isUploading, setFileUrl, setFileKey, isUploadedShowcaseEditing, croppedImage, showcaseOriginalName, setFormData } = useFileStore();
   const utils = api.useUtils();
-  const { croppedImage, showcaseOriginalName, setFormData } = useFileStore();
   const formSchema = z.object({
     showcaseFile: z.object(
       {
@@ -119,10 +118,8 @@ const AddFileButton: React.FC<{
         });
       },
     });
-  const { mutate: addTags } = api.tags.addTags.useMutation();
   const { mutate: addShowcase, isPending } = api.file.addFile.useMutation({
     onSuccess: (data) => {
-      addTags({ tags: data?.tags ?? [] });
       setFileUrl("");
       setFileKey("");
       form.setValue("showcaseFile", { url: "", type: "" });
@@ -186,7 +183,12 @@ const AddFileButton: React.FC<{
       tags: data.tags,
       gallerySlug,
     });
-    await getCroppedImage();
+    if(isUploadedShowcaseEditing) {
+      await getCroppedImage();
+    }else {
+      const originalShowcaseImageFile = await blobUrlToFile(showcaseUrl.url ?? data.showcaseFile.url, showcaseOriginalName);
+      await startUpload([originalShowcaseImageFile] );
+    }
   };
   const renderContent = () => (
     <Form {...form}>

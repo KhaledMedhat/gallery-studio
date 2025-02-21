@@ -4,7 +4,6 @@ import { fileRouter } from "~/server/api/routers/file";
 import { albumRouter } from "~/server/api/routers/album";
 import { commentRouter } from "~/server/api/routers/comment";
 import { feedbackRouter } from "~/server/api/routers/feedback";
-import { tagsRouter } from "~/server/api/routers/tags";
 import { notificationRouter } from "~/server/api/routers/notification";
 
 /**
@@ -18,7 +17,6 @@ export const appRouter = createTRPCRouter({
   album: albumRouter,
   comment: commentRouter,
   feedback: feedbackRouter,
-  tags: tagsRouter,
   notification: notificationRouter
 });
 

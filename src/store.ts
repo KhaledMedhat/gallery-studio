@@ -80,6 +80,9 @@ export const useFileStore = create<FileStore>()((set, get) => ({
   isCommenting: false,
   progress: 0,
   selectedFiles: [],
+  isUploadedShowcaseEditing: false,
+  setIsUploadedShowcaseEditing: () =>
+    set((state) => ({ isUploadedShowcaseEditing: !state.isUploadedShowcaseEditing })),
   setCommentInfo: (commentInfo: CommentInfo) =>
     set(() => ({ commentInfo: commentInfo })),
   setReplyData: (replyData: ReplyData) => set(() => ({ replyData: replyData })),

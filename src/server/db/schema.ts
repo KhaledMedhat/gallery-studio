@@ -183,9 +183,9 @@ export const notifications = createTable("notifications", {
   senderId: varchar("user_id", { length: 255 })
     .notNull()
     .references(() => users.id), // Who triggered the notification
-  fileId: varchar("file_id", { length: 255 }).references(() => files.id, {
-    onDelete: "cascade",
-  }), // File related to the comment
+  fileId: varchar("file_id", { length: 255 })
+    .notNull()
+    .references(() => files.id, { onDelete: "cascade" }), // File related to the comment
   commentId: varchar("comment_id", { length: 255 }).references(
     () => comments.id,
   ), // Related comment
