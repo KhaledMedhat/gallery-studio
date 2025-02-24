@@ -1,5 +1,6 @@
 import { createHash } from "crypto";
-import { type Comment } from "~/types/types";
+import { ClientUploadedFileData, UploadedFileData } from "uploadthing/types";
+import { ShowcaseFormData, type Comment } from "~/types/types";
 
 interface CommentWithReplies extends Comment {
   replies: CommentWithReplies[];
@@ -187,4 +188,33 @@ export function getCommentWithHighestRatio(comments: Comment[]): Comment[] {
     }
   });
   return highestRatioComment;
+}
+
+export async function getFileToUpload(
+  file: {url:string, type:string},
+  startUpload: (files: File[], input?: undefined) => Promise<ClientUploadedFileData<{
+    fileInfo: UploadedFileData;
+    metadata: {};
+  }>[] | undefined>,
+  croppedImage: string, showcaseOriginalName: string, isUploadedShowcaseEditing: boolean) {
+  if (isUploadedShowcaseEditing) {
+    if (file && croppedImage) {
+      if (typeOfFile(file.type) === "Image") {
+        const croppedImageFile = await blobUrlToFile(
+          croppedImage,
+          showcaseOriginalName,
+        );
+        await startUpload([croppedImageFile]);
+      } else {
+        const convertedVideoFromUrl = await blobUrlToFile(
+          file.url,
+          showcaseOriginalName,
+        );
+        await startUpload([convertedVideoFromUrl]);
+      }
+    }
+  } else {
+    const originalShowcaseImageFile = await blobUrlToFile(file.url, showcaseOriginalName);
+    await startUpload([originalShowcaseImageFile]);
+  }
 }

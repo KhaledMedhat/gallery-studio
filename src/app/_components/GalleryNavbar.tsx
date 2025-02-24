@@ -345,7 +345,7 @@ const GalleryNavbar: React.FC<{
         <DockIcon>
           <Sheet>
             <SheetTrigger className="relative">
-              <Bell size={20} />
+              <Bell size={16} />
               <div className={`${notifications?.length === 0 || isFetchNotificationPending ? "hidden" : "flex"} ${notificationCounter && notificationCounter > 9 ? 'h-5 w-7 -top-4 -right-4' : 'h-5 w-6 -top-4 -right-4'} rounded-full absolute z-50  bg-[#a52626]  items-center justify-center text-white text-[0.6rem] font-bold `}>
                 {notificationCounter && notificationCounter > 99 ? "99+" : notificationCounter}
               </div>

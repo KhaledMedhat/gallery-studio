@@ -137,7 +137,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                                     <Label htmlFor="bio">Bio</Label>
                                     <MentionInput isUpdatingUserSettingsPending={isUpdatingUserSettingsPending} currentUser={currentUser} mentionType={MentionType.FOLLOWINGS} inputType={ElementType.TEXTAREA} mentionInputValue={mentionInputValue} setMentionInputValue={setMentionInputValue} />
                                 </div>
-                                <p className="text-sm text-muted-foreground">You can @mention other users and organizations to link to them.</p>
+                                <p className="text-sm text-muted-foreground">You can @mention other users that you are following.</p>
 
                             </div>
 
@@ -231,6 +231,11 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                                 )}
                             />
                         </>}
+                        {activeTab === SettingTabs.Account && 
+                        <>
+                        
+                        </>
+                        }
                     </div>
                     <Button type="submit" disabled={isUpdatingUserSettingsPending}>
                         {isUpdatingUserSettingsPending && <LoaderCircle size={20} className="animate-spin" />}

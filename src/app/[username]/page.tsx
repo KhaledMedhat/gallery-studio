@@ -24,7 +24,7 @@ export default async function UserPage({
         const user = await api.user.getUserByUsername({ username });
         const files = await api.file.getUserFiles({ id: user.id });
         return (
-            <main>
+            <main className="min-h-[125vh] md:min-h-screen">
                 <GalleryNavbar user={currentUser?.user} files={files} />
                 <UserProfile user={user} files={files} currentUser={currentUser?.user} />
             </main>

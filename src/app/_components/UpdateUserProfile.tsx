@@ -15,7 +15,7 @@ import {
 } from "~/components/ui/dialog";
 import UploadthingButton from "./UploadthingButton";
 import { useState } from "react";
-import { blobUrlToFile, getInitials } from "~/utils/utils";
+import { blobUrlToFile, getFileToUpload, getInitials } from "~/utils/utils";
 import { api } from "~/trpc/react";
 import { toast } from "~/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -59,20 +59,21 @@ export const UpdateUserCoverImage: React.FC<{ coverImage: UserImage }> = ({
     undefined,
   );
 
-  const { showcaseUrl, croppedImage, showcaseOriginalName, setShowcaseUrl } =
+  const { showcaseUrl, croppedImage, showcaseOriginalName, setShowcaseUrl, isUploadedShowcaseEditing } =
     useFileStore();
-  const getCroppedImage = async () => {
-    if (showcaseUrl && croppedImage) {
-      const croppedImageFile = await blobUrlToFile(
-        croppedImage,
-        showcaseOriginalName,
-      );
-      await startUpload([croppedImageFile]);
-    }
-  };
+  // const getCroppedImage = async () => {
+  //   if (showcaseUrl && croppedImage) {
+  //     const croppedImageFile = await blobUrlToFile(
+  //       croppedImage,
+  //       showcaseOriginalName,
+  //     );
+  //     await startUpload([croppedImageFile]);
+  //   }
+  // };
 
   const handleUpdateCoverImage = async () => {
-    await getCroppedImage();
+    await getFileToUpload(showcaseUrl, startUpload, croppedImage, showcaseOriginalName, isUploadedShowcaseEditing)
+    // await getCroppedImage();
   };
 
   return (

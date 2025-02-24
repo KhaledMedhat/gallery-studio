@@ -101,7 +101,7 @@ const UploadthingButton: React.FC<{
               <Image
                 priority
                 className="w-full h-full object-contain"
-                src={formShowcaseUrl.url ?? showcaseUrl.url} alt={formShowcaseUrl.url ?? showcaseUrl.url} fill />
+                src={formShowcaseUrl?.url ?? showcaseUrl?.url} alt={formShowcaseUrl?.url ?? showcaseUrl?.url} fill />
             </div>
           }
         </div>

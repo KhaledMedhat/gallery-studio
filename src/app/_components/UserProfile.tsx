@@ -85,7 +85,7 @@ const UserProfile: React.FC<{
       <div className="container relative z-20 mx-auto px-4 py-8">
         {/* Profile Info */}
         <Card className="z-50 mt-[-64px]">
-          <CardContent className="pb-8 pt-16">
+          <CardContent className="pb-8 pt-16 md:pt-8">
             {isUserUpdating ? (
               <UpdateUserInfo
                 image={user?.profileImage}
@@ -198,7 +198,7 @@ const UserProfile: React.FC<{
                   View {user?.name}&apos;s latest showcases.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="grid h-full w-full grid-cols-3 gap-4 lg:grid-cols-4">
+              <CardContent className={`grid h-full w-full ${files.length !== 0 ? ' grid-cols-3 gap-4 lg:grid-cols-4' : 'flex'}`}>
                 {/* Add photo grid here */}
                 {files.length > 0 ? (
                   files?.map((file, idx) => (
@@ -232,9 +232,9 @@ const UserProfile: React.FC<{
                     </BlurFade>
                   ))
                 ) : sameUser ? (
-                  <h1>No Showcases yet</h1>
+                  <h1 className="w-full">No Showcases yet</h1>
                 ) : (
-                  <h1>{user?.name} has no showcases yet</h1>
+                  <h1 className="w-full">{user?.name} has no showcases yet</h1>
                 )}
               </CardContent>
             </Card>
