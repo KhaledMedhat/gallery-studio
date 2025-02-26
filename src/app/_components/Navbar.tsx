@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import Image from "next/legacy/image";
+import Image from "next/image";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -16,6 +16,7 @@ import { isURLActive } from "~/utils/utils";
 import ModeToggle from "./ModeToggle";
 import { type User } from "~/types/types";
 import { signIn } from "next-auth/react";
+import { logos } from "~/constants/consts";
 
 const Navbar: React.FC<{ currentUser: User | null | undefined }> = ({
   currentUser,
@@ -23,19 +24,14 @@ const Navbar: React.FC<{ currentUser: User | null | undefined }> = ({
   const theme = useTheme();
   const pathname = usePathname();
   return (
-    <header className="container sticky top-0 z-40 mx-auto mt-1 w-full border-b bg-background/95 px-2 pt-1 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="container sticky top-0 z-40 mx-auto w-full border-b bg-background/95 px-2 pt-1 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-14 items-center">
         <div className="mr-4 hidden md:flex">
-          <Link href="/" className="mr-6 flex items-center space-x-2">
+          <Link href="/" className="mr-6 flex items-center relative w-32 h-32 space-x-2">
             <Image
-              src={
-                theme.resolvedTheme === "dark"
-                  ? "/logo-white.svg"
-                  : "/logo-black.svg"
-              }
+              src={`${theme.resolvedTheme === 'dark' ? logos[1] : logos[0]}`}
               alt="Logo"
-              width={120}
-              height={100}
+              fill
             />
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
@@ -47,9 +43,9 @@ const Navbar: React.FC<{ currentUser: User | null | undefined }> = ({
             </Link>
             <Link
               href="/search"
-              className={` ${isURLActive(pathname, "/artists") ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
+              className={` ${isURLActive(pathname, "/contact") ? "font-bold text-foreground" : "text-foreground/60 transition-colors hover:text-foreground/80"}`}
             >
-              Artists
+              Contact
             </Link>
             <Link
               href="/about"
@@ -86,13 +82,13 @@ const Navbar: React.FC<{ currentUser: User | null | undefined }> = ({
                 <Link href="/">Home</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Link href="#">Artists</Link>
+                <Link href="/contact">Contact</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Link href="#">About</Link>
+                <Link href="/about">About</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Link href="#">Contact</Link>
+                <Link href="/support">Support</Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

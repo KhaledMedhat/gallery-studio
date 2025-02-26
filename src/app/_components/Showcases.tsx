@@ -25,7 +25,7 @@ const Showcases: React.FC<{ currentUser: User | undefined | null }> = ({
       {isPending
         ? Array.from({ length: 2 }).map((_, idx) => (
           <div
-            className="flex w-full flex-col items-center gap-2 pt-2"
+            className="flex w-full flex-col items-center rounded-2xl border pb-2 pl-4 pr-4 pt-4 gap-1"
             key={idx}
           >
             <div className="flex w-full items-center justify-between">

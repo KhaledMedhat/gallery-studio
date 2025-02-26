@@ -170,12 +170,12 @@ const GalleryNavbar: React.FC<{
     <div
       className={`pointer-events-none fixed inset-x-0 ${pathname.includes("/images") ? "top-0 mt-4" : "bottom-0 mb-4"} z-30 mx-auto flex h-full max-h-14 origin-bottom`}
     >
-      {!pathname.includes("/images") && (
+      {/* {!pathname.includes("/images") && (
         <div className="fixed inset-x-0 bottom-0 h-16 w-full bg-background to-transparent backdrop-blur-lg [-webkit-mask-image:linear-gradient(to_top,black,transparent)] dark:bg-background"></div>
-      )}
+      )} */}
       <Dock
         direction="middle"
-        className="pointer-events-auto relative bottom-8 z-50 mx-auto mb-4 flex origin-bottom gap-1 rounded-3xl bg-background"
+        className="pointer-events-auto relative bottom-8 z-50 mx-auto mb-4 flex origin-bottom gap-2 rounded-3xl bg-background"
       >
         <DockIcon>
           <TooltipProvider>
@@ -184,7 +184,7 @@ const GalleryNavbar: React.FC<{
                 <Button
                   variant="ghost"
                   asChild
-                  className={`${isURLActive(pathname, "/showcases") && "rounded-full bg-accent p-3 text-accent-foreground"}`}
+                  className={` ${isURLActive(pathname, "/showcases") && "rounded-full bg-accent p-3 text-accent-foreground"}`}
                 >
                   <Link href={"/showcases"}>
                     <Telescope size={20} />

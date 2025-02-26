@@ -1,109 +1,121 @@
 import Link from "next/link";
 import { HydrateClient } from "~/trpc/server";
 import { Button } from "~/components/ui/button";
-import Image from "next/legacy/image";
-import { featuredArtworks } from "~/constants/Images";
+import { featuredArtworks, words } from "~/constants/consts";
 import Navbar from "./_components/Navbar";
-import ParticlesWrapper from "./_components/ParticlesWrapper";
-import { AspectRatio } from "~/components/ui/aspect-ratio";
 import { Input } from "~/components/ui/input";
 import dayjs from "dayjs";
 import { getServerSession } from "next-auth";
 import { authOptions } from "~/server/auth";
+import { HeroParallax } from "~/components/ui/hero-parallax";
+import { StickyScroll } from "~/components/ui/sticky-scroll-reveal";
+import { TypewriterEffectSmooth } from "~/components/ui/typewriter-effect";
 
 export default async function Home() {
   const currentUser = await getServerSession(authOptions)
+  const content = [
+    {
+      title: "Real-time Notifications",
+      description:
+        "Stay updated with real-time notifications for all activities on the platform. Whether someone follows you, likes your post, comments, replies, mentions you, or adds a showcase, you'll be notified instantly. This ensures that you're always in the loop and never miss out on important interactions. With our notification system, engagement becomes seamless and effortless.",
+      content: (
+        <div className="h-full w-full bg-[linear-gradient(to_bottom_right,#06b6d4, #10b981)] flex items-center justify-center p-6 text-background text-lg font-semibold">
+          Get instant updates on every activity happening in real time.
+        </div>
+      ),
+    },
+    {
+      title: "Blazing-fast Interface",
+      description:
+        "Say goodbye to slow load times and laggy interactions. Our platform is optimized for speed, delivering a seamless experience with every action you take. From navigating through pages to uploading files and engaging with content, everything happens instantly. We prioritize performance to ensure that your workflow remains uninterrupted, allowing you to focus on what truly matters.",
+      content: (
+        <div className="h-full w-full bg-[linear-gradient(to_bottom_right, #ec4899, #6366f1)] flex items-center justify-center p-6 text-background text-lg font-semibold">
+          Enjoy a lightning-fast experience with smooth interactions.
+        </div>
+      ),
+    },
+    {
+      title: "Private Gallery & Albums",
+      description:
+        "Not everyone wants a social media experience, and we understand that. If you prefer to keep your content private, our platform allows you to store and manage your files, galleries, and albums securely. You have complete control over your privacy settings, ensuring that only you can access your saved content. Whether you're using this space for work, personal memories, or creative projects, your data stays safe and just for you.",
+      content: (
+        <div className="h-full w-full bg-[linear-gradient(to_bottom_right, #f97316 , #eab308)] flex items-center justify-center p-6 text-background text-lg font-semibold">
+          Keep your content private and secure, away from the public eye.
+        </div>
+      ),
+    },
+    {
+      title: "Secure Content & Accounts",
+      description:
+        "Security is our top priority. We integrate trusted authentication providers like Google alongside a secure custom login system to ensure that your account and data are always protected. Your information is encrypted, and we follow industry-leading security practices to prevent unauthorized access. You can have peace of mind knowing that your content remains safe from potential threats, giving you full control over your digital space.",
+      content: (
+        <div className="h-full w-full bg-[linear-gradient(to_bottom_right, #0f172a, #171717)] flex items-center justify-center p-6 text-background text-lg font-semibold">
+          Advanced security measures keep your account and data safe.
+        </div>
+      ),
+    },
+  ];
+
   return (
     <HydrateClient>
-      <div className="bg-accent-foreground w-fit fixed top-1/2 -right-10 text-accent px-6 py-2 rounded-br-md rounded-bl-md rotate-90 z-40">
-        <Link href="/feedback">Feedback</Link>
-      </div>
-      <ParticlesWrapper>
+      <main className="min-h-screen max-w-full relative">
         <Navbar currentUser={currentUser?.user} />
-        <main>
-          <section className="py-12 md:py-24">
-            <div className="container mx-auto px-4 text-center">
-              <div className="flex flex-col gap-6">
-                <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
-                  Welcome to GalleryStudio
-                </h1>
-                <p className="mt-4 text-xl text-muted-foreground">
-                  Discover a world of captivating artworks Create your
-                  personal gallery, Discover a world of captivating artworks,
-                  explore other&apos;s collections, and share your favorite
-                  moments. Easily upload your own images and discover stunning
-                  visuals from a community of creators. Join and showcase your
-                  creativity!
-                </p>
-              </div>
-              <Button asChild className="mt-8" size="lg">
-                <Link href={'/showcases'}>
-                  Explore Showcases
-                </Link>
+        <HeroParallax products={featuredArtworks} />
+        <div className="mx-auto flex flex-col gap-40">
+          <article >
+            <div className="px-8">
+              <h4 className="text-3xl lg:text-5xl lg:leading-tight max-w-5xl mx-auto text-center tracking-tight font-medium text-accent-foreground">
+                Packed with a lot of features
+              </h4>
+
+              <p className="text-sm lg:text-base  max-w-2xl  my-4 mx-auto text-muted-foreground text-center font-normal ">
+                From posting Images, GIF and even Videos, Having your own Gallery and Albums And more!
+                It can make your social media life easier and more fun.
+              </p>
+            </div>
+            <div className="container mx-auto p-10">
+              <StickyScroll content={content} />
+            </div>
+          </article>
+
+          <section className="flex flex-col items-center justify-center">
+            <p className="text-xs sm:text-base  ">
+              The road to freedom starts from here
+            </p>
+            <TypewriterEffectSmooth words={words} />
+            <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 space-x-0 md:space-x-4">
+              <Button variant='outline'>
+                <Link href={'/sign-in'}>Join now</Link>
+              </Button>
+              <Button variant='default'>
+                <Link href={'/sign-up'}>Signup</Link>
               </Button>
             </div>
           </section>
 
-          <section className="py-12">
-            <div className="container mx-auto px-4">
-              <h2 className="mb-8 text-center text-3xl font-bold">
-                Publish Your Artworks
-              </h2>
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-                {featuredArtworks.map((artwork) => (
-                  <div
-                    key={artwork.id}
-                    className="overflow-hidden rounded-lg shadow-sm"
-                  >
-                    <AspectRatio ratio={4 / 3}>
-                      <Image
-                        src={artwork.imageUrl}
-                        alt={artwork.title}
-                        layout="fill"
-                        className="h-full w-full cursor-pointer rounded-lg object-cover"
-                      />
-                    </AspectRatio>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-8 text-center">
-                <Button variant="outline">
-                  <Link
-                    href={
-                      currentUser
-                        ? `/galleries/${currentUser?.user.gallery?.slug}`
-                        : "/sign-in"
-                    }
-                  >
-                    {currentUser ? "Go to your gallery" : "Join GalleryStudio"}
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </section>
-        </main>
-        <footer className="py-12 md:py-24">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="mb-4 text-3xl font-bold">Join Our Studio Community</h2>
-            <p className="mb-8 text-xl text-muted-foreground">
-              Get updates on new Galleries, exhibitions, and exclusive events
-            </p>
-            <div className="flex items-center justify-center gap-4">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                className="w-auto"
-              />
-              <Button className="animate-bounce">Subscribe</Button>
-            </div>
-            <div className="container mx-auto mt-12 px-4 text-center">
-              <p className="text-muted-foreground">
-                &copy;{dayjs().format("YYYY")} GalleryStudio. All rights reserved.
+          <footer className="container mx-auto my-10 text-center bg-accent-foreground mt-16 p-8 rounded-lg">
+            <div className="container mx-auto px-4 text-center">
+              <h2 className="mb-4 text-3xl font-bold text-background">Join Our Studio Community</h2>
+              <p className="mb-8 text-xl text-muted-foreground">
+                Get updates on new Galleries, exhibitions, and exclusive events
               </p>
+              <div className="flex items-center justify-center gap-4">
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  className="w-1/4 bg-transparent text-background"
+                />
+                <Button variant='outline' className="animate-bounce">Subscribe</Button>
+              </div>
+              <div className="container mx-auto mt-12 px-4 text-center">
+                <p className="text-muted-foreground">
+                  &copy;{dayjs().format("YYYY")} GalleryStudio. All rights reserved.
+                </p>
+              </div>
             </div>
-          </div>
-        </footer>
-      </ParticlesWrapper>
-    </HydrateClient>
+          </footer>
+        </div>
+      </main>
+    </HydrateClient >
   );
 }

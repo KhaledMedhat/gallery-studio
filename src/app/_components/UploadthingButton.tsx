@@ -68,14 +68,14 @@ const UploadthingButton: React.FC<{
       form?.watch("showcaseFile");
 
     return (formShowcaseUrl?.url ?? showcaseUrl.url) ? (
-      typeOfFile(formShowcaseUrl?.type ?? showcaseUrl.type) === "Image" ? (
+      (typeOfFile(formShowcaseUrl?.type ?? showcaseUrl.type) === "Image" || 'GIF') ? (
         <div className="relative w-full h-full">
-          <Button className=" flex z-50 gap-2 absolute left-0 top-0 items-center"
+          {!isCircle && <Button className=" flex z-50 gap-2 absolute left-0 top-0 items-center"
             variant='secondary'
             type="button"
             onClick={() => setIsUploadedShowcaseEditing()}
           > {!isUploadedShowcaseEditing ? <Pencil size={20} /> : <X size={20} />} {!isUploadedShowcaseEditing ? "Edit" : "Cancel Edit"}
-          </Button>
+          </Button>}
           <div className="absolute right-0 top-0 z-10">
             <Button
               type="button"
@@ -91,23 +91,25 @@ const UploadthingButton: React.FC<{
             </Button>
           </div>
           {
-            isUploadedShowcaseEditing ? <CustomCropper
+            isCircle ? <CustomCropper
               form={form}
               showcase={formShowcaseUrl?.url ?? showcaseUrl.url}
               isCircle={isCircle}
-            /> : <div className="relative w-full h-[300px]">
-
-
-              <Image
-                priority
-                className="w-full h-full object-contain"
-                src={formShowcaseUrl.url ?? showcaseUrl.url} alt={formShowcaseUrl.url ?? showcaseUrl.url} fill />
-            </div>
+            /> :
+              isUploadedShowcaseEditing ?
+                <CustomCropper
+                  form={form}
+                  showcase={formShowcaseUrl?.url ?? showcaseUrl.url}
+                  isCircle={isCircle}
+                /> :
+                <div className="relative w-full h-[300px]">
+                  <Image
+                    priority
+                    className="w-full h-full object-contain"
+                    src={formShowcaseUrl?.url ?? showcaseUrl?.url} alt={formShowcaseUrl?.url ?? showcaseUrl?.url} fill />
+                </div>
           }
         </div>
-
-
-
       ) : (
         <Video url={formShowcaseUrl?.url ?? showcaseUrl.url} />
       )

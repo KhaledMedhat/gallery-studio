@@ -26,7 +26,7 @@ import AuthButtons from "./AuthButtons";
 import UploadthingButton from "./UploadthingButton";
 import OTP from "./OTP";
 import { useUploader } from "~/hooks/useUploader";
-import { blobUrlToFile } from "~/utils/utils";
+import { prepareFileForUpload } from "~/utils/utils";
 
 const SignUp = () => {
   const { toast } = useToast();
@@ -36,7 +36,7 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [stage, setStage] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
-  const { croppedImage, showcaseUrl, showcaseOriginalName, isUploading } =
+  const { croppedImage, showcaseUrl, showcaseOriginalName, isUploading, isUploadedShowcaseEditing } =
     useFileStore();
   const { setUserRegistry, userRegistrationInfo } = useUserStore();
 
@@ -52,11 +52,8 @@ const SignUp = () => {
     username: z
       .string()
       .min(1, "Email is required")
-      .regex(
-        /^[A-Za-z0-9][A-Za-z0-9_]*$/,
-        "Username cannot start with special characters and can only contain letters, numbers, and underscores",
-      )
-      .refine((value) => !value.includes("@"), "Username cannot contain '@'"),
+      .refine((value) => /^[A-Za-z0-9]/.test(value), "Username cannot start with a special character")
+      .refine((value) => /^[A-Za-z0-9_]+$/.test(value), "Username can only contain letters, numbers, and underscores"),
     email: z.string().email().min(1, "Email is required"),
     password: z
       .string()
@@ -117,20 +114,10 @@ const SignUp = () => {
         });
       },
     });
-  const getCroppedImage = async () => {
-    if (showcaseUrl.url && croppedImage) {
-      const croppedImageFile = await blobUrlToFile(
-        croppedImage,
-        showcaseOriginalName,
-      );
-      await startUpload([croppedImageFile]);
-    }
-  };
+
   const onFinishRegistry = async () => {
     const fullName = userRegistrationInfo.firstName + " " + userRegistrationInfo.lastName;
-    if (showcaseUrl.url) {
-      await getCroppedImage()
-    }
+    await prepareFileForUpload(showcaseUrl, croppedImage, showcaseOriginalName, isUploadedShowcaseEditing, startUpload);
     sendingOTP({ name: fullName, email: userRegistrationInfo.email });
   };
   const { startUpload, getDropzoneProps } = useUploader(

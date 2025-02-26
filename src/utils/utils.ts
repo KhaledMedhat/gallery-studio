@@ -1,5 +1,9 @@
 import { createHash } from "crypto";
-import { type Comment } from "~/types/types";
+import type {
+  ClientUploadedFileData,
+  UploadedFileData,
+} from "uploadthing/types";
+import type { fileConverter, Comment } from "~/types/types";
 
 interface CommentWithReplies extends Comment {
   replies: CommentWithReplies[];
@@ -75,16 +79,6 @@ export function typeOfFile(fileType: string | null | undefined) {
   if (fileType.includes("video")) return "Video";
 }
 
-export function extractUsername(comment: string) {
-  const regex = /@\w+/;
-  const match = regex.exec(comment);
-  return match ? match[0] : null;
-}
-export function getMention(text: string) {
-  const regex = /@(\w+)$/;
-  const match = regex.exec(text);
-  return match ? match[1] : null;
-}
 
 export function extractUsernameAndText(comment: string | undefined | null) {
   const regex = /^(.*?)\s*\[?@(\w+)\]?\s*(.*)$/;
@@ -96,7 +90,6 @@ export function extractUsernameAndText(comment: string | undefined | null) {
       followingText: match[3] ?? null,
     };
   }
-
   // If no mention exists, return the entire input as followingText
   return { previousText: null, username: null, followingText: comment };
 }
@@ -111,56 +104,6 @@ export function buildCommentHierarchy(
       ...comment,
       replies: buildCommentHierarchy(comments, comment.id),
     }));
-}
-
-export default async function getCroppedImg(
-  imageSrc: string,
-  crop: { x: number; y: number; width: number; height: number },
-): Promise<string> {
-  const image = await createImage(imageSrc);
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-
-  if (!ctx) {
-    throw new Error("Could not create canvas context");
-  }
-
-  const { width, height } = crop;
-  canvas.width = width;
-  canvas.height = height;
-
-  ctx.drawImage(
-    image,
-    crop.x,
-    crop.y,
-    width,
-    height,
-    0,
-    0,
-    canvas.width,
-    canvas.height,
-  );
-
-  return new Promise<string>((resolve, reject) => {
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        reject(new Error("Canvas is empty"));
-        return;
-      }
-      resolve(URL.createObjectURL(blob));
-    }, "image/jpeg");
-  });
-}
-
-function createImage(url: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.addEventListener("load", () => resolve(img));
-    img.addEventListener("error", () =>
-      reject(new Error("Failed to load image")),
-    );
-    img.src = url;
-  });
 }
 
 export const blobUrlToFile = async (
@@ -187,4 +130,45 @@ export function getCommentWithHighestRatio(comments: Comment[]): Comment[] {
     }
   });
   return highestRatioComment;
+}
+
+export async function prepareFileForUpload(
+  file: fileConverter,
+  croppedImage: string,
+  showcaseOriginalName: string,
+  isUploadedShowcaseEditing: boolean,
+  startUpload: (
+    files: File[],
+    input?: undefined,
+  ) => Promise<
+    | ClientUploadedFileData<{
+        fileInfo: UploadedFileData;
+        metadata: object;
+      }>[]
+    | undefined
+  >,
+) {
+  if (isUploadedShowcaseEditing) {
+    if (file && croppedImage) {
+      if (typeOfFile(file.type) === "Image" || "GIF") {
+        const croppedImageFile = await blobUrlToFile(
+          croppedImage,
+          showcaseOriginalName,
+        );
+        await startUpload([croppedImageFile]);
+      } else {
+        const convertedVideoFromUrl = await blobUrlToFile(
+          file.url,
+          showcaseOriginalName,
+        );
+        await startUpload([convertedVideoFromUrl]);
+      }
+    }
+  } else {
+    const originalShowcaseImageFile = await blobUrlToFile(
+      file.url,
+      showcaseOriginalName,
+    );
+    await startUpload([originalShowcaseImageFile]);
+  }
 }

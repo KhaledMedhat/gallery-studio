@@ -219,14 +219,16 @@ export interface ReplyData {
   content: string;
   isReplying: boolean;
 }
+
+export interface fileConverter {
+  url: string;
+  type: string;
+}
 export interface FileStore {
   formData: ShowcaseFormData;
   setFormData: (formData: ShowcaseFormData) => void;
-  showcaseUrl: {
-    url: string;
-    type: string;
-  };
-  setShowcaseUrl: (showcaseUrl: { url: string; type: string }) => void;
+  showcaseUrl: fileConverter
+  setShowcaseUrl: (showcaseUrl: fileConverter) => void;
   croppedImage: string;
   setCroppedImage: (croppedImage: string) => void;
   showcaseOriginalName: string;

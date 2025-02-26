@@ -22,6 +22,9 @@ const config = {
       {
         hostname: "lh4nvfyr5d.ufs.sh",
       },
+      {
+        hostname: "7a68czltvi.ufs.sh",
+      },
     ],
   },
   typescript: {

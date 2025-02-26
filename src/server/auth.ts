@@ -56,7 +56,17 @@ export const authOptions: NextAuthOptions = {
       }
       return token;
     },
-    async signIn({ credentials }) {
+    async signIn({ credentials, user, account }) {
+      if (account?.provider === "google") {
+        const existedProviderUser = await db.query.users.findFirst({
+          where: eq(users.email, user.email ?? ""),
+        });
+
+        if (existedProviderUser) {
+          return true;
+        }
+        return false;
+      }
       if (credentials) {
         const existingUser = await db.query.users.findFirst({
           where: eq(users.email, credentials.email as string),

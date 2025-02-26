@@ -68,9 +68,6 @@ const Showcase: React.FC<{
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [dimensions, file?.id]);
-  const aspectRatio = dimensions.width / dimensions.height;
-  const targetAspectRatio = 16 / 9;
-  const isEquivalent = Math.abs(aspectRatio - targetAspectRatio) < 0.01;
 
   const renderCommentSection = (
     isFullView: boolean,
@@ -124,7 +121,7 @@ const Showcase: React.FC<{
   return (
     <div
       key={file?.id}
-      className={`flex w-full flex-col items-center gap-2 ${!isFullView && "rounded-2xl border pb-2 pl-6 pr-6 pt-6"}`}
+      className={`flex w-full flex-col items-center ${!isFullView && "rounded-2xl border pb-2 pl-4 pr-4 pt-4"}`}
     >
       <div className="flex w-full items-center justify-between">
         <div className="flex items-center gap-2">
@@ -165,14 +162,14 @@ const Showcase: React.FC<{
               {file?.fileType?.includes("video") ? (
                 <Video url={file.url} className="rounded-lg xl:h-[752px]" />
               ) :
-                <div id={file?.id} className={`relative w-full`} style={{ height: `${isEquivalent ? 'auto' : `${imageDimensions.height}px`}`, aspectRatio: `${dimensions.width} / ${dimensions.height}` }}>
+                <div id={file?.id} className='relative w-full' style={{ height: `${imageDimensions.height}px`, aspectRatio: `${dimensions.width} / ${dimensions.height}` }}>
                   <Image
                     priority
                     src={file?.url ?? ""}
-                    alt={`One of ${file?.user?.name}'s images`}
+                    alt={`${file?.user?.name} image`}
                     fill
                     onLoad={handleImageLoad}
-                    className={`rounded-md !h-auto ${isEquivalent ? 'object-fit  !absolute !top-[50%] !-translate-y-[50%] !left-[50%] !-translate-x-[50%]' : 'object-cover'}`}
+                    className='rounded-md !h-auto object-fit  !absolute !top-[50%] !-translate-y-[50%] !left-[50%] !-translate-x-[50%]'
                   />
                 </div>
               }

@@ -46,7 +46,7 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { useRouter } from "next/navigation";
-import { blobUrlToFile, typeOfFile } from "~/utils/utils";
+import { prepareFileForUpload, typeOfFile } from "~/utils/utils";
 import { useUploader } from "~/hooks/useUploader";
 
 const AddFileButton: React.FC<{
@@ -156,26 +156,6 @@ const AddFileButton: React.FC<{
     undefined,
     undefined,
   );
-
-  // make it in utils.ts
-  const getCroppedImage = async () => {
-    if (showcaseUrl && croppedImage) {
-      if (typeOfFile(showcaseUrl.type) === "Image") {
-        const croppedImageFile = await blobUrlToFile(
-          croppedImage,
-          showcaseOriginalName,
-        );
-        await startUpload([croppedImageFile]);
-      } else {
-        const convertedVideoFromUrl = await blobUrlToFile(
-          showcaseUrl.url,
-          showcaseOriginalName,
-        );
-        await startUpload([convertedVideoFromUrl]);
-      }
-    }
-  };
-
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     setFormData({
       filePrivacy: data.privacy,
@@ -183,12 +163,7 @@ const AddFileButton: React.FC<{
       tags: data.tags,
       gallerySlug,
     });
-    if(isUploadedShowcaseEditing) {
-      await getCroppedImage();
-    }else {
-      const originalShowcaseImageFile = await blobUrlToFile(showcaseUrl.url ?? data.showcaseFile.url, showcaseOriginalName);
-      await startUpload([originalShowcaseImageFile] );
-    }
+    await prepareFileForUpload(showcaseUrl ?? data.showcaseFile, croppedImage, showcaseOriginalName, isUploadedShowcaseEditing, startUpload);
   };
   const renderContent = () => (
     <Form {...form}>
