@@ -61,7 +61,7 @@ export default async function Home() {
       <main className="min-h-screen max-w-full relative">
         <Navbar currentUser={currentUser?.user} />
         <HeroParallax products={featuredArtworks} />
-        <div className="mx-auto flex flex-col gap-40">
+        <div className="container mx-auto flex flex-col gap-40">
           <article >
             <div className="px-8">
               <h4 className="text-3xl lg:text-5xl lg:leading-tight max-w-5xl mx-auto text-center tracking-tight font-medium text-accent-foreground">
@@ -73,7 +73,7 @@ export default async function Home() {
                 It can make your social media life easier and more fun.
               </p>
             </div>
-            <div className="container mx-auto p-10">
+            <div className="p-10">
               <StickyScroll content={content} />
             </div>
           </article>
@@ -93,8 +93,8 @@ export default async function Home() {
             </div>
           </section>
 
-          <footer className="container mx-auto my-10 text-center bg-accent-foreground mt-16 p-8 rounded-lg">
-            <div className="container mx-auto px-4 text-center">
+          <footer className=" mb-16 p-10">
+            <div className="p-10 text-center bg-accent-foreground  rounded-lg">
               <h2 className="mb-4 text-3xl font-bold text-background">Join Our Studio Community</h2>
               <p className="mb-8 text-xl text-muted-foreground">
                 Get updates on new Galleries, exhibitions, and exclusive events
@@ -107,7 +107,7 @@ export default async function Home() {
                 />
                 <Button variant='outline' className="animate-bounce">Subscribe</Button>
               </div>
-              <div className="container mx-auto mt-12 px-4 text-center">
+              <div className="mt-12 px-4 text-center">
                 <p className="text-muted-foreground">
                   &copy;{dayjs().format("YYYY")} GalleryStudio. All rights reserved.
                 </p>
