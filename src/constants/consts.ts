@@ -1,5 +1,5 @@
 export const darkModeLogo =
-  "https://7a68czltvi.ufs.sh/f/E4wvAcFNKybhMyyghzzTjRxZqNscWtlJmGn3oQwLBDEX2CrK";
+  "https://7a68czltvi.ufs.sh/f/E4wvAcFNKybhwq7w9XeDfbd0X6rsG7nPzuHgL4SICVv8qUhM";
 export const whiteModeLogo =
   "https://7a68czltvi.ufs.sh/f/E4wvAcFNKybhLuUZIMC8bNYfEIldqKo3AT04JevVLD9a5C6x";
 
