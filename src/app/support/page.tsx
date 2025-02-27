@@ -9,7 +9,7 @@ import { Textarea } from '~/components/ui/textarea'
 import { Input } from '~/components/ui/input'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '~/server/auth'
-import GalleryNavbar from '../_components/GalleryNavbar'
+import DockNavbar from '../_components/DockNavbar'
 
 export const metadata: Metadata = {
     title: 'Support | Gallery Studio',
@@ -20,7 +20,7 @@ export default async function SupportPage() {
     const currentUser = await getServerSession(authOptions)
     return (
         <div className="container mx-auto px-4 py-8">
-            {currentUser && <GalleryNavbar user={currentUser.user} />}
+            {currentUser && <DockNavbar user={currentUser.user} />}
             <Button variant="link" className="p-0">
                 <Link href={'/'} className='flex items-center gap-1'>
                     <ChevronLeft size={20} />

@@ -1,7 +1,7 @@
-export const logos = [
-  "https://7a68czltvi.ufs.sh/f/E4wvAcFNKybhPWQATLn7Sj6eUpbZascIvwD1yLBVkQi5xmnH",
-  "https://7a68czltvi.ufs.sh/f/E4wvAcFNKybhWyfr6TR8FQyMiBTXw47IEqh5SleGdJxbKzLg",
-];
+export const darkModeLogo =
+  "https://7a68czltvi.ufs.sh/f/E4wvAcFNKybhMyyghzzTjRxZqNscWtlJmGn3oQwLBDEX2CrK";
+export const whiteModeLogo =
+  "https://7a68czltvi.ufs.sh/f/E4wvAcFNKybhLuUZIMC8bNYfEIldqKo3AT04JevVLD9a5C6x";
 
 export const featuredArtworks = [
   {
@@ -66,8 +66,4 @@ export const words = [
   { text: "Now" },
 ];
 
-export const flipWords = [
-  'cutter',
-  'faster',
-  'better',
-]
+export const flipWords = ["cutter", "faster", "better"];

@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import React from "react";
-import GalleryNavbar from "~/app/_components/GalleryNavbar";
+import DockNavbar from "~/app/_components/DockNavbar";
 import { authOptions } from "~/server/auth";
 import { api } from "~/trpc/server";
 
@@ -14,7 +14,7 @@ export default async function GalleryPageLayout({
   const files = await api.file.getFiles();
   return (
     <>
-      <GalleryNavbar user={currentUser?.user} files={files} />
+      <DockNavbar user={currentUser?.user} files={files} />
       {children}
     </>
   );

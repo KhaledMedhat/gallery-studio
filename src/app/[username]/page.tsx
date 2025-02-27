@@ -1,6 +1,5 @@
 import { api } from "~/trpc/server";
 import UserProfile from "../_components/UserProfile";
-import GalleryNavbar from "../_components/GalleryNavbar";
 import BlurFade from "~/components/ui/blur-fade";
 import Navbar from "../_components/Navbar";
 import { Button } from "~/components/ui/button";
@@ -11,6 +10,7 @@ import { redirect } from "next/navigation";
 import { TRPCError } from "@trpc/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "~/server/auth";
+import DockNavbar from "../_components/DockNavbar";
 
 export default async function UserPage({
     params: { username: username },
@@ -25,7 +25,7 @@ export default async function UserPage({
         const files = await api.file.getUserFiles({ id: user.id });
         return (
             <main>
-                <GalleryNavbar user={currentUser?.user} files={files} />
+                <DockNavbar user={currentUser?.user} files={files} />
                 <UserProfile user={user} files={files} currentUser={currentUser?.user} />
             </main>
         );

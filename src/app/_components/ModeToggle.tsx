@@ -24,7 +24,7 @@ const ModeToggle = () => {
   }
   return (
     <div>
-      <Button asChild onClick={handleThemeChange} type="button" variant="ghost" className="cursor-pointer">
+      <Button asChild onClick={handleThemeChange} type="button" variant="ghost" className="hover:bg-transparent cursor-pointer">
         {resolvedTheme === "light" ? (
           <div>
             <Moon size={20} />

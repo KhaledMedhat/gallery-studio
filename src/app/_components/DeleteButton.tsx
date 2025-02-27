@@ -140,27 +140,18 @@ const DeleteButton: React.FC<{
       });
     return (
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <BlurFade delay={0} inView yOffset={0}>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="w-full rounded-sm text-destructive hover:text-[#d33939]"
-                  >
-                    {isFileModal || (isAlbum && albumId) || commentId ? (
-                      "Delete"
-                    ) : (
-                      <Trash2 size={20} className="text-destructive" />
-                    )}
-                  </Button>
-                </AlertDialogTrigger>
-              </BlurFade>
-            </TooltipTrigger>
-            <TooltipContent>Trash</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <AlertDialogTrigger asChild>
+          <Button
+            variant="ghost"
+            className={`w-full rounded-sm text-destructive  ${isFileModal || (isAlbum && albumId) || commentId ? "hover:text-[#d33939]" : "hover:bg-transparent"}`}
+          >
+            {isFileModal || (isAlbum && albumId) || commentId ? (
+              "Delete"
+            ) : (
+              <Trash2 size={20} className="text-destructive" />
+            )}
+          </Button>
+        </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>

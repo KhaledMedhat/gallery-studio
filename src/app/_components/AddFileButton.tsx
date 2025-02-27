@@ -317,14 +317,11 @@ const AddFileButton: React.FC<{
     </Card>
   ) : (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
             <DialogTrigger asChild>
               {isEmptyPage ? (
                 <Button variant="outline">Add Showcase</Button>
               ) : (
-                <Button variant="ghost">
+                <Button variant="ghost" className="hover:bg-transparent">
                   <ImagePlus
                     size={25}
                     className={`${files && files?.length === 0 && "animate-bounce"}`}
@@ -334,10 +331,6 @@ const AddFileButton: React.FC<{
                 </Button>
               )}
             </DialogTrigger>
-          </TooltipTrigger>
-          <TooltipContent>Add Showcase</TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
       <DialogContent className="h-fit max-h-full overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add Showcase</DialogTitle>

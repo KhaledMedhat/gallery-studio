@@ -30,6 +30,7 @@ import { Button } from "~/components/ui/button";
 import { Dot, EllipsisVertical, LoaderCircle } from "lucide-react";
 import { useParams } from "next/navigation";
 import DeleteButton from "./DeleteButton";
+import { Skeleton } from "~/components/ui/skeleton";
 
 const AlbumCoverImages: React.FC<{ album: Album }> = ({ album }) => {
   const param = useParams();
@@ -97,7 +98,7 @@ const AlbumCoverImages: React.FC<{ album: Album }> = ({ album }) => {
 
   return (
     <BlurFade delay={0.6} inView>
-      <div className="relative h-[200px] w-[400px] rounded-lg border xl:h-[300px] xl:w-[500px]">
+      <div className="relative h-[400px] w-[200px] rounded-lg border xl:h-[400px] xl:w-[350px]">
         <div className="absolute right-2 top-2 flex items-center gap-2">
           {!isUpdating ? (
             <DropdownMenu>
@@ -191,7 +192,7 @@ const AlbumCoverImages: React.FC<{ album: Album }> = ({ album }) => {
             )}
           </div>
           {isArrayOfNulls ? (
-            <div className="flex h-full w-full justify-center gap-2 rounded-lg bg-accent-foreground"></div>
+            <div className="rounded-md bg-muted-foreground w-full h-full"></div>
           ) : (
             <div
               className={`grid h-full w-full grid-cols-[repeat(3,1fr)] grid-rows-[repeat(2,1fr)] gap-[1px] shadow [&>*:nth-child(1)]:col-span-2 [&>*:nth-child(1)]:rounded-tl-lg [&>*:nth-child(2)]:col-start-3 [&>*:nth-child(2)]:rounded-tr-lg [&>*:nth-child(3)]:row-start-2 [&>*:nth-child(3)]:rounded-bl-lg [&>*:nth-child(4)]:col-span-2 [&>*:nth-child(4)]:row-start-2 [&>*:nth-child(4)]:rounded-br-lg`}
