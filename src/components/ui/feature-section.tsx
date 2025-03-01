@@ -1,7 +1,7 @@
 import { Camera, Lock, Bell, User, LogIn, AtSign, Smartphone, Zap } from "lucide-react";
 import { cn } from "~/lib/utils";
 
-export function FeaturesSectionDemo() {
+export function FeaturesSection() {
     const features = [
         {
             icon: <Camera />,

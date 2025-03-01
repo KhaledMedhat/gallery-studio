@@ -103,8 +103,8 @@ export const HeroParallax = ({
 
 export const Header = () => {
     return (
-        <div className="max-w-7xl relative py-40 px-4 w-full left-0 md:left-[13.5rem] top-0 ">
-            <h1 className="text-4xl md:text-7xl font-bold dark:text-white">
+        <div className="relative  py-40 px-4 w-full md:w-3/4 break-words mx-auto container">
+            <h1 className="text-5xl md:text-7xl font-bold dark:text-white">
                 Welcome to <br /> Gallery Studio where social media <br /> <FlipWords words={flipWords} />
             </h1>
             <p className="max-w-2xl text-base md:text-xl mt-8 dark:text-neutral-200">

@@ -7,8 +7,7 @@ import dayjs from "dayjs";
 import { getServerSession } from "next-auth";
 import { authOptions } from "~/server/auth";
 import { HeroParallax } from "~/components/ui/hero-parallax";
-import { FeaturesSectionDemo } from "~/components/ui/feature-section";
-import Image from "next/image";
+import { FeaturesSection } from "~/components/ui/feature-section";
 import { ArrowRight } from "lucide-react";
 import Logo from "./_components/Logo";
 
@@ -59,10 +58,10 @@ export default async function Home() {
 
   return (
     <HydrateClient>
-      <main className="min-h-screen max-w-full relative flex flex-col gap-40">
+      <main className="relative flex flex-col gap-40">
         <Navbar currentUser={currentUser?.user} />
         <HeroParallax products={featuredArtworks} />
-        <article >
+        <section>
           <div className="px-8">
             <h4 className="text-3xl lg:text-5xl lg:leading-tight max-w-5xl mx-auto text-center tracking-tight font-medium text-accent-foreground">
               Packed with a lot of features
@@ -73,9 +72,9 @@ export default async function Home() {
               It can make your social media life easier and more fun.
             </p>
           </div>
-          <FeaturesSectionDemo />
-        </article>
 
+        </section>
+        <FeaturesSection />
         <div className="flex flex-col">
           <div className="h-[50rem] px-10 w-full dark:bg-black bg-white  dark:bg-grid-white/[0.1] bg-grid-black/[0.2] relative flex items-center justify-center">
             {/* Radial gradient for the container to give a faded look */}
@@ -96,10 +95,10 @@ export default async function Home() {
             </div>
 
           </div>
-          <footer className="flex justify-around border-t py-16 px-40">
-            <div className="flex flex-col items-start gap-2">
+          <footer className="flex justify-center  md:justify-around flex-col items-center md:flex-row border-t py-10 md:py-16 md:px-40">
+            <div className="flex flex-col w-full  items-center md:items-start gap-2">
               <Button variant='ghost' className="p-0 hover:bg-transparent">
-                <Link href={'/'} className='flex items-center gap-2'>
+                <Link href={'#top'} className='flex items-center gap-2'>
                   <Logo />
                   GalleryStudio
                 </Link>

@@ -66,4 +66,4 @@ export const words = [
   { text: "Now" },
 ];
 
-export const flipWords = ["cutter", "faster", "better"];
+export const flipWords = ["prettier", "faster", "better"];
