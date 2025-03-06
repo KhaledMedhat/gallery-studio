@@ -19,6 +19,9 @@ export const albumRouter = createTRPCRouter({
       }
       const existingAlbums = await ctx.db.query.albums.findMany({
         where: eq(albums.galleryId, gallery.id),
+        with: {
+          albumFiles: true,
+        },
       });
 
       if (existingAlbums) {
@@ -63,29 +66,37 @@ export const albumRouter = createTRPCRouter({
           message: "Gallery not found",
         });
       }
-      const existingAlbum = await ctx.db.query.albums.findFirst({
-        where: eq(albums.name, input.title),
+      const existingInAlbum = await ctx.db.query.albumFiles.findMany({
+        where: inArray(albumFiles.fileId, input.filesId),
       });
-      if (existingAlbum) {
-        throw new TRPCError({
-          code: "CONFLICT",
-          message: "Album already exists",
-        });
-      }
       const [album] = await ctx.db
         .insert(albums)
         .values({
           name: input.title,
           galleryId: gallery.id,
         })
-        .returning({ id: albums.id });
+        .returning();
 
       if (album) {
         const albumFileValues = input.filesId.map((fileId) => ({
           albumId: album.id,
           fileId,
         }));
-        return await ctx.db.insert(albumFiles).values(albumFileValues);
+        if (existingInAlbum) {
+          await ctx.db
+            .update(albumFiles)
+            .set({
+              albumId: album?.id,
+            })
+            .where(
+              inArray(
+                albumFiles.fileId,
+                existingInAlbum.map((file) => file.fileId),
+              ),
+            );
+        } else {
+          await ctx.db.insert(albumFiles).values(albumFileValues);
+        }
       }
     }),
 
@@ -179,43 +190,5 @@ export const albumRouter = createTRPCRouter({
         });
       }
       return existingAlbum;
-    }),
-
-  moveFromAlbumToAlbum: protectedProcedure
-    .input(
-      z.object({
-        id: z.array(z.string()),
-        toAlbumTitle: z.string(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      if (!ctx.user) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "Unauthorized",
-        });
-      }
-      const movedToAlbum = await ctx.db.query.albums.findFirst({
-        where: eq(albums.name, input.toAlbumTitle),
-      });
-      if (!movedToAlbum) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Album not found",
-        });
-      }
-      const movedFiles = await ctx.db
-        .update(albumFiles)
-        .set({
-          albumId: movedToAlbum.id,
-        })
-        .where(
-          inArray(
-            albumFiles.fileId,
-            input.id.map((id) => id),
-          ),
-        );
-
-      return movedFiles;
     }),
 });

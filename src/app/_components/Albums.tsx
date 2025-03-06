@@ -2,7 +2,6 @@
 import { api } from "~/trpc/react";
 import EmptyPage from "./EmptyPage";
 import BlurFade from "~/components/ui/blur-fade";
-import Image from "next/image";
 import { type Album, isAlbumOrFileEnum } from "~/types/types";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,10 +26,11 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Button } from "~/components/ui/button";
-import { Dot, EllipsisVertical, LoaderCircle } from "lucide-react";
+import { ArrowRight, Check, Ellipsis, LoaderCircle, X } from "lucide-react";
 import { useParams } from "next/navigation";
 import DeleteButton from "./DeleteButton";
 import { Skeleton } from "~/components/ui/skeleton";
+import { windowSize } from "~/utils/utils";
 
 const AlbumCoverImages: React.FC<{ album: Album }> = ({ album }) => {
   const param = useParams();
@@ -38,11 +38,10 @@ const AlbumCoverImages: React.FC<{ album: Album }> = ({ album }) => {
   const { data: albumFiles } = api.file.getAlbumFiles.useQuery({
     id: album.id,
   });
-  const displayFiles = [...(albumFiles ?? []), null, null, null, null].slice(
+  const displayFiles = albumFiles?.slice(
     0,
     4,
   );
-  const isArrayOfNulls = displayFiles.every((s) => s === null);
   const utils = api.useUtils();
 
   const formSchema = z.object({
@@ -98,44 +97,81 @@ const AlbumCoverImages: React.FC<{ album: Album }> = ({ album }) => {
 
   return (
     <BlurFade delay={0.6} inView>
-      <div className="relative h-[400px] w-[200px] rounded-lg border xl:h-[400px] xl:w-[350px]">
-        <div className="absolute right-2 top-2 flex items-center gap-2">
-          {!isUpdating ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="z-30 p-0 text-accent hover:bg-transparent hover:text-accent"
-                >
-                  <EllipsisVertical size={20} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuGroup className="flex flex-col items-center">
-                  <DropdownMenuItem className="p-0">
-                    <Button
-                      onClick={() => {
-                        setIsUpdating(true);
-                      }}
-                      variant="ghost"
-                      className="w-full hover:bg-transparent"
-                    >
-                      {isAlbumUpdatePending ? (
-                        <LoaderCircle size={25} className="animate-spin" />
-                      ) : (
-                        "Edit"
-                      )}
-                    </Button>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="p-0" asChild>
-                    <DeleteButton albumId={album.id} isAlbum={true} />
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <div className="z-30 flex items-center gap-2">
+      <div className="border rounded-md h-[400px] w-[300px] flex flex-col">
+        <div className="absolute right-4 top-2 flex items-center gap-2 bg-transparent">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild >
+              <Ellipsis fill='white' size={20} className="cursor-pointer" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuGroup className="flex flex-col items-center">
+                <DropdownMenuItem asChild>
+                  <Button
+                    onClick={() => {
+                      setIsUpdating(true);
+                    }}
+                    variant='ghost'
+                    className="w-full p-0"
+                  >
+                    {isAlbumUpdatePending ? (
+                      <LoaderCircle size={25} className="animate-spin" />
+                    ) : (
+                      "Edit"
+                    )}
+                  </Button>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="p-0" asChild>
+                  <DeleteButton albumId={album.id} isAlbum={true} />
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <div className={`grid grid-cols-1 md:grid-cols-3 w-full h-full p-2`}>
+          {displayFiles?.map((displayFile, idx) => (
+            <div key={idx} style={{ backgroundImage: `url(${displayFile.url})`, backgroundSize: 'cover', backgroundPosition: 'center' }} className={`${idx === 0 || idx === 3 ? 'col-span-2' : 'col-span-1'}`}></div>
+          ))}
+        </div>
+        <div className="p-2 flex items-center justify-between">
+          {isUpdating ?
+
+            <Form {...form}>
+              <form
+                id="update-album-form"
+                onSubmit={form.handleSubmit(onSubmit)}
+              >
+                <div className="flex flex-col gap-6">
+                  <FormField
+                    control={form.control}
+                    name="albumTitle"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            onClick={(e) => e.preventDefault()}
+                            placeholder="Album title"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </form>
+            </Form>
+            : <h1>{album.name}</h1>}
+          <div className="flex items-center gap-1">
+            {isUpdating && <Button
+              onClick={() => {
+                setIsUpdating(false);
+              }}
+              className="p-1 h-fit rounded-full">
+              <X size={20} />
+            </Button>}
+            {isUpdating ?
               <Button
+                className="p-1 h-fit rounded-full"
                 type="submit"
                 form="update-album-form"
                 disabled={isAlbumUpdatePending}
@@ -143,81 +179,17 @@ const AlbumCoverImages: React.FC<{ album: Album }> = ({ album }) => {
                 {isAlbumUpdatePending ? (
                   <LoaderCircle size={25} className="animate-spin" />
                 ) : (
-                  "Save"
+                  <Check size={20} />
                 )}
               </Button>
-              <Button
-                variant="destructive"
-                onClick={() => {
-                  setIsUpdating(false);
-                }}
-              >
-                Cancel
-              </Button>
-            </div>
-          )}
-        </div>
-        <Link href={`/galleries/${String(param.id)}/albums/${album.id}`}>
-          <div className="group/album absolute z-20 flex h-full w-full items-center justify-center rounded-lg bg-black/25">
-            {isUpdating ? (
-              <Form {...form}>
-                <form
-                  id="update-album-form"
-                  onSubmit={form.handleSubmit(onSubmit)}
-                >
-                  <div className="flex flex-col gap-6">
-                    <FormField
-                      control={form.control}
-                      name="albumTitle"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              onClick={(e) => e.preventDefault()}
-                              placeholder="Album title"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </form>
-              </Form>
-            ) : (
-              <div className="transition-transform duration-300 group-hover/album:scale-125">
-                <h1 className="text-3xl font-bold text-accent">{album.name}</h1>
-              </div>
-            )}
+              :
+              <Link className="bg-muted rounded-full p-1" href={`/galleries/${String(param.id)}/albums/${album.id}`}>
+                <ArrowRight size={20} />
+              </Link>
+            }
           </div>
-          {isArrayOfNulls ? (
-            <div className="rounded-md bg-muted-foreground w-full h-full"></div>
-          ) : (
-            <div
-              className={`grid h-full w-full grid-cols-[repeat(3,1fr)] grid-rows-[repeat(2,1fr)] gap-[1px] shadow [&>*:nth-child(1)]:col-span-2 [&>*:nth-child(1)]:rounded-tl-lg [&>*:nth-child(2)]:col-start-3 [&>*:nth-child(2)]:rounded-tr-lg [&>*:nth-child(3)]:row-start-2 [&>*:nth-child(3)]:rounded-bl-lg [&>*:nth-child(4)]:col-span-2 [&>*:nth-child(4)]:row-start-2 [&>*:nth-child(4)]:rounded-br-lg`}
-            >
-              {displayFiles.map((file, idx) =>
-                file ? (
-                  <div
-                    key={idx}
-                    className="relative h-full w-full overflow-hidden"
-                  >
-                    <Image
-                      src={file?.url ?? ""}
-                      alt={`One of ${album.name}'s images`}
-                      width={100}
-                      height={100}
-                      className="h-full w-full object-cover blur-[1px]"
-                    />
-                  </div>
-                ) : (
-                  <div key={idx} className="bg-accent-foreground"></div>
-                ),
-              )}
-            </div>
-          )}
-        </Link>
+
+        </div>
       </div>
     </BlurFade>
   );
@@ -236,19 +208,25 @@ const Albums: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
       />
     );
 
-  return isLoading ? (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-background/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
-      <Dot size={250} className="animate-bounce" />
-    </div>
-  ) : (
-    <div className="container mx-auto px-4 py-10">
-      <div className="flex flex-wrap items-center justify-center gap-4 md:justify-start">
-        {albums?.map((album) => (
+  return (
+    <div className="container mx-auto my-10">
+      <div className="flex flex-wrap items-center justify-center gap-4">
+        {isLoading ? Array.from({ length: windowSize(3, 5) }).map((_, idx) => (
+          <div className="border rounded-md h-[400px] w-[300px] flex flex-col" key={idx}>
+            <div className="p-2 w-full h-full">
+              <Skeleton className="w-full h-full" />
+            </div>
+            <div className="flex items-center justify-between p-2">
+              <Skeleton className="h-5 w-[40px] rounded-xl" />
+              <Skeleton className="h-4 w-4 rounded-full" />
+            </div>
+          </div>
+        )) : albums?.map((album) => (
           <AlbumCoverImages key={album.id} album={album} />
         ))}
       </div>
     </div>
-  );
+  )
 };
 
 export default Albums;

@@ -12,9 +12,9 @@ export const metadata: Metadata = {
 
 export default function UserGuidePage() {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mt-36 mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8">Gallery Studio User Guide</h1>
-      
+
       <Tabs defaultValue="getting-started" className="mb-8">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="getting-started">Getting Started</TabsTrigger>
@@ -22,7 +22,7 @@ export default function UserGuidePage() {
           <TabsTrigger value="social">Social Features</TabsTrigger>
           <TabsTrigger value="settings">Account Settings</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="getting-started">
           <Card>
             <CardHeader>
@@ -45,7 +45,7 @@ export default function UserGuidePage() {
             </CardFooter>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="uploading">
           <Card>
             <CardHeader>
@@ -68,7 +68,7 @@ export default function UserGuidePage() {
             </CardFooter>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="social">
           <Card>
             <CardHeader>
@@ -91,7 +91,7 @@ export default function UserGuidePage() {
             </CardFooter>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="settings">
           <Card>
             <CardHeader>

@@ -16,13 +16,6 @@ import { useFileStore } from "~/store";
 import { api } from "~/trpc/react";
 import { deleteFileOnServer } from "../actions";
 import { useState } from "react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
-import BlurFade from "~/components/ui/blur-fade";
 import { useParams, useRouter } from "next/navigation";
 import { typeOfFile } from "~/utils/utils";
 
@@ -141,16 +134,15 @@ const DeleteButton: React.FC<{
     return (
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <AlertDialogTrigger asChild>
-          <Button
-            variant="ghost"
-            className={`w-full rounded-sm text-destructive  ${isFileModal || (isAlbum && albumId) || commentId ? "hover:text-[#d33939]" : "hover:bg-transparent"}`}
-          >
-            {isFileModal || (isAlbum && albumId) || commentId ? (
-              "Delete"
-            ) : (
-              <Trash2 size={20} className="text-destructive" />
-            )}
-          </Button>
+          {isFileModal || (isAlbum && albumId) || commentId ?
+
+            <Button
+              variant="ghost"
+              className={`w-full rounded-sm text-destructive  ${isFileModal || (isAlbum && albumId) || commentId ? "hover:text-[#d33939]" : "hover:bg-transparent"}`}
+            > Delete</Button>
+            :
+            <Trash2 size={20} className="text-destructive cursor-pointer" />
+          }
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>

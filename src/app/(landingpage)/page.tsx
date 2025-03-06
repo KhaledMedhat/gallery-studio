@@ -2,14 +2,14 @@ import Link from "next/link";
 import { HydrateClient } from "~/trpc/server";
 import { Button } from "~/components/ui/button";
 import { featuredArtworks } from "~/constants/consts";
-import Navbar from "./_components/Navbar";
+import Navbar from "../_components/Navbar";
 import dayjs from "dayjs";
 import { getServerSession } from "next-auth";
 import { authOptions } from "~/server/auth";
 import { HeroParallax } from "~/components/ui/hero-parallax";
 import { FeaturesSection } from "~/components/ui/feature-section";
 import { ArrowRight } from "lucide-react";
-import Logo from "./_components/Logo";
+import Logo from "../_components/Logo";
 
 export default async function Home() {
   const currentUser = await getServerSession(authOptions)
@@ -79,7 +79,7 @@ export default async function Home() {
           <div className="h-[50rem] px-10 w-full dark:bg-black bg-white  dark:bg-grid-white/[0.1] bg-grid-black/[0.2] relative flex items-center justify-center">
             {/* Radial gradient for the container to give a faded look */}
             <div className="absolute pointer-events-none inset-0 flex items-center justify-center dark:bg-black bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_50%,black)]"></div>
-            <div className="rounded-xl p-10 bg-[url(https://7a68czltvi.ufs.sh/f/E4wvAcFNKybhBnN01TxkOV1NRmqAZL90BT3uKPzQ42vo6I7y)] w-full">
+            <div className=" z-10 rounded-xl p-10 bg-[url(https://7a68czltvi.ufs.sh/f/E4wvAcFNKybhBnN01TxkOV1NRmqAZL90BT3uKPzQ42vo6I7y)] w-full">
               <div className="flex flex-col items-center gap-4 w-full">
                 <h2 className="text-center text-balance mx-auto text-3xl md:text-5xl font-semibold tracking-[-0.015em] text-white">
                   Ready to create your Gallery? <br /> Sign up now!

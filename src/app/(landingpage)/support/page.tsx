@@ -1,15 +1,12 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { BookOpen, ChevronLeft, HelpCircle, Mail, MessageCircle } from 'lucide-react'
+import { BookOpen, HelpCircle, Mail, MessageCircle } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '~/components/ui/card'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '~/components/ui/accordion'
 import { Button } from '~/components/ui/button'
 import { Textarea } from '~/components/ui/textarea'
 import { Input } from '~/components/ui/input'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '~/server/auth'
-import DockNavbar from '../_components/DockNavbar'
 
 export const metadata: Metadata = {
     title: 'Support | Gallery Studio',
@@ -17,16 +14,8 @@ export const metadata: Metadata = {
 }
 
 export default async function SupportPage() {
-    const currentUser = await getServerSession(authOptions)
     return (
-        <div className="container mx-auto px-4 py-8">
-            {currentUser && <DockNavbar user={currentUser.user} />}
-            <Button variant="link" className="p-0">
-                <Link href={'/'} className='flex items-center gap-1'>
-                    <ChevronLeft size={20} />
-                    Back to home
-                </Link>
-            </Button>
+        <div className="container mt-36 mx-auto px-4 py-8">
             <h1 className="text-4xl font-bold mb-8">Support</h1>
 
             <Tabs defaultValue="faq" className="mb-8">

@@ -1,7 +1,7 @@
 "use client";
 
 import { LoaderCircle, Search } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/react";
@@ -19,15 +19,17 @@ const SearchBar = () => {
   const { scrollYProgress } = useScroll();
 
   const [visible, setVisible] = useState<boolean>(false);
-  console.log(scrollYProgress.get())
+  useEffect(() => {
+    setVisible(true);
+  }, []);
   useMotionValueEvent(scrollYProgress, "change", (current) => {
     // Check if current is not undefined and is a number
     if (typeof current === "number") {
       const direction = current - scrollYProgress.getPrevious()!;
-
       if (scrollYProgress.get() < 0) {
         setVisible(false);
-      } else {
+      }
+      else {
         if (direction < 0) {
           setVisible(true);
         } else {

@@ -470,6 +470,9 @@ export const fileRouter = createTRPCRouter({
           message: "Unauthorized",
         });
       }
+      const existingInAlbum = await ctx.db.query.albumFiles.findMany({
+        where: inArray(albumFiles.fileId, input.id),
+      });
       const existingAlbum = await ctx.db.query.albums.findFirst({
         where: eq(albums.name, input.albumTitle),
       });
@@ -479,10 +482,24 @@ export const fileRouter = createTRPCRouter({
           message: `Album with title "${input.albumTitle}" not found.`,
         });
       }
-      const albumFileValues = input.id.map((fileId) => ({
-        albumId: existingAlbum.id,
-        fileId,
-      }));
-      return await ctx.db.insert(albumFiles).values(albumFileValues);
+      if (existingInAlbum) {
+        await ctx.db
+          .update(albumFiles)
+          .set({
+            albumId: existingAlbum?.id,
+          })
+          .where(
+            inArray(
+              albumFiles.fileId,
+              existingInAlbum.map((file) => file.fileId),
+            ),
+          );
+      } else {
+        const albumFileValues = input.id.map((fileId) => ({
+          albumId: existingAlbum.id,
+          fileId,
+        }));
+        await ctx.db.insert(albumFiles).values(albumFileValues);
+      }
     }),
 });

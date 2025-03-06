@@ -18,7 +18,6 @@ import DeleteButton from "./DeleteButton";
 import ToAlbumButton from "./ToAlbumButton";
 import { typeOfFile, windowSize } from "~/utils/utils";
 import CircularFilterMenu from "./CircularFilterMenu";
-import FromAlbumToAlbum from "./FromAlbumToAlbum";
 
 const Files: React.FC<{
   gallerySlug?: string;
@@ -60,19 +59,19 @@ const Files: React.FC<{
         : files
       : isAlbum
         ? flattedAlbumFiles?.filter((file) =>
-            filter === "Images"
-              ? file.fileType?.includes("image")
-              : filter === "GIF"
-                ? file.fileType?.includes("gif")
-                : file.fileType?.includes("video"),
-          )
+          filter === "Images"
+            ? file.fileType?.includes("image")
+            : filter === "GIF"
+              ? file.fileType?.includes("gif")
+              : file.fileType?.includes("video"),
+        )
         : files?.filter((file) =>
-            filter === "Images"
-              ? file.fileType?.includes("image")
-              : filter === "GIF"
-                ? file.fileType?.includes("gif")
-                : file.fileType?.includes("video"),
-          );
+          filter === "Images"
+            ? file.fileType?.includes("image")
+            : filter === "GIF"
+              ? file.fileType?.includes("gif")
+              : file.fileType?.includes("video"),
+        );
 
   const renderFile = (file: fileType, idx: number) => (
     <BlurFade key={file.id} delay={0.25 + Number(idx) * 0.05} inView>
@@ -95,9 +94,8 @@ const Files: React.FC<{
               });
             }
           }}
-          className={`absolute right-2 top-2 z-10 items-center justify-center bg-muted ${
-            foundedFileInSelectedFiles(file.id) ? "flex" : "hidden"
-          } ${isSelecting ? "flex" : "group-hover:hidden md:group-hover:flex"} `}
+          className={`absolute right-2 top-2 z-10 items-center justify-center bg-muted ${foundedFileInSelectedFiles(file.id) ? "flex" : "hidden"
+            } ${isSelecting ? "flex" : "group-hover:hidden md:group-hover:flex"} `}
         />
         <Link href={`/galleries/${gallerySlug}/images/${file.id}`}>
           <div className="relative h-full w-full">
@@ -160,11 +158,7 @@ const Files: React.FC<{
         {selectedFiles.length > 0 ? (
           <div className="flex items-center gap-2 xl:hidden">
             <DeleteButton fileType={fileType} />
-            {isAlbum ? (
-              <FromAlbumToAlbum gallerySlug={gallerySlug ?? ""} />
-            ) : (
-              <ToAlbumButton gallerySlug={gallerySlug ?? ""} />
-            )}
+            <ToAlbumButton gallerySlug={gallerySlug ?? ""} />
           </div>
         ) : (
           <CircularFilterMenu setFilter={setFilter} />
@@ -187,15 +181,15 @@ const Files: React.FC<{
 
       <div className="flex flex-wrap items-center justify-center gap-3">
         {isLoading || isAlbumFilesLoading
-          ? Array.from({ length: windowSize() }).map((_, idx) => (
-              <div className="flex flex-col gap-1" key={idx}>
-                <Skeleton className="h-[80px] w-[80px] rounded-md md:h-[150px] md:w-[150px]" />
-                <div className="flex items-center justify-between">
-                  <Skeleton className="h-5 w-[40px] rounded-xl" />
-                  <Skeleton className="h-4 w-4 rounded-full" />
-                </div>
+          ? Array.from({ length: windowSize(5, 10) }).map((_, idx) => (
+            <div className="flex flex-col gap-1" key={idx}>
+              <Skeleton className="h-[80px] w-[80px] rounded-md md:h-[150px] md:w-[150px]" />
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-5 w-[40px] rounded-xl" />
+                <Skeleton className="h-4 w-4 rounded-full" />
               </div>
-            ))
+            </div>
+          ))
           : filteredFiles?.map((file, idx) => renderFile(file, idx))}
       </div>
     </div>

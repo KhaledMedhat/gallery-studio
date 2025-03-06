@@ -1,10 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { FolderInput, LoaderCircle } from "lucide-react";
+import { useParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import BlurFade from "~/components/ui/blur-fade";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -40,30 +40,33 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
 import { toast } from "~/hooks/use-toast";
 import { useFileStore } from "~/store";
 import { api } from "~/trpc/react";
 
 const ToAlbumButton: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
+  const param = useParams();
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const { selectedFiles } = useFileStore();
+  const utils = api.useUtils();
   const { data: albums } = api.album.getAlbums.useQuery({ id: gallerySlug });
+  const { data: currentAlbum } = api.album.getAlbumById.useQuery({
+    id: Number(param.albumId),
+  }, { enabled: !!param.albumId });
   const albumsFormSchema = z.object({
     album: z.string({
       required_error: "Please select an album to add to.",
     }),
   });
 
+  const currentSelectedFiles = selectedFiles.map((selectedFile) => selectedFile.id)
+  const selectedFilesInAlbumAlready = currentAlbum?.albumFiles.filter((albumFile) => currentSelectedFiles.includes(albumFile.fileId))
+  const extractedAlbumTitle = selectedFilesInAlbumAlready?.[0]?.albumId === currentAlbum?.id && currentAlbum?.name
+  console.log(extractedAlbumTitle)
   const albumForm = useForm<z.infer<typeof albumsFormSchema>>({
     resolver: zodResolver(albumsFormSchema),
     defaultValues: {
-      album: "",
+      album: extractedAlbumTitle ? extractedAlbumTitle : "",
     },
   });
 
@@ -86,6 +89,7 @@ const ToAlbumButton: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
         title: "Created And Added Successfully.",
         description: `Images has been added to ${createAlbumForm.getValues("album")} album successfully.`,
       });
+      void utils.album.getAlbumById.invalidate({ id: Number(param.albumId) })
       setIsDialogOpen(false);
     },
     onError: (e) => {
@@ -103,6 +107,7 @@ const ToAlbumButton: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
           title: "Added Successfully.",
           description: `Images has been added to ${albumForm.getValues("album")} album successfully.`,
         });
+        void utils.album.getAlbumById.invalidate({ id: Number(param.albumId) })
         setIsDialogOpen(false);
       },
       onError: () => {
@@ -119,6 +124,7 @@ const ToAlbumButton: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
       id: filesIds,
       albumTitle: albumData.album,
     });
+
   };
 
   const onAddingFilesAfterCreatingAlbum = (
@@ -133,20 +139,9 @@ const ToAlbumButton: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
   };
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <DialogTrigger asChild>
-              <Button variant="ghost">
-                <BlurFade delay={0} inView yOffset={0}>
-                  <FolderInput size={20} />
-                </BlurFade>
-              </Button>
-            </DialogTrigger>
-          </TooltipTrigger>
-          <TooltipContent>Add to albums</TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <DialogTrigger asChild>
+        <FolderInput size={20} className="cursor-pointer" />
+      </DialogTrigger>
       <DialogContent className="flex max-w-2xl items-center">
         <VisuallyHidden.Root>
           <DialogHeader>
@@ -164,7 +159,8 @@ const ToAlbumButton: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
               <CardHeader>
                 <CardTitle>Albums</CardTitle>
                 <CardDescription>
-                  Choose on of your albums to add your images to.
+                  {extractedAlbumTitle ? 'Move to another album' : 'Choose on of your albums to add your images to.'}
+
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
@@ -191,7 +187,7 @@ const ToAlbumButton: React.FC<{ gallerySlug: string }> = ({ gallerySlug }) => {
                             </FormControl>
                             <SelectContent>
                               {albums?.map((album) => (
-                                <SelectItem key={album.id} value={album.name}>
+                                <SelectItem key={album.id} value={album.name} disabled={extractedAlbumTitle === album.name}>
                                   {album.name}
                                 </SelectItem>
                               ))}

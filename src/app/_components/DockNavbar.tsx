@@ -63,8 +63,7 @@ import DeleteButton from "./DeleteButton";
 import ToAlbumButton from "./ToAlbumButton";
 import ChooseFilesModal from "./ChooseFilesModal";
 import { getInitials } from "~/utils/utils";
-import { NotificationTypeEnum, type User as UserType, type fileType } from "~/types/types";
-import FromAlbumToAlbum from "./FromAlbumToAlbum";
+import { NotificationTypeEnum, type User as UserType } from "~/types/types";
 import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "~/components/ui/sheet";
 import { useTheme } from "next-themes";
@@ -76,8 +75,7 @@ dayjs.extend(relativeTime);
 
 const DockNavbar: React.FC<{
     user: UserType | null | undefined;
-    files?: fileType[] | undefined;
-}> = ({ user, files }) => {
+}> = ({ user }) => {
     const router = useRouter();
     const { resolvedTheme } = useTheme();
     const pathname = usePathname();
@@ -187,12 +185,10 @@ const DockNavbar: React.FC<{
             icon: undefined,
             component: <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
-                    <Button variant="ghost">
-                        <FolderPlus
-                            size={20}
-                            className={`${albums && albums?.length === 0 && "animate-bounce"}`}
-                        />
-                    </Button>
+                    <FolderPlus
+                        size={20}
+                        className={`${albums && albums?.length === 0 && "animate-bounce"} cursor-pointer`}
+                    />
                 </DialogTrigger>
                 <DialogContent>
                     <DialogHeader>
@@ -249,7 +245,6 @@ const DockNavbar: React.FC<{
             href: undefined,
             component: <AddFileButton
                 gallerySlug={user?.gallery?.slug ?? ""}
-                files={files}
                 isEmptyPage={false}
             />,
             shouldRender: !isAlbum && !isInsideAlbum
@@ -273,25 +268,12 @@ const DockNavbar: React.FC<{
             component: <ToAlbumButton gallerySlug={user?.gallery?.slug ?? ""} />,
             icon: undefined,
             href: undefined,
-            shouldRender: selectedFiles.length > 0 && isInsideAlbum
-        },
-        {
-            title: 'Move from Album to Album',
-            component: <FromAlbumToAlbum gallerySlug={user?.gallery?.slug ?? ""} />,
-            icon: undefined,
-            href: undefined,
-            shouldRender: selectedFiles.length > 0 && isInsideAlbum
+            shouldRender: selectedFiles.length > 0
         },
         {
             title: 'Cancel',
-            component: <Button
-                variant="ghost"
-                className="hover:bg-transparent"
-                onClick={() => setSelectedFilesToEmpty()}
-            >
-                <X size={20} />
-            </Button>,
-            icon: undefined,
+            component:  <X onClick={() => setSelectedFilesToEmpty()} size={20} className="cursor-pointer" />,
+            icon:  undefined,
             href: undefined,
             shouldRender: selectedFiles.length > 0
         },
@@ -379,12 +361,7 @@ const DockNavbar: React.FC<{
             title: 'Profile',
             component: <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button
-                        variant="ghost"
-                        // asChild
-                        className="hover:bg-transparent"
-                        >
-                        <Avatar>
+                        <Avatar className="cursor-pointer">
                             <AvatarImage
                                 src={user?.profileImage?.imageUrl ?? ""}
                                 alt={user?.name ?? "Avatar"}
@@ -397,7 +374,6 @@ const DockNavbar: React.FC<{
                                 )}
                             </AvatarFallback>
                         </Avatar>
-                    </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     <DropdownMenuLabel className="font-normal">

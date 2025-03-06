@@ -28,11 +28,11 @@ export const calculateClosestAspectRatio = (width: number, height: number) => {
     return { width: width, height: width / aspectRatio1_1 };
   }
 };
-export function windowSize() {
+export function windowSize(minNumber:number, maxNumber:number) {
   if (typeof window !== "undefined" && window.innerWidth < 768) {
-    return 5;
+    return minNumber;
   } else {
-    return 10;
+    return maxNumber;
   }
 }
 export const isURLActive = (pathname: string, url: string) => {

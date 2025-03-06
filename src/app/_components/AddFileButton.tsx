@@ -20,12 +20,6 @@ import {
 import { Textarea } from "~/components/ui/textarea";
 import { deleteFileOnServer } from "../actions";
 import UploadthingButton from "./UploadthingButton";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -35,7 +29,6 @@ import { useState } from "react";
 import { useFileStore } from "~/store";
 import { api } from "~/trpc/react";
 import { toast } from "~/hooks/use-toast";
-import type { fileType } from "~/types/types";
 import { Switch } from "~/components/ui/switch";
 import {
   Card,
@@ -50,12 +43,11 @@ import { prepareFileForUpload, typeOfFile } from "~/utils/utils";
 import { useUploader } from "~/hooks/useUploader";
 
 const AddFileButton: React.FC<{
-  files?: fileType[] | undefined;
   isEmptyPage?: boolean;
   albumId?: string;
   gallerySlug: string;
   isTabs?: boolean;
-}> = ({ files, gallerySlug, isEmptyPage, isTabs, albumId }) => {
+}> = ({ gallerySlug, isEmptyPage, isTabs, albumId }) => {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const router = useRouter();
   const { fileKey, isUploading, setFileUrl, setFileKey, isUploadedShowcaseEditing, croppedImage, showcaseOriginalName, setFormData } = useFileStore();
@@ -317,20 +309,17 @@ const AddFileButton: React.FC<{
     </Card>
   ) : (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              {isEmptyPage ? (
-                <Button variant="outline">Add Showcase</Button>
-              ) : (
-                <Button variant="ghost" className="hover:bg-transparent">
-                  <ImagePlus
-                    size={25}
-                    className={`${files && files?.length === 0 && "animate-bounce"}`}
-                  />
+      <DialogTrigger asChild>
+        {isEmptyPage ? (
+          <Button variant="outline">Add Showcase</Button>
+        ) : (
+            <ImagePlus
+              size={25}
+              className="cursor-pointer"
+            />
 
-                  <span className="sr-only">Add Showcase</span>
-                </Button>
-              )}
-            </DialogTrigger>
+        )}
+      </DialogTrigger>
       <DialogContent className="h-fit max-h-full overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add Showcase</DialogTitle>

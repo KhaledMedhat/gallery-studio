@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { Badge } from '~/components/ui/badge'
 import { HoverEffect } from '~/components/ui/card-hover-effect'
 import React from 'react'
-import { AtSign, Lock, Bell, Camera, ChevronLeft, Cloud, Edit, Eye, FolderPlus, LogIn, Search, Share2, Smartphone, Trash2, User, Users, Zap } from 'lucide-react'
+import { AtSign, Lock, Bell, Camera, Cloud, Edit, Eye, FolderPlus, LogIn, Search, Share2, Smartphone, Trash2, User, Users, Zap } from 'lucide-react'
 
 export const metadata: Metadata = {
     title: 'About | Gallery Studio',
@@ -96,14 +96,8 @@ export default function AboutPage() {
     ]
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <Button variant="link" className="p-0">
-                <Link href={'/'} className='flex items-center gap-1'>
-                    <ChevronLeft size={20} />
-                    Back to home
-                </Link>
-            </Button>
-            <section className="text-center mb-16">
+        <main className="mt-36">
+            <section className="container mx-auto text-center mb-16">
                 <h1 className="text-4xl font-bold mb-6">About Gallery Studio</h1>
                 <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
                     Studio is a next-gen social media platform designed for artists to showcase their work in a private or public gallery. Whether you&lsquo;re a photographer, designer, or digital artist, Studio gives you full control over your creative space.
@@ -121,9 +115,30 @@ export default function AboutPage() {
                         Join Gallery Studio Today
                     </Link>
                 </Button>
+                <HoverEffect items={features} />
             </section>
-            <HoverEffect items={features} />
-            <section className="text-center bg-primary text-primary-foreground mt-16  p-8 rounded-lg">
+
+            <section className="h-[30rem] px-10 w-full dark:bg-black bg-white  dark:bg-grid-white/[0.1] bg-grid-black/[0.2] relative flex items-center justify-center">
+                {/* Radial gradient for the container to give a faded look */}
+                <div className="absolute pointer-events-none inset-0 flex items-center justify-center dark:bg-black bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_50%,black)]"></div>
+                <div className=" z-10 rounded-xl p-10 bg-[url(https://7a68czltvi.ufs.sh/f/E4wvAcFNKybhBnN01TxkOV1NRmqAZL90BT3uKPzQ42vo6I7y)] w-full">
+                    <div className="flex flex-col items-center gap-4 w-full">
+                        <h2 className="text-center text-balance mx-auto text-3xl md:text-5xl font-semibold tracking-[-0.015em] text-white">
+                            Ready to Showcase Your Art?
+                        </h2>
+                        <p className="mt-4 max-w-[26rem] text-center mx-auto  text-base/6 text-neutral-200">
+                            Join Gallery Studio today and experience the perfect platform for artists to share, connect, and grow.
+                        </p>
+                        <div className="flex items-center gap-4 mt-10">
+                            <Button size="lg" variant="secondary">
+                                <Link href="/sign-up">Sign Up Now</Link>
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+            {/* <section className="text-center bg-primary text-primary-foreground mt-16  p-8 rounded-lg">
                 <h2 className="text-3xl font-semibold mb-4">Ready to Showcase Your Art?</h2>
                 <p className="mb-6 max-w-2xl mx-auto">
                     Join Gallery Studio today and experience the perfect platform for artists to share, connect, and grow.
@@ -131,7 +146,7 @@ export default function AboutPage() {
                 <Button size="lg" variant="secondary">
                     <Link href="/sign-up">Sign Up Now</Link>
                 </Button>
-            </section>
-        </div>
+            </section> */}
+        </main>
     )
 }

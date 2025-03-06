@@ -26,8 +26,8 @@ const CustomDrawerWrapper: React.FC<{ children: React.ReactNode }> = ({ children
         >
           Add
         </Button>
-        {children}
       </DrawerTrigger>
+      {children}
     </Drawer>
 
   )
