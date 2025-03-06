@@ -127,7 +127,7 @@ const AlbumCoverImages: React.FC<{ album: Album }> = ({ album }) => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <div className={`grid grid-cols-1 md:grid-cols-3 w-full h-full p-2`}>
+        <div className={`grid grid-cols-3 w-full h-full p-2`}>
           {displayFiles?.map((displayFile, idx) => (
             <div key={idx} style={{ backgroundImage: `url(${displayFile.url})`, backgroundSize: 'cover', backgroundPosition: 'center' }} className={`${idx === 0 || idx === 3 ? 'col-span-2' : 'col-span-1'}`}></div>
           ))}
@@ -183,8 +183,8 @@ const AlbumCoverImages: React.FC<{ album: Album }> = ({ album }) => {
                 )}
               </Button>
               :
-              <Link className="bg-muted rounded-full p-1" href={`/galleries/${String(param.id)}/albums/${album.id}`}>
-                <ArrowRight size={20} />
+              <Link className="bg-muted rounded-full p-1 group/button" href={`/galleries/${String(param.id)}/albums/${album.id}`}>
+                <ArrowRight size={20} className="group-hover/button:-rotate-12 transition-transform duration-300" />
               </Link>
             }
           </div>
