@@ -42,7 +42,7 @@ const FloatingDockMobile = ({
 }) => {
     const [open, setOpen] = useState(false);
     return (
-        <div className={cn("relative block md:hidden", className)}>
+        <nav className={cn("relative block md:hidden", className)}>
             <AnimatePresence>
                 {open && (
                     <motion.div
@@ -91,7 +91,7 @@ const FloatingDockMobile = ({
             >
                 <IconLayoutNavbarCollapse className="h-5 w-5 text-neutral-500 dark:text-neutral-400" />
             </button>
-        </div>
+        </nav>
     );
 };
 
@@ -104,7 +104,7 @@ const FloatingDockDesktop = ({
 }) => {
     const mouseX = useMotionValue(Infinity);
     return (
-        <motion.div
+        <motion.nav
             onMouseMove={(e) => mouseX.set(e.pageX)}
             onMouseLeave={() => mouseX.set(Infinity)}
             className={cn(
@@ -115,7 +115,7 @@ const FloatingDockDesktop = ({
             {items.map((item) => (
                 item.shouldRender && <IconContainer mouseX={mouseX} key={item.title} {...item} />
             ))}
-        </motion.div>
+        </motion.nav>
     );
 };
 

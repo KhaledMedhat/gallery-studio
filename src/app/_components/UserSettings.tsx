@@ -16,6 +16,13 @@ import { ElementType, MentionType, type User } from "~/types/types"
 import { Label } from "~/components/ui/label"
 import * as React from "react"
 import MentionInput from "./MentionInput"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog"
+import UploadthingButton from "./UploadthingButton"
+import { useUploader } from "~/hooks/useUploader"
+import { getInitials, prepareFileForUpload } from "~/utils/utils"
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar"
+import Image from "next/image"
+import { useFileStore } from "~/store"
 
 enum SettingTabs {
     Profile,
@@ -24,7 +31,8 @@ enum SettingTabs {
 }
 const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ currentUser }) => {
     const utils = api.useUtils();
-
+    const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+    const { croppedImage, isUploading, showcaseOriginalName, isUploadedShowcaseEditing, showcaseUrl } = useFileStore()
     const tabs = [
         { label: "Profile", value: SettingTabs.Profile },
         { label: "Account", value: SettingTabs.Account },
@@ -43,6 +51,8 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
             url: z.string().url(),
             isNew: z.boolean().optional(),
         })).optional(),
+        profilePicture: z.object({ url: z.string(), type: z.string() }).optional(),
+        coverImage: z.object({ url: z.string(), type: z.string() }).optional(),
     });
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -61,6 +71,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
     const { mutate: updateUserSettings, isPending: isUpdatingUserSettingsPending } = api.user.updateUserProfile.useMutation({
         onSuccess: () => {
             router.refresh();
+            setIsDialogOpen(false)
             toast({
                 title: "Updated Successfully.",
                 description: `Your profile has been updated successfully.`,
@@ -74,12 +85,37 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
             });
         },
     });
+    const { startUpload: startUploadProfilePicture, getDropzoneProps: getDropzonePropsProfilePicture } = useUploader(
+        undefined,
+        currentUser?.profileImage?.imageKey,
+        undefined,
+        updateUserSettings,
+        undefined,
+        undefined,
+    );
+    const { startUpload: startUploadCoverImage, getDropzoneProps: getDropzonePropsCoverImage } = useUploader(
+        undefined,
+        currentUser?.coverImage?.imageKey,
+        undefined,
+        undefined,
+        updateUserSettings,
+        undefined,
+    );
+
+
     const onSubmit = async (data: z.infer<typeof formSchema>) => {
         updateUserSettings({
             username: data.username,
             bio: mentionInputValue,
             socialUrls: data.urls,
         })
+
+    };
+    const onUpdateProfilePicture = async () => {
+        await prepareFileForUpload(showcaseUrl, croppedImage, showcaseOriginalName, isUploadedShowcaseEditing, startUploadProfilePicture);
+    };
+    const onUpdateImageCover = async () => {
+        await prepareFileForUpload(showcaseUrl, croppedImage, showcaseOriginalName, isUploadedShowcaseEditing, startUploadCoverImage);
     };
 
     const renderTabHeader = () => {
@@ -231,14 +267,114 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                                 )}
                             />
                         </>}
+                        {activeTab === SettingTabs.Account &&
+                            <>
+                                <div className="flex flex-col items-start gap-2">
+                                    <p className="text-sm">Profile Picture</p>
+                                    <Avatar className="h-52 w-52 transform items-center justify-center rounded-full border-4 border-background">
+                                        <AvatarImage
+                                            src={currentUser?.profileImage?.imageUrl ?? ""}
+                                            alt={currentUser?.name}
+                                            className="h-full w-full rounded-full object-cover"
+                                        />
+                                        <AvatarFallback className="flex h-full w-full items-center justify-center rounded-full bg-slate-500 text-3xl font-bold">
+                                            {getInitials(currentUser?.firstName ?? "", currentUser?.lastName ?? "")}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                                        <DialogTrigger asChild>
+                                            <Button variant="outline" className="justify-start w-fit">
+                                                Change
+                                            </Button>
+                                        </DialogTrigger>
+                                        <DialogContent className="h-fit max-h-full overflow-y-auto">
+                                            <DialogHeader>
+                                                <DialogTitle>Profile Picture</DialogTitle>
+                                                <DialogDescription>
+                                                    Upload a new profile picture to your account.
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                            <UploadthingButton
+                                                label={"Profile Picture"}
+                                                getDropzoneProps={getDropzonePropsProfilePicture}
+                                                isImageComponent={true}
+                                                isProfile={true}
+                                                isCircle={true}
+                                            />
+                                            <DialogFooter>
+                                                <Button type="button" onClick={onUpdateProfilePicture} disabled={isUpdatingUserSettingsPending || isUploading}>
+                                                    {isUpdatingUserSettingsPending && <LoaderCircle size={20} className="animate-spin" />}
+                                                    {isUpdatingUserSettingsPending || isUploading ? (
+                                                        <div className="flex items-center justify-center gap-1">
+                                                            <LoaderCircle size={20} className="animate-spin" />
+                                                            {isUploading && "Uploading ..."}
+                                                            {isUpdatingUserSettingsPending && "Updating your profile picture ..."}
+                                                        </div>
+                                                    ) : (
+                                                        "Update"
+                                                    )}
+                                                </Button>
+                                            </DialogFooter>
+                                        </DialogContent>
+                                    </Dialog>
+                                    <p className="text-sm text-muted-foreground">This is your public display Profile Picture</p>
+                                </div>
+                                <div className="flex flex-col items-start gap-2">
+                                    <p className="text-sm">Cover Image</p>
+                                    <div className="relative h-64 w-full">
+                                        <Image
+                                            src={currentUser?.coverImage?.imageUrl ?? "/image-3@2x.jpg"}
+                                            alt={`${currentUser?.name}'s cover image`}
+                                            fill
+                                            style={{ objectFit: "cover" }} />
+                                    </div>
+                                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                                        <DialogTrigger asChild>
+                                            <Button variant="outline" className="justify-start w-fit">
+                                                Change
+                                            </Button>
+                                        </DialogTrigger>
+                                        <DialogContent className="h-fit max-h-full overflow-y-auto">
+                                            <DialogHeader>
+                                                <DialogTitle>Cover Image</DialogTitle>
+                                                <DialogDescription>
+                                                    Upload a new Cover Image to your account.
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                            <UploadthingButton
+                                                label={"Cover Image"}
+                                                getDropzoneProps={getDropzonePropsCoverImage}
+                                                isImageComponent={true}
+                                                isProfile={true}
+                                                isCircle={false}
+                                            />
+                                            <DialogFooter>
+                                                <Button type="button" onClick={onUpdateImageCover} disabled={isUpdatingUserSettingsPending || isUploading}>
+                                                    {isUpdatingUserSettingsPending && <LoaderCircle size={20} className="animate-spin" />}
+                                                    {isUpdatingUserSettingsPending || isUploading ? (
+                                                        <div className="flex items-center justify-center gap-1">
+                                                            <LoaderCircle size={20} className="animate-spin" />
+                                                            {isUploading && "Uploading ..."}
+                                                            {isUpdatingUserSettingsPending && "Updating your cover image ..."}
+                                                        </div>
+                                                    ) : (
+                                                        "Update"
+                                                    )}
+                                                </Button>
+                                            </DialogFooter>
+                                        </DialogContent>
+                                    </Dialog>
+                                    <p className="text-sm text-muted-foreground">This is your public display Cover Image</p>
+                                </div>
+                            </>
+                        }
                     </div>
-                    <Button type="submit" disabled={isUpdatingUserSettingsPending}>
+                    {activeTab === SettingTabs.Account ? null : <Button type="submit" disabled={isUpdatingUserSettingsPending}>
                         {isUpdatingUserSettingsPending && <LoaderCircle size={20} className="animate-spin" />}
                         {activeTab === SettingTabs.Profile && "Update Profile"}
-                        {activeTab === SettingTabs.Account && "Update Account"}
                         {activeTab === SettingTabs.Notifications && "Update Notifications"}
 
-                    </Button>
+                    </Button>}
                 </form>
             </Form >
         )

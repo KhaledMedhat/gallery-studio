@@ -423,11 +423,11 @@ const DockNavbar: React.FC<{
 
     ]
     return (
-        <div className="flex fixed bottom-0 right-4  md:w-full  items-center z-50 justify-center h-[5rem]">
+        <header className="flex fixed bottom-0 right-4 md:w-full items-center z-50 justify-center h-[5rem]">
             <FloatingDock
                 items={items}
             />
-        </div>
+        </header>
     )
 }
 

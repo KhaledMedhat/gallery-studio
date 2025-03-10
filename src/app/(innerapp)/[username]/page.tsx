@@ -8,8 +8,8 @@ import { redirect } from "next/navigation";
 import { TRPCError } from "@trpc/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "~/server/auth";
-import UserProfile from "~/app/_components/UserAvatarProfile";
 import Navbar from "~/app/_components/Navbar";
+import UserProfile from "~/app/_components/UserProfile";
 
 export default async function UserPage({
     params: { username: username },
@@ -21,10 +21,9 @@ export default async function UserPage({
     const currentUser = await getServerSession(authOptions)
     try {
         const user = await api.user.getUserByUsername({ username });
+        const files = await api.file.getUserFiles({ id: user.id })
         return (
-            <main>
-                <UserProfile user={user} />
-            </main>
+            <UserProfile user={user} currentUser={currentUser?.user} files={files} />
         );
     } catch (error) {
         if (error instanceof TRPCError && error.code === "NOT_FOUND") {

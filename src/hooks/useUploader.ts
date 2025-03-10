@@ -14,11 +14,11 @@ export const useUploader = (
   form?: UseFormReturn<any, any>,
   imageKey?: string,
   addShowcase?: (data: AddShowcaseType) => void,
-  UpdateUserCoverImage?: (data: {
-    coverImage: { imageUrl: string; imageKey: string };
+  updateUserProfilePicture?: (data: {
+    image?: { imageUrl: string; imageKey: string };
   }) => void,
-  UpdateUserProfile?: (data: {
-    image: { imageUrl: string; imageKey: string };
+  updateUserCoverImage?: (data: {
+    coverImage?: { imageUrl: string; imageKey: string };
   }) => void,
   sendingOTP?: (data: { name: string; email: string }) => void,
 ) => {
@@ -48,17 +48,17 @@ export const useUploader = (
           setUserImage({ imageKey: res[0]?.key, imageUrl: res[0]?.url });
           sendingOTP({ name: fullName, email: userRegistrationInfo.email });
         }
-        if (UpdateUserCoverImage) {
-          UpdateUserCoverImage({
-            coverImage: {
+        if (updateUserProfilePicture) {
+          updateUserProfilePicture({
+            image: {
               imageUrl: res[0]?.url,
               imageKey: res[0]?.key,
             },
           });
         }
-        if (UpdateUserProfile) {
-          UpdateUserProfile({
-            image: {
+        if (updateUserCoverImage) {
+          updateUserCoverImage({
+            coverImage: {
               imageUrl: res[0]?.url,
               imageKey: res[0]?.key,
             },

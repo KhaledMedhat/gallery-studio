@@ -12,19 +12,16 @@ import {
   FlipVertical,
   RotateCcw,
   RotateCw,
-  X,
 } from "lucide-react";
 import "react-advanced-cropper/dist/style.css";
 import "react-advanced-cropper/dist/themes/classic.css";
-import type { FieldValues, UseFormReturn } from "react-hook-form";
 const CustomCropper: React.FC<{
   showcase: string;
   isCircle: boolean;
-  form?: UseFormReturn<FieldValues, FieldValues>;
-}> = ({ showcase, isCircle, form }) => {
+}> = ({ showcase, isCircle }) => {
   const cropperRef = useRef<CropperRef>(null);
-  const { setCroppedImage, setShowcaseUrl } = useFileStore();
-
+  const { setCroppedImage } = useFileStore();
+  console.log(showcase)
   const onChange = debounce((cropper: CropperRef) => {
     cropper
       .getCanvas()
@@ -46,8 +43,6 @@ const CustomCropper: React.FC<{
   return (
     <div className="relative flex h-fit min-w-40 max-w-full flex-col items-center gap-4">
       <div className="h-full w-full">
-  
-
         <Cropper
           ref={cropperRef}
           stencilComponent={isCircle ? CircleStencil : undefined}

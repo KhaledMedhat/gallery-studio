@@ -66,7 +66,6 @@ const UploadthingButton: React.FC<{
     });
     const formShowcaseUrl: { url: string; type: string } =
       form?.watch("showcaseFile");
-
     return (formShowcaseUrl?.url ?? showcaseUrl.url) ? (
       (typeOfFile(formShowcaseUrl?.type ?? showcaseUrl.type) === "Image" || 'GIF') ? (
         <div className="relative w-full h-full">
@@ -84,6 +83,10 @@ const UploadthingButton: React.FC<{
               onClick={async () => {
                 form?.unregister("showcaseFile");
                 await form?.trigger("showcaseFile");
+                form?.unregister("profilePicture");
+                await form?.trigger("profilePicture");
+                form?.unregister("coverImage");
+                await form?.trigger("coverImage");
                 setShowcaseUrl({ url: "", type: "" });
               }}
             >
@@ -91,23 +94,17 @@ const UploadthingButton: React.FC<{
             </Button>
           </div>
           {
-            isCircle ? <CustomCropper
-              form={form}
+            isCircle || isUploadedShowcaseEditing ? <CustomCropper
               showcase={formShowcaseUrl?.url ?? showcaseUrl.url}
               isCircle={isCircle}
-            /> :
-              isUploadedShowcaseEditing ?
-                <CustomCropper
-                  form={form}
-                  showcase={formShowcaseUrl?.url ?? showcaseUrl.url}
-                  isCircle={isCircle}
-                /> :
-                <div className="relative w-full h-[300px]">
-                  <Image
-                    priority
-                    className="w-full h-full object-contain"
-                    src={formShowcaseUrl?.url ?? showcaseUrl?.url} alt={formShowcaseUrl?.url ?? showcaseUrl?.url} fill />
-                </div>
+            />
+              :
+              <div className="relative w-full h-[300px]">
+                <Image
+                  priority
+                  className="w-full h-full object-contain"
+                  src={formShowcaseUrl?.url ?? showcaseUrl?.url} alt={formShowcaseUrl?.url ?? showcaseUrl?.url} fill />
+              </div>
           }
         </div>
       ) : (
