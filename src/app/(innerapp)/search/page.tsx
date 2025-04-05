@@ -9,7 +9,7 @@ export default async function SearchPage({
   const q = searchParams.q;
 
   return (
-    <main className="container mx-auto my-8 flex flex-col items-center gap-10 px-4 py-10">
+    <main className="container relative mx-auto my-8 flex flex-col items-center gap-10 px-4 py-10">
       <SearchBar />
       <TagsShowcases tagName={q} />
     </main>

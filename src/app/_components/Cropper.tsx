@@ -40,14 +40,14 @@ const CustomCropper: React.FC<{
   };
 
   return (
-    <div className="relative flex h-fit min-w-40 max-w-full flex-col items-center gap-4">
-      <div className="h-full w-full">
+    <div className="relative flex h-[300px] min-w-40 max-w-full flex-col items-center gap-4">
+      <div className="h-full w-full absolute inset-0">
         <Cropper
           ref={cropperRef}
           stencilComponent={isCircle ? CircleStencil : undefined}
           src={showcase}
           onChange={onChange}
-          boundaryClassName="max-h-[300px]"
+          boundaryClassName="h-full"
         />
       </div>
       <div className="flex items-center gap-2">

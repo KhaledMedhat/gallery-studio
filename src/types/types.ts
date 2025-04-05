@@ -12,10 +12,6 @@ export interface inputContent {
   commentId?: string;
   content: string;
 }
-export enum DrawerEnum {
-  ADD_FEEDBACK,
-  UPDATE_COMMENT,
-}
 
 export enum NotificationTypeEnum {
   COMMENT = "comment",

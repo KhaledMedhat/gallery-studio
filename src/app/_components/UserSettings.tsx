@@ -27,15 +27,16 @@ import { useFileStore } from "~/store"
 enum SettingTabs {
     Profile,
     Account,
-    Notifications,
+    // Notifications,
 }
 const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ currentUser }) => {
-    const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+    const [isPPDialogOpen, setIsPPDialogOpen] = useState<boolean>(false);
+    const [isPCDialogOpen, setIsPCDialogOpen] = useState<boolean>(false);
     const { croppedImage, isUploading, showcaseOriginalName, isUploadedShowcaseEditing, showcaseUrl } = useFileStore()
     const tabs = [
         { label: "Profile", value: SettingTabs.Profile },
         { label: "Account", value: SettingTabs.Account },
-        { label: "Notifications", value: SettingTabs.Notifications },
+        // { label: "Notifications", value: SettingTabs.Notifications },
     ]
     const router = useRouter()
     const [activeTab, setActiveTab] = useState<SettingTabs>(SettingTabs.Profile)
@@ -70,7 +71,8 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
     const { mutate: updateUserSettings, isPending: isUpdatingUserSettingsPending } = api.user.updateUserProfile.useMutation({
         onSuccess: () => {
             router.refresh();
-            setIsDialogOpen(false)
+            setIsPPDialogOpen(false)
+            setIsPCDialogOpen(false)
             toast({
                 title: "Updated Successfully.",
                 description: `Your profile has been updated successfully.`,
@@ -123,12 +125,12 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                 <h2 className="text-xl font-bold">
                     {activeTab === SettingTabs.Profile && "Profile"}
                     {activeTab === SettingTabs.Account && "Account"}
-                    {activeTab === SettingTabs.Notifications && "Notifications"}
+                    {/* {activeTab === SettingTabs.Notifications && "Notifications"} */}
                 </h2>
                 <p className="text-sm text-muted-foreground">
                     {activeTab === SettingTabs.Profile && "This is how others will see you on the site."}
                     {activeTab === SettingTabs.Account && "Update your account settings. Set your preferred language and timezone."}
-                    {activeTab === SettingTabs.Notifications && "Configure how you receive notifications."}
+                    {/* {activeTab === SettingTabs.Notifications && "Configure how you receive notifications."} */}
 
                 </p>
             </div>
@@ -280,7 +282,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                                             {getInitials(currentUser?.firstName ?? "", currentUser?.lastName ?? "")}
                                         </AvatarFallback>
                                     </Avatar>
-                                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                                    <Dialog open={isPPDialogOpen} onOpenChange={setIsPPDialogOpen}>
                                         <DialogTrigger asChild>
                                             <Button variant="outline" className="justify-start w-fit">
                                                 Change
@@ -327,7 +329,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                                             fill
                                             style={{ objectFit: "cover" }} />
                                     </div>
-                                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                                    <Dialog open={isPCDialogOpen} onOpenChange={setIsPCDialogOpen}>
                                         <DialogTrigger asChild>
                                             <Button variant="outline" className="justify-start w-fit">
                                                 Change
@@ -371,7 +373,7 @@ const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ curr
                     {activeTab === SettingTabs.Account ? null : <Button type="submit" disabled={isUpdatingUserSettingsPending}>
                         {isUpdatingUserSettingsPending && <LoaderCircle size={20} className="animate-spin" />}
                         {activeTab === SettingTabs.Profile && "Update Profile"}
-                        {activeTab === SettingTabs.Notifications && "Update Notifications"}
+                        {/* {activeTab === SettingTabs.Notifications && "Update Notifications"} */}
 
                     </Button>}
                 </form>

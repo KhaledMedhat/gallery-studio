@@ -154,7 +154,7 @@ export default async function SupportPage() {
                                     </CardContent>
                                     <CardFooter>
                                         <Button variant="outline" asChild>
-                                            <Link href="support/user-guide">Read Guide</Link>
+                                            <Link href="#">Read Guide</Link>
                                         </Button>
                                     </CardFooter>
                                 </Card>
@@ -168,7 +168,7 @@ export default async function SupportPage() {
                                     </CardContent>
                                     <CardFooter>
                                         <Button variant="outline" asChild>
-                                            <Link href="support/troubleshooting">View Solutions</Link>
+                                            <Link href="#">View Solutions</Link>
                                         </Button>
                                     </CardFooter>
                                 </Card>
@@ -182,7 +182,7 @@ export default async function SupportPage() {
                                     </CardContent>
                                     <CardFooter>
                                         <Button variant="outline" asChild>
-                                            <Link href="support/forum">Join Discussion</Link>
+                                            <Link href="#">Join Discussion</Link>
                                         </Button>
                                     </CardFooter>
                                 </Card>
@@ -196,7 +196,7 @@ export default async function SupportPage() {
                                     </CardContent>
                                     <CardFooter>
                                         <Button variant="outline" asChild>
-                                            <Link href="mailto:support@gallerystudio.com">Email Us</Link>
+                                            <Link href="#">Email Us</Link>
                                         </Button>
                                     </CardFooter>
                                 </Card>

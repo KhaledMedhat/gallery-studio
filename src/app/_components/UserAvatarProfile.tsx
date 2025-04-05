@@ -4,9 +4,6 @@ import {
   Settings,
   LogOut,
   LifeBuoy,
-  Mail,
-  MessageSquare,
-  UserPlus,
   GalleryHorizontalEnd,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -17,11 +14,7 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuPortal,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { deleteCookie } from "../actions";
@@ -78,27 +71,6 @@ const UserProfile: React.FC<{
             <Settings size={16} className="mr-2" />
             <Link href={`/${user.name}/settings`}>Settings</Link>
           </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger className="cursor-pointer">
-              <UserPlus size={16} className="mr-2" />
-              <span>Invite friend</span>
-            </DropdownMenuSubTrigger>
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent className="cursor-pointer">
-                <DropdownMenuItem className="cursor-pointer">
-                  <Mail size={16} className="mr-2" />
-                  <span>Email</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer">
-                  <MessageSquare size={16} className="mr-2" />
-                  <span>Share</span>
-                </DropdownMenuItem>
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="cursor-pointer">

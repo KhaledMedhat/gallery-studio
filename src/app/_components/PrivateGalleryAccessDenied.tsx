@@ -13,7 +13,7 @@ const PrivateGalleryAccessDenied: React.FC<{
 }> = ({ currentUser }) => {
   const router = useRouter();
   return (
-    <BlurFade delay={0.6} inView className="flex flex-col gap-80 md:gap-96">
+    <BlurFade delay={0.6} inView className="flex h-screen flex-col items-center justify-center  gap-80 md:gap-96">
       <Navbar currentUser={currentUser} />
       <div className="flex items-center justify-center">
         <div className="flex flex-col items-center gap-6">
