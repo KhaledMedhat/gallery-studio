@@ -21,7 +21,6 @@ const CustomCropper: React.FC<{
 }> = ({ showcase, isCircle }) => {
   const cropperRef = useRef<CropperRef>(null);
   const { setCroppedImage } = useFileStore();
-  console.log(showcase)
   const onChange = debounce((cropper: CropperRef) => {
     cropper
       .getCanvas()

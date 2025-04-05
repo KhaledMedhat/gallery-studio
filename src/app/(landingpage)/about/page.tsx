@@ -5,6 +5,7 @@ import { Badge } from '~/components/ui/badge'
 import { HoverEffect } from '~/components/ui/card-hover-effect'
 import React from 'react'
 import { AtSign, Lock, Bell, Camera, Cloud, Edit, Eye, FolderPlus, LogIn, Search, Share2, Smartphone, Trash2, User, Users, Zap } from 'lucide-react'
+import { NoiseBackground } from '~/constants/consts'
 
 export const metadata: Metadata = {
     title: 'About | Gallery Studio',
@@ -96,7 +97,7 @@ export default function AboutPage() {
     ]
 
     return (
-        <main className="mt-36">
+        <section className="mt-36">
             <section className="container mx-auto text-center mb-16">
                 <h1 className="text-4xl font-bold mb-6">About Gallery Studio</h1>
                 <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
@@ -121,7 +122,7 @@ export default function AboutPage() {
             <section className="h-[30rem] px-10 w-full dark:bg-black bg-white  dark:bg-grid-white/[0.1] bg-grid-black/[0.2] relative flex items-center justify-center">
                 {/* Radial gradient for the container to give a faded look */}
                 <div className="absolute pointer-events-none inset-0 flex items-center justify-center dark:bg-black bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_50%,black)]"></div>
-                <div className=" z-10 rounded-xl p-10 bg-[url(https://7a68czltvi.ufs.sh/f/E4wvAcFNKybhBnN01TxkOV1NRmqAZL90BT3uKPzQ42vo6I7y)] w-full">
+                <div className=" z-10 rounded-xl p-10 w-full" style={{backgroundImage: `url(${NoiseBackground})`}}>
                     <div className="flex flex-col items-center gap-4 w-full">
                         <h2 className="text-center text-balance mx-auto text-3xl md:text-5xl font-semibold tracking-[-0.015em] text-white">
                             Ready to Showcase Your Art?
@@ -138,15 +139,6 @@ export default function AboutPage() {
                 </div>
 
             </section>
-            {/* <section className="text-center bg-primary text-primary-foreground mt-16  p-8 rounded-lg">
-                <h2 className="text-3xl font-semibold mb-4">Ready to Showcase Your Art?</h2>
-                <p className="mb-6 max-w-2xl mx-auto">
-                    Join Gallery Studio today and experience the perfect platform for artists to share, connect, and grow.
-                </p>
-                <Button size="lg" variant="secondary">
-                    <Link href="/sign-up">Sign Up Now</Link>
-                </Button>
-            </section> */}
-        </main>
+        </section>
     )
 }

@@ -30,7 +30,6 @@ enum SettingTabs {
     Notifications,
 }
 const UserSettings: React.FC<{ currentUser: User | undefined | null }> = ({ currentUser }) => {
-    const utils = api.useUtils();
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
     const { croppedImage, isUploading, showcaseOriginalName, isUploadedShowcaseEditing, showcaseUrl } = useFileStore()
     const tabs = [

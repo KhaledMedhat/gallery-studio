@@ -3,6 +3,8 @@ export const darkModeLogo =
 export const whiteModeLogo =
   "https://7a68czltvi.ufs.sh/f/E4wvAcFNKybhLuUZIMC8bNYfEIldqKo3AT04JevVLD9a5C6x";
 
+export const NoiseBackground = 'https://7a68czltvi.ufs.sh/f/E4wvAcFNKybhBnN01TxkOV1NRmqAZL90BT3uKPzQ42vo6I7y'
+
 export const featuredArtworks = [
   {
     title: "Starry Night",
@@ -55,7 +57,6 @@ export const featuredArtworks = [
       "https://7a68czltvi.ufs.sh/f/E4wvAcFNKybhG2i1pwrGVzi0xCvKOh7RHgU2SuyZB91a4dno",
   },
 ];
-
 export const words = [
   { text: "Start" },
   { text: "Your" },

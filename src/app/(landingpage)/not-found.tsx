@@ -1,7 +1,7 @@
 import { headers } from 'next/headers'
-import NotFound from './_components/NotFound'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '~/server/auth'
+import NotFound from '../_components/NotFound'
 
 export default async function NotFoundPage() {
     const headersList = headers()

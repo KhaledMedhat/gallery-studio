@@ -12,7 +12,7 @@ export default async function LandingPageLayout({
     return (
         <main className="flex min-h-screen w-full flex-col">
             <Navbar currentUser={currentUser?.user} />
-            {children}
+                {children}
         </main>
     );
 }

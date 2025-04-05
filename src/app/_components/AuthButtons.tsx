@@ -1,6 +1,6 @@
 import { signIn, SessionProvider } from "next-auth/react";
 import { Button } from "~/components/ui/button";
-import Image from "next/legacy/image";
+import { IconBrandGoogleFilled, IconBrandX } from "@tabler/icons-react";
 
 const AuthButtons = () => {
   return (
@@ -12,7 +12,7 @@ const AuthButtons = () => {
             void (await signIn("google", { callbackUrl: "/showcases" }))
           }
         >
-          <Image src={"/google.svg"} alt="google_icon" width={25} height={25} />
+          <IconBrandGoogleFilled className="!w-8 !h-8" />
           Google
         </Button>
         <Button
@@ -21,12 +21,7 @@ const AuthButtons = () => {
             void (await signIn("twitter", { callbackUrl: "/showcases" }))
           }
         >
-          <Image
-            src={"/twitter.svg"}
-            alt="twitter_icon"
-            width={25}
-            height={25}
-          />
+          <IconBrandX stroke={2} className="!w-8 !h-8"  />
           X
         </Button>
       </div>

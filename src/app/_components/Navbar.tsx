@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
-import { Home, Info, Mail, LifeBuoy, Telescope } from "lucide-react";
+import { Home, Info, LifeBuoy, Telescope } from "lucide-react";
 import UserAvatarProfile from "./UserAvatarProfile";
 import ModeToggle from "./ModeToggle";
 import { type User } from "~/types/types";
@@ -13,7 +13,6 @@ const Navbar: React.FC<{ currentUser: User | null | undefined }> = ({
 }) => {
   const navItems = [
     { title: "Home", link: "/", icon: <Home size={20} />, shouldRender: true },
-    { title: "Contact", link: "/contact", icon: <Mail size={20} />, shouldRender: true },
     { title: "About", link: "/about", icon: <Info size={20} />, shouldRender: true },
     { title: "Support", link: "/support", icon: <LifeBuoy size={20} />, shouldRender: true },
     { title: "Showcases", link: "/showcases", icon: <Telescope size={20} />, shouldRender: currentUser },

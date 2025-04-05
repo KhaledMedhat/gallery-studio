@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 export default async function SupportPage() {
     return (
-        <div className="container mt-36 mx-auto px-4 py-8">
+        <section className="container mt-36 mx-auto px-4 py-8">
             <h1 className="text-4xl font-bold mb-8">Support</h1>
 
             <Tabs defaultValue="faq" className="mb-8">
@@ -116,7 +116,7 @@ export default async function SupportPage() {
                             <CardDescription>Get in touch with our support team for personalized assistance.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <form>
+                            <form id='contact-form'>
                                 <div className="grid w-full items-center gap-4">
                                     <div className="flex flex-col space-y-1.5">
                                         <Input id="name" placeholder="Your Name" />
@@ -131,8 +131,7 @@ export default async function SupportPage() {
                             </form>
                         </CardContent>
                         <CardFooter className="flex justify-between">
-                            <Button variant="outline">Cancel</Button>
-                            <Button>Send Message</Button>
+                            <Button type='submit' form='contact-form' variant="outline">Send</Button>
                         </CardFooter>
                     </Card>
                 </TabsContent>
@@ -206,6 +205,6 @@ export default async function SupportPage() {
                     </Card>
                 </TabsContent>
             </Tabs>
-        </div>
+        </section>
     )
 }

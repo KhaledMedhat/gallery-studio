@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { BookOpen, Camera, Users, Settings } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '~/components/ui/card'
 import { Button } from '~/components/ui/button'
@@ -12,9 +11,8 @@ export const metadata: Metadata = {
 
 export default function UserGuidePage() {
   return (
-    <div className="container mt-36 mx-auto px-4 py-8">
+    <section className="container mt-36 mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8">Gallery Studio User Guide</h1>
-
       <Tabs defaultValue="getting-started" className="mb-8">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="getting-started">Getting Started</TabsTrigger>
@@ -116,6 +114,6 @@ export default function UserGuidePage() {
         </TabsContent>
       </Tabs>
 
-    </div>
+    </section>
   )
 }
